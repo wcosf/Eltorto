@@ -1,0 +1,6 @@
+@Eltorto_HostAddress = http://localhost:5182
+
+GET {{Eltorto_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
