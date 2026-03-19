@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Eltorto.Infrastructure": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: eltorto_pg
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: eltorto_pg
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: postgres -c listen_addresses='*'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eltorto_network
+
+  api:
+    build:
+      context: ./backend/Eltorto  
+      dockerfile: Eltorto.API/Dockerfile
+    container_name: eltorto_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=eltorto_pg;Username=postgres;Password=password
+      - ConnectionStrings__MySql=Server=host.docker.internal;Port=3306;Database=eltorto;User=root;Password=1234;
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - eltorto_network
+
+networks:
+  eltorto_network:
+    driver: bridge
+
+volumes:
+  pgdata:
