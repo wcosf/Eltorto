@@ -1,10 +1,12 @@
-﻿using Eltorto.Infrastructure.Data;
+﻿using Eltorto.Application.Interfaces;
+using Eltorto.Application.Interfaces.Repositories;
+using Eltorto.Infrastructure.Data;
 using Eltorto.Infrastructure.DataMigration;
+using Eltorto.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Configuration;
 
 namespace Eltorto.Infrastructure;
 
@@ -23,6 +25,7 @@ public static class DependencyInjection
                 npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                 npgsqlOptions.EnableRetryOnFailure(3);
                 npgsqlOptions.CommandTimeout(30);
+                npgsqlOptions.SetPostgresVersion(16, 0);
             });
 
 #if DEBUG
@@ -32,33 +35,35 @@ public static class DependencyInjection
 #endif
         });
 
+        // Регистрация репозиториев
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ICakeRepository, CakeRepository>();
+        services.AddScoped<IFillingRepository, FillingRepository>();
+        services.AddScoped<ITestimonialRepository, TestimonialRepository>();
+        services.AddScoped<IPageRepository, PageRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ISliderRepository, SliderRepository>();
+
+        // Регистрация UnitOfWork
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         // Регистрация миграций данных
         services.AddSingleton<MigrationRunner>();
-
-        // Регистрация репозиториев (если будете использовать)
-        // services.AddScoped<ICategoryRepository, CategoryRepository>();
-        // services.AddScoped<ICakeRepository, CakeRepository>();
 
         return services;
     }
 
-    // Метод для применения миграций при старте
     public static async Task ApplyMigrationsAsync(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        // Применяем EF Core миграции (структура БД)
         await dbContext.Database.MigrateAsync();
     }
 
-    // Метод для запуска миграции данных
     public static async Task MigrateDataAsync(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var migrationRunner = scope.ServiceProvider.GetRequiredService<MigrationRunner>();
-
-        // Запускаем миграцию данных из MySQL
         await migrationRunner.RunMigrationsAsync();
     }
 }

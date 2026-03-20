@@ -11,6 +11,7 @@ WORKDIR /src
 COPY ["Eltorto.API/Eltorto.API.csproj", "Eltorto.API/"]
 COPY ["Eltorto.Domain/Eltorto.Domain.csproj", "Eltorto.Domain/"]
 COPY ["Eltorto.Infrastructure/Eltorto.Infrastructure.csproj", "Eltorto.Infrastructure/"]
+COPY ["Eltorto.Application/Eltorto.Application.csproj", "Eltorto.Application/"]
 RUN dotnet restore "Eltorto.API/Eltorto.API.csproj"
 
 COPY . .
