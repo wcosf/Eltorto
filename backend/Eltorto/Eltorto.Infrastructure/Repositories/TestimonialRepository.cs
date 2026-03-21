@@ -2,6 +2,7 @@
 using Eltorto.Domain.Entities;
 using Eltorto.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Eltorto.Infrastructure.Repositories;
 
@@ -32,6 +33,15 @@ public class TestimonialRepository : Repository<Testimonial>, ITestimonialReposi
     {
         return await _dbSet
             .Where(t => t.IsApproved)
+            .OrderByDescending(t => t.Date)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Testimonial>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
             .OrderByDescending(t => t.Date)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
