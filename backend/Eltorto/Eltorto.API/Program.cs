@@ -1,6 +1,12 @@
+using AutoMapper;
+using Eltorto.Application.Interfaces.Services;
+using Eltorto.Application.Mapping;
+using Eltorto.Application.Services;
 using Eltorto.Infrastructure;
 using Eltorto.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +15,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
+
 // Add Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICakeService, CakeService>();
+builder.Services.AddScoped<IFillingService, FillingService>();
+builder.Services.AddScoped<ITestimonialService, TestimonialService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IPageService, PageService>();
+builder.Services.AddScoped<ISliderService, SliderService>();
+builder.Services.AddScoped<IContactSettingsService, ContactSettingsService>();
 
 var app = builder.Build();
 
