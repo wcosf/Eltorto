@@ -1,6 +1,8 @@
 ﻿using Eltorto.Application.Interfaces;
 using Eltorto.Application.Interfaces.Repositories;
 using Eltorto.Infrastructure.Data;
+using Eltorto.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Eltorto.Infrastructure.Repositories;
@@ -18,25 +20,19 @@ public class UnitOfWork : IUnitOfWork
     public IPageRepository Pages { get; }
     public IOrderRepository Orders { get; }
     public ISliderRepository Sliders { get; }
+    public IContentBlockRepository ContentBlocks { get; }
 
-    public UnitOfWork(
-        AppDbContext context,
-        ICategoryRepository categories,
-        ICakeRepository cakes,
-        IFillingRepository fillings,
-        ITestimonialRepository testimonials,
-        IPageRepository pages,
-        IOrderRepository orders,
-        ISliderRepository sliders)
+    public UnitOfWork(AppDbContext context)
     {
         _context = context;
-        Categories = categories;
-        Cakes = cakes;
-        Fillings = fillings;
-        Testimonials = testimonials;
-        Pages = pages;
-        Orders = orders;
-        Sliders = sliders;
+        Categories = new CategoryRepository(context);
+        Cakes = new CakeRepository(context);
+        Fillings = new FillingRepository(context);
+        Testimonials = new TestimonialRepository(context);
+        Pages = new PageRepository(context);
+        Orders = new OrderRepository(context);
+        Sliders = new SliderRepository(context);
+        ContentBlocks = new ContentBlockRepository(context);
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -69,6 +65,11 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    public DbSet<T> Set<T>() where T : class
+    {
+        return _context.Set<T>();
+    }
+
     public void Dispose()
     {
         Dispose(true);
@@ -77,14 +78,11 @@ public class UnitOfWork : IUnitOfWork
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (!_disposed && disposing)
         {
-            if (disposing)
-            {
-                _transaction?.Dispose();
-                _context.Dispose();
-            }
-            _disposed = true;
+            _transaction?.Dispose();
+            _context.Dispose();
         }
+        _disposed = true;
     }
 }

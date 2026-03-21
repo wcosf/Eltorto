@@ -3,6 +3,8 @@ using Eltorto.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
+namespace Eltorto.Infrastructure.Repositories;
+
 public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly AppDbContext _context;
@@ -35,16 +37,16 @@ public class Repository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
-    public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
     public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
@@ -55,5 +57,10 @@ public class Repository<T> : IRepository<T> where T : class
     public virtual async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet.CountAsync(cancellationToken);
+    }
+
+    public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.CountAsync(predicate, cancellationToken);
     }
 }
