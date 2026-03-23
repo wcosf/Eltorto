@@ -16,13 +16,12 @@ RUN npm run build -- --configuration=production
 # Stage 2: Serve with nginx
 FROM nginx:alpine
 
-# Устанавливаем bash для проверок
-RUN apk add --no-cache bash
-
-# Копируем собранное приложение
+# Копируем собранное приложение из папки browser
 COPY --from=builder /app/dist/frontend/browser /usr/share/nginx/html
 
-# Копируем конфигурацию nginx
+# Проверяем что скопировалось
+RUN echo "Files in /usr/share/nginx/html:" && ls -la /usr/share/nginx/html/
+
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80

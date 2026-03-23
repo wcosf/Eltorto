@@ -1,0 +1,13 @@
+@use '../../../styles.scss' as *;
+
+footer {
+  margin-top: auto;
+
+  hr {
+    opacity: 0.3;
+  }
+
+  i {
+    color: $brown-medium;
+  }
+}

@@ -1,0 +1,28 @@
+@use '../../../styles.scss' as *;
+
+.navbar {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+
+  .navbar-brand {
+    color: $brown-dark;
+
+    &:hover {
+      color: $brown-medium;
+    }
+  }
+
+  .nav-link {
+    color: $text-light;
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: $brown-dark;
+    }
+
+    &.active {
+      color: $brown-dark;
+      font-weight: 600;
+    }
+  }
+}
