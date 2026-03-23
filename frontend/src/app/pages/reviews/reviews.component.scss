@@ -1,0 +1,29 @@
+@use '../../../styles.scss' as *;
+
+.reviews-page {
+  min-height: 100vh;
+
+  .review-form {
+    max-width: 600px;
+    margin: 0 auto;
+
+    .form-control:focus {
+      border-color: $brown-medium;
+      box-shadow: 0 0 0 0.2rem rgba(185, 154, 122, 0.25);
+    }
+  }
+
+  .review-card {
+    transition: transform 0.3s ease;
+    height: 100%;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+
+    .quote-icon {
+      font-family: serif;
+      opacity: 0.5;
+    }
+  }
+}

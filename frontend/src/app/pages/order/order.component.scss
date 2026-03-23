@@ -1,0 +1,19 @@
+@use '../../../styles.scss' as *;
+
+.order-page {
+  min-height: 100vh;
+
+  form {
+    .form-control, .form-select {
+      &:focus {
+        border-color: $brown-medium;
+        box-shadow: 0 0 0 0.2rem rgba(185, 154, 122, 0.25);
+      }
+    }
+
+    .form-check-input:checked {
+      background-color: $brown-medium;
+      border-color: $brown-medium;
+    }
+  }
+}

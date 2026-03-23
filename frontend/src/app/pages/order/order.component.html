@@ -1,0 +1,168 @@
+<div class="order-page py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h1 class="text-center mb-4" style="color: #8B6B4D;">Заказать торт</h1>
+        <p class="text-center mb-5" style="color: #7F6B58;">
+          Заполните форму, и мы свяжемся с вами для уточнения деталей
+        </p>
+
+        <div *ngIf="successMessage" class="alert alert-success text-center mb-4">
+          {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger text-center mb-4">
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="onSubmit()" *ngIf="!submitted" style="background-color: #FFF5EB;" class="p-4 rounded shadow-sm">
+          <!-- Выбор типа заказа -->
+          <div class="mb-4">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="existingCake"
+                [(ngModel)]="customOrder"
+                [value]="false"
+                name="orderType">
+              <label class="form-check-label" for="existingCake" style="color: #4A3B2C;">
+                Выбрать из каталога
+              </label>
+            </div>
+            <div class="form-check mt-2">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="customCake"
+                [(ngModel)]="customOrder"
+                [value]="true"
+                name="orderType">
+              <label class="form-check-label" for="customCake" style="color: #4A3B2C;">
+                Индивидуальный дизайн
+              </label>
+            </div>
+          </div>
+
+          <!-- Выбор торта из каталога -->
+          <div *ngIf="!customOrder" class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Выберите торт</label>
+            <select class="form-select" [(ngModel)]="selectedCakeId" name="cakeId" style="border-color: #D9C5B0;">
+              <option [value]="undefined">Выберите торт</option>
+              <option *ngFor="let cake of cakes" [value]="cake.id">{{ cake.name }}</option>
+            </select>
+          </div>
+
+          <!-- Описание индивидуального торта -->
+          <div *ngIf="customOrder" class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Ваши пожелания по дизайну</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="orderData.customCakeDescription"
+              name="customCakeDescription"
+              placeholder="Опишите желаемый дизайн, цвета, тематику"
+              style="border-color: #D9C5B0;"></textarea>
+          </div>
+
+          <!-- Выбор начинки -->
+          <div class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Начинка</label>
+            <select class="form-select" [(ngModel)]="selectedFillingId" name="fillingId" style="border-color: #D9C5B0;">
+              <option [value]="undefined">Выберите начинку</option>
+              <option *ngFor="let filling of fillings" [value]="filling.id">{{ filling.name }}</option>
+            </select>
+          </div>
+
+          <!-- Вес -->
+          <div class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Вес торта (кг)</label>
+            <input
+              type="number"
+              class="form-control"
+              step="0.5"
+              [(ngModel)]="orderData.weight"
+              name="weight"
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <!-- Дата доставки -->
+          <div class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Желаемая дата доставки</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="orderData.deliveryDate"
+              name="deliveryDate"
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <!-- Адрес доставки -->
+          <div class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Адрес доставки</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="orderData.deliveryAddress"
+              name="deliveryAddress"
+              placeholder="Укажите адрес для доставки"
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <!-- Контактные данные -->
+          <div class="mb-3">
+            <label class="form-label" style="color: #4A3B2C;">Ваше имя *</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="orderData.customerName"
+              name="customerName"
+              required
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="color: #4A3B2C;">Телефон *</label>
+            <input
+              type="tel"
+              class="form-control"
+              [(ngModel)]="orderData.customerPhone"
+              name="customerPhone"
+              required
+              placeholder="+7 (XXX) XXX-XX-XX"
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="color: #4A3B2C;">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="orderData.customerEmail"
+              name="customerEmail"
+              style="border-color: #D9C5B0;">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label" style="color: #4A3B2C;">Комментарий</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="orderData.comment"
+              name="comment"
+              placeholder="Дополнительные пожелания"
+              style="border-color: #D9C5B0;"></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="btn w-100 py-2"
+            [disabled]="isLoading"
+            style="background-color: #B89A7A; color: white;">
+            {{ isLoading ? 'Отправка...' : 'Отправить заказ' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

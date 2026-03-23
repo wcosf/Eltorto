@@ -1,0 +1,119 @@
+@use '../../../styles.scss' as *;
+
+.portfolio-page {
+  min-height: 100vh;
+
+  .filters {
+    .btn {
+      transition: all 0.3s ease;
+      border: 1px solid $brown-light;
+
+      &:hover, &.active {
+        background-color: $brown-medium !important;
+        color: white !important;
+        border-color: $brown-medium;
+      }
+    }
+  }
+
+  .portfolio-card {
+    .image-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px 8px 0 0;
+
+      img {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(139, 107, 77, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+
+        .btn {
+          transform: translateY(20px);
+          transition: transform 0.3s ease;
+        }
+      }
+
+      &:hover {
+        img {
+          transform: scale(1.05);
+        }
+
+        .overlay {
+          opacity: 1;
+
+          .btn {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+  }
+}
+
+.portfolio-card {
+  .image-wrapper {
+    position: relative;
+    overflow: hidden;
+    background-color: #F5E6E8;
+    min-height: 250px;
+
+    img {
+      height: 250px;
+      width: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pagination-wrapper {
+  .pagination {
+    .page-link {
+      color: #8B6B4D;
+      background-color: white;
+      border-color: #D9C5B0;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #F9F3E7;
+        color: #B89A7A;
+      }
+
+      &.active {
+        background-color: #B89A7A;
+        border-color: #B89A7A;
+        color: white;
+      }
+    }
+
+    .disabled .page-link {
+      color: #D9C5B0;
+      cursor: not-allowed;
+    }
+  }
+}
