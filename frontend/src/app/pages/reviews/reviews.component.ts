@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, Testimonial } from '../../services/api.service';
+import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
 
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SanitizeHtmlPipe],
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.scss']
 })
@@ -49,10 +50,16 @@ export class ReviewsComponent implements OnInit {
       return;
     }
 
+    const cleanedText = this.sanitizeInput(this.newReview.text);
+
     this.isSubmitting = true;
     this.error = null;
 
-    this.apiService.createTestimonial(this.newReview).subscribe({
+    this.apiService.createTestimonial({
+      author: this.newReview.author,
+      email: this.newReview.email,
+      text: cleanedText
+    }).subscribe({
       next: () => {
         this.successMessage = 'Спасибо за ваш отзыв! Он будет опубликован после проверки.';
         this.newReview = { author: '', email: '', text: '' };
@@ -68,5 +75,18 @@ export class ReviewsComponent implements OnInit {
         this.isSubmitting = false;
       }
     });
+  }
+
+  private sanitizeInput(text: string): string {
+    let cleaned = text
+      .replace(/\n/g, '<br>')
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/onclick=/gi, '')
+      .replace(/onload=/gi, '')
+      .replace(/onerror=/gi, '');
+
+    return cleaned;
   }
 }

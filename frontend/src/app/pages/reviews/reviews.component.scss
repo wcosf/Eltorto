@@ -11,11 +11,17 @@
       border-color: $brown-medium;
       box-shadow: 0 0 0 0.2rem rgba(185, 154, 122, 0.25);
     }
+
+    textarea {
+      resize: vertical;
+    }
   }
 
   .review-card {
     transition: transform 0.3s ease;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 
     &:hover {
       transform: translateY(-3px);
@@ -24,6 +30,71 @@
     .quote-icon {
       font-family: serif;
       opacity: 0.5;
+    }
+
+    .review-text {
+      color: $text-dark;
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      flex: 1;
+
+      p {
+        margin-bottom: 0.75rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      br {
+        display: block;
+        margin: 0.25rem 0;
+      }
+
+      strong, b {
+        font-weight: 600;
+        color: $brown-dark;
+      }
+
+      em, i {
+        font-style: italic;
+      }
+
+      a {
+        color: $brown-medium;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .review-response {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba($brown-light, 0.3);
+      font-size: 0.9rem;
+
+      strong {
+        color: $brown-dark;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .response-text {
+        color: $text-light;
+        line-height: 1.6;
+
+        p {
+          margin-bottom: 0.5rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
     }
   }
 }

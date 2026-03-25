@@ -1,16 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService, Cake, Filling, Testimonial } from '../../services/api.service';
+import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SanitizeHtmlPipe], // Добавляем пайп
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   featuredCakes: Cake[] = [];
   fillings: Filling[] = [];
   testimonials: Testimonial[] = [];
@@ -29,8 +30,31 @@ export class HomeComponent implements OnInit {
     this.loadData();
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => this.checkVisibility(), 100);
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(): void {
+    this.checkVisibility();
+  }
+
+  checkVisibility(): void {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    const windowHeight = window.innerHeight;
+    const triggerPoint = 100;
+
+    elements.forEach(element => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top < windowHeight - triggerPoint) {
+        element.classList.add('visible');
+      }
+    });
+  }
+
   loadData(): void {
     this.isLoading = true;
+    this.error = null;
 
     Promise.all([
       this.apiService.getFeaturedCakes().toPromise(),
@@ -41,6 +65,7 @@ export class HomeComponent implements OnInit {
       this.fillings = fillings || [];
       this.testimonials = testimonials || [];
       this.isLoading = false;
+      setTimeout(() => this.checkVisibility(), 100);
     }).catch(error => {
       console.error('Error loading data:', error);
       this.error = 'Не удалось загрузить данные';
@@ -64,10 +89,6 @@ export class HomeComponent implements OnInit {
   }
 
   handleImageError(event: any): void {
-    if (event.target.src === this.imagePaths.placeholder) {
-      return;
-    }
     event.target.src = this.imagePaths.placeholder;
-    event.target.onerror = null;
   }
 }

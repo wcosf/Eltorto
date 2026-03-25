@@ -61,6 +61,15 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+export interface ContactSettings {
+  id: number;
+  phone: string;
+  additionalPhone?: string;
+  email: string;
+  address?: string;
+  mapUrl?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -93,12 +102,12 @@ export class ApiService {
   }
 
   // Cakes by category with pagination
-  getCakesByCategory(categorySlug: string, page: number = 1, pageSize: number = 12): Observable<PaginatedResponse<Cake>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
+  getCakesByCategory(categorySlug: string, page: number = 1, pageSize: number = 12): Observable<Cake[]> {
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('pageSize', pageSize.toString());
 
-    return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/by-category/${categorySlug}`, { params });
+    return this.http.get<Cake[]>(`${this.apiUrl}/cakes/by-category/${categorySlug}`, { params });
   }
 
   // Fillings

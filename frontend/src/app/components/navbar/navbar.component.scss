@@ -1,28 +1,133 @@
 @use '../../../styles.scss' as *;
 
 .navbar {
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  padding: 1rem 0;
+  transition: all 0.3s ease;
+  background-color: rgba($cream, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
 
-  .navbar-brand {
-    color: $brown-dark;
+  &.navbar-scrolled {
+    padding: 0.75rem 0;
+    background-color: rgba($cream, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  }
 
-    &:hover {
-      color: $brown-medium;
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    img {
+      transition: transform 0.3s ease;
+    }
+
+    .brand-name {
+      font-family: $font-serif;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: $brown-dark;
+      letter-spacing: -0.02em;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  .navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%238B6B4D' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
   }
 
   .nav-link {
+    position: relative;
     color: $text-light;
     font-weight: 500;
+    padding: 0.5rem 1rem;
     transition: color 0.3s ease;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, $pink, $brown-medium);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
 
     &:hover {
       color: $brown-dark;
+
+      &::after {
+        width: 70%;
+      }
     }
 
     &.active {
       color: $brown-dark;
       font-weight: 600;
+
+      &::after {
+        width: 70%;
+      }
+    }
+  }
+
+  .btn-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    background: linear-gradient(135deg, $pink, $pink-soft);
+    color: $brown-dark;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(185, 154, 122, 0.2);
+      color: $brown-deep;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar {
+    .navbar-collapse {
+      background: $cream;
+      padding: 1rem;
+      border-radius: 16px;
+      margin-top: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-link::after {
+      display: none;
     }
   }
 }

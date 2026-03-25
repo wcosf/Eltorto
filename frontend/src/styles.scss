@@ -1,9 +1,217 @@
-$cream: #FFF5EB;      // кремовый фон
-$beige-light: #F9F3E7; // светлый бежевый
-$rose: #F5E6E8;       // нежно-розовый
-$brown-light: #D9C5B0; // светлый коричневый
-$brown-medium: #B89A7A; // средний коричневый
-$brown-dark: #8B6B4D;  // темный коричневый
-$pink: #F9C6C9;       // нежно-розовый акцент
-$text-dark: #4A3B2C;   // темный текст
-$text-light: #7F6B58;  // светлый текст
+// ===== COLORS =====
+$cream: #FFF5EB;
+$beige-light: #F9F3E7;
+$rose: #F5E6E8;
+$rose-light: #FDF4F5;
+$brown-light: #D9C5B0;
+$brown-medium: #B89A7A;
+$brown-dark: #8B6B4D;
+$brown-deep: #6B4E3A;
+$pink: #F9C6C9;
+$pink-soft: #FFE4E6;
+$text-dark: #4A3B2C;
+$text-light: #7F6B58;
+
+// ===== TYPOGRAPHY =====
+$font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-serif: 'Cormorant Garamond', Georgia, serif;
+
+// ===== ANIMATIONS =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+// ===== GLOBAL STYLES =====
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  color: $text-dark;
+  background-color: $cream;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: $brown-dark;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, $pink, $brown-medium);
+    border-radius: 3px;
+  }
+}
+
+// Utility classes
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Glass morphism effect
+.glass-card {
+  background: rgba(255, 245, 235, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(185, 154, 122, 0.2);
+  border-radius: 24px;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover i {
+    transform: translateX(4px);
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $brown-medium, $brown-dark);
+  border: none;
+  color: white;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($brown-dark, 0.3);
+    color: white;
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid $brown-medium;
+  color: $brown-dark;
+
+  &:hover {
+    background: $brown-medium;
+    color: white;
+    transform: translateY(-2px);
+  }
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+// Переопределение Bootstrap стилей
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.row > * {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.col-md-4, .col-md-6, .col-lg-3, .col-lg-4 {
+  margin-bottom: 2rem !important;
+}
+
+.cake-card, .filling-preview-card, .testimonial-card {
+  margin-bottom: 0 !important;
+  height: 100%;
+}
+
+.g-4 {
+  --bs-gutter-x: 2rem !important;
+  --bs-gutter-y: 2rem !important;
+}
+
+@media (min-width: 768px) {
+  .g-4 {
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .g-4 {
+    --bs-gutter-x: 2rem !important;
+    --bs-gutter-y: 2rem !important;
+  }
+}
+
+.main-content {
+  padding-top: 76px;
+
+  @media (max-width: 768px) {
+    padding-top: 68px;
+  }
+}

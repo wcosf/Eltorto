@@ -1,93 +1,116 @@
 <div class="portfolio-page">
-  <div class="container py-5">
-    <h1 class="text-center mb-4" style="color: #8B6B4D;">Наше портфолио</h1>
-    <p class="text-center mb-5" style="color: #7F6B58;">
-      {{ totalItems > 0 ? 'Всего ' + totalItems + ' тортов' : 'Каждый торт - уникальное произведение искусства' }}
-    </p>
-
-    <!-- Фильтры -->
-    <div class="filters text-center mb-5">
-      <button
-        class="btn me-2 mb-2"
-        [class.active]="selectedCategory === 'all'"
-        (click)="filterByCategory('all')">
-        Все торты
-      </button>
-      <button
-        *ngFor="let category of categories"
-        class="btn me-2 mb-2"
-        [class.active]="selectedCategory === category.slug"
-        (click)="filterByCategory(category.slug)">
-        {{ category.name }}
-      </button>
-    </div>
-
-    <!-- Загрузка -->
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border" style="color: #B89A7A;" role="status">
-        <span class="visually-hidden">Загрузка...</span>
+  <!-- Hero секция -->
+  <section class="portfolio-hero">
+    <div class="portfolio-hero-bg"></div>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center portfolio-hero-content animate-on-scroll">
+          <h1 class="portfolio-hero-title">
+            Наше портфолио
+          </h1>
+          <p class="portfolio-hero-description">
+            Вдохновляйтесь нашими работами! Каждый торт — это уникальное произведение искусства,
+            созданное с любовью и вниманием к деталям.
+          </p>
+        </div>
       </div>
-      <p class="mt-3" style="color: #7F6B58;">Загрузка фотографий...</p>
     </div>
-
-    <!-- Ошибка -->
-    <div *ngIf="error" class="alert alert-warning text-center">
-      {{ error }}
+    <div class="portfolio-wave">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path fill="#FFF5EB" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
     </div>
+  </section>
 
-    <!-- Галерея -->
-    <div class="row" *ngIf="!isLoading && !error">
-      <div class="col-md-4 col-sm-6 mb-4" *ngFor="let cake of cakes; trackBy: trackById">
-        <div class="portfolio-card">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="image-wrapper">
+  <!-- Фильтры по категориям -->
+  <div class="filters-section">
+    <div class="container">
+      <div class="filters-wrapper">
+        <div class="filters-scroll">
+          <button
+            class="filter-btn"
+            [class.active]="selectedCategory === 'all'"
+            (click)="resetFilter()">
+            <i class="bi bi-grid-3x3-gap-fill me-1"></i>
+            Все торты
+          </button>
+          <button
+            *ngFor="let category of categories"
+            class="filter-btn"
+            [class.active]="selectedCategory === category.slug"
+            (click)="filterByCategory(category.slug, category.name)">
+            <i class="bi bi-tag-fill me-1"></i>
+            {{ category.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Галерея -->
+  <section class="portfolio-grid-section">
+    <div class="container">
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="cake-loader"></div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-warning text-center">
+        {{ error }}
+      </div>
+
+      <div class="row g-4" *ngIf="!isLoading && !error">
+        <div class="col-md-6 col-lg-4" *ngFor="let cake of cakes; trackBy: trackById; let i = index">
+          <div class="portfolio-card animate-on-scroll" [style.animation-delay]="i * 0.05 + 's'">
+            <div class="portfolio-card-image">
               <img
                 [src]="getThumbnailUrl(cake.imageUrl, cake.thumbnailUrl)"
                 [alt]="cake.name"
-                class="card-img-top"
                 loading="lazy"
                 (error)="handleImageError($event)">
-              <div class="overlay">
-                <button class="btn btn-light btn-sm" (click)="openModal(cake)">
-                  Быстрый просмотр
-                </button>
-              </div>
             </div>
-            <div class="card-body text-center">
-              <h5 class="card-title" style="color: #8B6B4D;">{{ cake.name }}</h5>
-              <p class="card-text small" style="color: #7F6B58;">{{ cake.description || 'Торт ручной работы' }}</p>
-              <button class="btn btn-sm" style="background-color: #F9C6C9; color: #8B6B4D;" routerLink="/order">
-                Заказать
-              </button>
+            <div class="portfolio-card-content">
+              <h3 class="portfolio-card-title">{{ cake.name }}</h3>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Пагинация -->
-    <div *ngIf="!isLoading && totalPages > 1" class="pagination-wrapper text-center mt-5">
-      <nav aria-label="Пагинация">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="changePage(currentPage - 1)">Предыдущая</button>
-          </li>
-          <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index">
-            <button
-              class="page-link"
-              [class.active]="currentPage === i + 1"
-              (click)="changePage(i + 1)">
-              {{ i + 1 }}
-            </button>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" (click)="changePage(currentPage + 1)">Следующая</button>
-          </li>
-        </ul>
-      </nav>
-      <p class="mt-2 small" style="color: #7F6B58;">
-        Показано {{ cakes.length }} из {{ totalItems }} тортов
-      </p>
+      <!-- Пустое состояние -->
+      <div *ngIf="!isLoading && !error && cakes.length === 0" class="text-center py-5">
+        <i class="bi bi-emoji-frown" style="font-size: 3rem; color: #D9C5B0;"></i>
+        <p class="mt-3" style="color: #7F6B58;">В этой категории пока нет тортов</p>
+      </div>
+
+      <!-- Пагинация -->
+      <div *ngIf="!isLoading && totalPages > 1" class="pagination-wrapper text-center mt-5">
+        <nav aria-label="Пагинация">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="changePage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+                Предыдущая
+              </button>
+            </li>
+            <li class="page-item" *ngFor="let page of getPageNumbers()">
+              <button
+                class="page-link"
+                [class.active]="currentPage === page"
+                (click)="changePage(page)">
+                {{ page }}
+              </button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="changePage(currentPage + 1)">
+                Следующая
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+        <p class="mt-2 small" style="color: #7F6B58;">
+          Показано {{ cakes.length }} из {{ totalItems }} тортов
+        </p>
+      </div>
     </div>
-  </div>
+  </section>
 </div>
