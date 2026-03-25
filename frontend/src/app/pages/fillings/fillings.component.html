@@ -1,0 +1,59 @@
+<div class="fillings-page">
+  <!-- Hero секция -->
+  <section class="fillings-hero">
+    <div class="fillings-hero-bg"></div>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center fillings-hero-content animate-on-scroll">
+          <h1 class="fillings-hero-title">
+            Наши начинки
+          </h1>
+          <p class="fillings-hero-description">
+            Откройте для себя мир вкусов! Мы используем только натуральные ингредиенты
+            и создаем уникальные сочетания для ваших тортов.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="fillings-wave">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path fill="#FFF5EB" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Начинки сетка -->
+  <section class="fillings-grid-section">
+    <div class="container">
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="cake-loader"></div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-warning text-center">
+        {{ error }}
+      </div>
+
+      <div class="row g-4" *ngIf="!isLoading && !error">
+        <div class="col-md-6 col-lg-4" *ngFor="let filling of fillings; let i = index">
+          <div class="filling-card animate-on-scroll" [style.animation-delay]="i * 0.05 + 's'">
+            <div class="filling-card-image">
+              <img
+                [src]="getFillingImageUrl(filling.imageUrl)"
+                [alt]="filling.name"
+                loading="lazy"
+                (error)="handleImageError($event)">
+              <div class="filling-badge" *ngIf="filling.hasCrossSection">
+                <i class="bi bi-star-fill"></i>
+                <span>Хит</span>
+              </div>
+            </div>
+            <div class="filling-card-content">
+              <h3 class="filling-card-title">{{ filling.name }}</h3>
+              <p class="filling-card-description">{{ filling.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

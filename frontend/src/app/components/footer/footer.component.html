@@ -1,36 +1,123 @@
-<footer style="background-color: #F9F3E7; color: #4A3B2C;">
-  <div class="container py-5">
-    <div class="row">
-      <div class="col-md-4 mb-4 mb-md-0">
-        <h5 class="mb-3" style="color: #8B6B4D;">Eltorto</h5>
-        <p class="small">Домашняя кондитерская с любовью к каждому торту. Натуральные ингредиенты, авторский дизайн и неповторимый вкус.</p>
-      </div>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="row g-4">
+        <!-- О компании -->
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand">
+            <img src="images/logo/logo-icon.png" alt="Eltorto" height="40" onerror="this.src='images/placeholder-cake.jpg'">
+            <h5 class="footer-title">Eltorto</h5>
+          </div>
+          <p class="footer-description">
+            Домашняя кондитерская, где каждый торт создается с любовью,
+            вниманием к деталям и использованием только натуральных ингредиентов.
+          </p>
+        </div>
 
-      <div class="col-md-4 mb-4 mb-md-0">
-        <h5 class="mb-3" style="color: #8B6B4D;">Контакты</h5>
-        <p class="small mb-2">
-          <i class="bi bi-telephone me-2"></i> +7 (999) 123-45-67
-        </p>
-        <p class="small mb-2">
-          <i class="bi bi-envelope me-2"></i> info&#64;eltorto.ru
-        </p>
-        <p class="small">
-          <i class="bi bi-geo-alt me-2"></i> г. Москва, ул. Примерная, д. 123
-        </p>
-      </div>
+        <!-- Контакты -->
+        <div class="col-lg-4 col-md-6">
+          <h5 class="footer-heading">Контакты</h5>
 
-      <div class="col-md-4">
-        <h5 class="mb-3" style="color: #8B6B4D;">Режим работы</h5>
-        <p class="small mb-1">Пн-Пт: 10:00 - 20:00</p>
-        <p class="small mb-1">Сб: 11:00 - 18:00</p>
-        <p class="small">Вс: выходной</p>
+          <div *ngIf="isLoading" class="loading-contacts">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+          </div>
+
+          <div *ngIf="error" class="error-message">
+            {{ error }}
+          </div>
+
+          <ul class="footer-links" *ngIf="!isLoading && !error && contacts">
+            <!-- Основной телефон -->
+            <li *ngIf="contacts.phone">
+              <a [href]="getPhoneLink(contacts.phone)">
+                <i class="bi bi-telephone-fill"></i>
+                {{ contacts.phone }}
+              </a>
+            </li>
+            <!-- Дополнительный телефон -->
+            <li *ngIf="contacts.additionalPhone">
+              <a [href]="getPhoneLink(contacts.additionalPhone)">
+                <i class="bi bi-phone-fill"></i>
+                {{ contacts.additionalPhone }}
+              </a>
+            </li>
+            <!-- Email -->
+            <li *ngIf="contacts.email">
+              <a [href]="'mailto:' + contacts.email">
+                <i class="bi bi-envelope-fill"></i>
+                {{ contacts.email }}
+              </a>
+            </li>
+            <!-- Адрес -->
+            <li *ngIf="contacts.address">
+              <a [href]="getMapLink()" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-geo-alt-fill"></i>
+                {{ contacts.address }}
+              </a>
+            </li>
+          </ul>
+
+          <!-- Плейсхолдер если нет данных -->
+          <ul class="footer-links" *ngIf="!isLoading && !error && !contacts">
+            <li>
+              <a href="tel:+79991234567">
+                <i class="bi bi-telephone-fill"></i>
+                +7 (999) 123-45-67
+              </a>
+            </li>
+            <li>
+              <a href="mailto:info&#64;eltorto.ru">
+                <i class="bi bi-envelope-fill"></i>
+                info&#64;eltorto.ru
+              </a>
+            </li>
+            <li>
+              <a href="https://yandex.ru/maps/?text=Москва" target="_blank">
+                <i class="bi bi-geo-alt-fill"></i>
+                г. Москва, ул. Примерная, д. 123
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Режим работы -->
+        <div class="col-lg-4">
+          <h5 class="footer-heading">Режим работы</h5>
+          <ul class="footer-links">
+            <li>
+              <span class="day">Пн-Пт:</span>
+              <span>{{ workingHours.weekdays }}</span>
+            </li>
+            <li>
+              <span class="day">Суббота:</span>
+              <span>{{ workingHours.saturday }}</span>
+            </li>
+            <li>
+              <span class="day">Воскресенье:</span>
+              <span>{{ workingHours.sunday }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <hr class="my-4" style="background-color: #D9C5B0;">
-
-    <div class="text-center small">
-      © {{ currentYear }} Eltorto. Все права защищены.
+    <div class="footer-bottom">
+      <div class="footer-social">
+        <a href="#" class="social-link" aria-label="Instagram">
+          <i class="bi bi-instagram"></i>
+        </a>
+        <a href="#" class="social-link" aria-label="Telegram">
+          <i class="bi bi-telegram"></i>
+        </a>
+        <a href="#" class="social-link" aria-label="VK">
+          <i class="bi bi-vk"></i>
+        </a>
+      </div>
+      <p class="copyright">
+        © {{ currentYear }} Eltorto. Все права защищены.
+      </p>
     </div>
   </div>
 </footer>

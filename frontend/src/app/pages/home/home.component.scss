@@ -1,35 +1,616 @@
 @use '../../../styles.scss' as *;
 
 .home-page {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+// Hero Section
+.hero-section {
+  position: relative;
+  min-height: 90vh;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FEF4E8 100%) !important;
+  width: 100%;
+  padding: 5rem 0 !important;
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/backgrounds/texture-marble.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    opacity: 1;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center !important;
+    max-width: 800px;
+    margin: 0 auto !important;
+    padding: 0 1.5rem;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: rgba($pink, 0.2);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $brown-dark;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(5px);
+  }
+
+  .hero-title {
+    font-family: $font-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 500;
+    color: $brown-dark;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-align: center !important;
+
+    .highlight {
+      position: relative;
+      display: inline-block;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        height: 12px;
+        background: rgba($pink, 0.3);
+        z-index: -1;
+      }
+    }
+  }
+
+  .hero-description {
+    font-size: 1.125rem;
+    color: $text-light;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+    text-align: center !important;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center !important;
+    flex-wrap: wrap;
+  }
+
+  .hero-wave {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    line-height: 0;
+    width: 100%;
+
+    svg {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+
+// Section Header
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  width: 100%;
+
+  .section-subtitle {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: $brown-medium;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: $font-serif;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    color: $brown-dark;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .section-description {
+    color: $text-light;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+
+// Featured Cakes Section
+.featured-section {
+  padding: 5rem 0 !important;
+  background: $cream !important;
+  width: 100%;
+}
+
+// Cake Card
+.cake-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0 !important;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+    .cake-overlay {
+      opacity: 1;
+    }
+
+    .cake-image img {
+      transform: scale(1.05);
+    }
+  }
+
+  .cake-image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .cake-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba($brown-dark, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+
+      .btn-view {
+        padding: 0.75rem 2rem;
+        background: white;
+        border: none;
+        border-radius: 50px;
+        color: $brown-dark;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: scale(1.05);
+          background: $pink;
+          color: $brown-dark;
+        }
+      }
+    }
+  }
+
+  .cake-info {
+    padding: 1.5rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .cake-name {
+      font-family: $font-serif;
+      font-size: 1.25rem;
+      color: $brown-dark;
+      margin-bottom: 0.75rem;
+    }
+
+    .cake-description {
+      color: $text-light;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}
+
+// Fillings Preview Section
+.fillings-preview {
+  padding: 5rem 0;
+  background: $beige-light;
+  position: relative;
+  width: 100%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/backgrounds/texture-paper.jpg');
+    background-size: 300px;
+    background-repeat: repeat;
+    opacity: 1;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  .view-all-btn {
+    text-align: center;
+    margin-top: 3rem;
+  }
+}
+
+.filling-preview-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    .filling-image img {
+      transform: scale(1.05);
+    }
+  }
+
+  .filling-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    width: 100%;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .filling-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        color: $brown-medium;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .filling-info {
+    padding: 1.25rem;
+    text-align: center;
+    flex: 1;
+
+    .filling-name {
+      font-size: 1.125rem;
+      color: $brown-dark;
+      margin-bottom: 0.5rem;
+    }
+
+    .filling-description {
+      font-size: 0.875rem;
+      color: $text-light;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Testimonials Section
+.testimonials-section {
+  padding: 5rem 0;
+  background: $cream;
+  width: 100%;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.testimonial-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+
+  .testimonial-quote {
+    margin-bottom: 1rem;
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .testimonial-text {
+    color: $text-dark;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    flex: 1;
+  }
+
+  .testimonial-author {
+    border-top: 1px solid rgba($brown-light, 0.3);
+    padding-top: 1rem;
+
+    strong {
+      display: block;
+      color: $brown-dark;
+      font-weight: 600;
+    }
+
+    span {
+      display: block;
+      font-size: 0.75rem;
+      color: $text-light;
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// Grid с отступами
+.row.g-4 {
+  --bs-gutter-x: 2rem !important;
+  --bs-gutter-y: 2rem !important;
+  margin-right: calc(-0.5 * var(--bs-gutter-x)) !important;
+  margin-left: calc(-0.5 * var(--bs-gutter-x)) !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+
+.row.g-4 > * {
+  padding-right: calc(var(--bs-gutter-x) * 0.5) !important;
+  padding-left: calc(var(--bs-gutter-x) * 0.5) !important;
+  margin-bottom: var(--bs-gutter-y) !important;
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  width: 100%;
+}
+
+.cake-loader {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba($brown-medium, 0.2);
+  border-top-color: $brown-medium;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Animations
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
   .hero-section {
-    padding: 100px 0;
+    padding: 3rem 0 !important;
+    min-height: 80vh;
+  }
+
+  .featured-section,
+  .fillings-preview,
+  .testimonials-section {
+    padding: 3rem 0 !important;
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .row.g-4 {
+    --bs-gutter-x: 1rem !important;
+    --bs-gutter-y: 1.5rem !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .row.g-4 {
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
+  }
+}
+.decorative {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+
+  &.flour-dust {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/backgrounds/flour-dust.png');
+    background-size: 300px;
+    background-repeat: repeat;
+    opacity: 0;
+  }
+
+  &.leaf-branch {
+    bottom: 0;
+    right: 0;
+    width: 250px;
+    height: 250px;
+    background-image: url('/backgrounds/leaf-branch.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    opacity: 0.3;
 
     @media (max-width: 768px) {
-      padding: 60px 0;
+      width: 120px;
+      height: 120px;
+      opacity: 0.3;
+    }
+  }
+}
+
+
+.text-center.mt-5 {
+  margin-top: 3rem !important;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid $brown-medium;
+  color: $brown-dark;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    background: $brown-medium;
+    color: white;
+    transform: translateY(-2px);
+
+    i {
+      transform: translateX(4px);
+    }
+  }
+}
+
+.view-all-btn {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.testimonial-text {
+  color: $text-dark;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  flex: 1;
+
+  // Стили для HTML-содержимого
+  p {
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
-  .hover-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
-    }
+  strong, b {
+    font-weight: 600;
+    color: $brown-dark;
   }
 
-  .testimonial-card {
-    transition: all 0.3s ease;
+  em, i {
+    font-style: italic;
+  }
 
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
-    }
+  br {
+    display: block;
+    margin: 0.25rem 0;
+  }
+}
 
-    .quote-icon {
-      font-family: serif;
-      opacity: 0.5;
-    }
+.testimonial-response {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba($brown-light, 0.3);
+  font-size: 0.9rem;
+
+  strong {
+    color: $brown-dark;
+    display: block;
+    margin-bottom: 0.5rem;
   }
 }

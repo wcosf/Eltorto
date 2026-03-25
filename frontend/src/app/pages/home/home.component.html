@@ -1,112 +1,170 @@
 <div class="home-page">
   <!-- Hero секция -->
-  <section class="hero-section text-center" style="background: linear-gradient(135deg, #FFF5EB 0%, #F9F3E7 100%);">
+  <section class="hero-section">
+    <div class="hero-background"></div>
+
+    <!-- Декоративные элементы -->
+    <div class="decorative flour-dust"></div>
+    <div class="decorative leaf-branch"></div>
+
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <h1 class="display-4 fw-bold mb-4" style="color: #8B6B4D;">
-            Добро пожаловать в Eltorto
+        <div class="col-12 hero-content animate-on-scroll">
+          <span class="hero-badge">Домашняя кондитерская</span>
+          <h1 class="hero-title">
+            Торты, которые<br>
+            <span class="highlight">созданы с любовью</span>
           </h1>
-          <p class="lead mb-4" style="color: #7F6B58;">
-            Домашняя кондитерская, где каждый торт создается с любовью и вниманием к деталям
+          <p class="hero-description">
+            Натуральные ингредиенты, авторский дизайн и неповторимый вкус.<br>
+            Создадим торт вашей мечты для любого праздника
           </p>
-          <button class="btn btn-lg px-4 py-2" style="background-color: #B89A7A; color: white;" routerLink="/portfolio">
-            Смотреть портфолио
-          </button>
+          <div class="hero-buttons">
+            <button class="btn btn-primary btn-lg" routerLink="/order">
+              Заказать торт
+              <i class="bi bi-arrow-right"></i>
+            </button>
+            <button class="btn btn-outline btn-lg" routerLink="/portfolio">
+              Смотреть портфолио
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="hero-wave">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path fill="#FFF5EB" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
     </div>
   </section>
 
   <!-- Рекомендуемые торты -->
-  <section class="featured-section py-5">
+  <section class="featured-section">
     <div class="container">
-      <h2 class="text-center mb-5" style="color: #8B6B4D;">Рекомендуемые торты</h2>
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Рекомендуемые торты</h2>
+        <p class="section-description">Самые популярные торты, которые покорили сердца наших клиентов</p>
+      </div>
 
-      <div *ngIf="isLoading" class="text-center py-5">
-        <div class="spinner-border" style="color: #B89A7A;" role="status">
-          <span class="visually-hidden">Загрузка...</span>
-        </div>
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="cake-loader"></div>
       </div>
 
       <div *ngIf="error" class="alert alert-warning text-center">
         {{ error }}
       </div>
 
-      <div class="row" *ngIf="!isLoading && !error">
-        <div class="col-md-4 mb-4" *ngFor="let cake of featuredCakes">
-          <div class="card h-100 border-0 shadow-sm hover-card">
-            <img
-              [src]="getCakeImageUrl(cake)"
-              [alt]="cake.name"
-              class="card-img-top"
-              loading="lazy"
-              (error)="handleImageError($event)"
-              style="height: 250px; object-fit: cover;">
-            <div class="card-body text-center">
-              <h5 class="card-title" style="color: #8B6B4D;">{{ cake.name }}</h5>
-              <p class="card-text" style="color: #7F6B58;">{{ cake.description || 'Вкусный торт ручной работы' }}</p>
-              <button class="btn btn-sm" style="background-color: #F9C6C9; color: #8B6B4D;" routerLink="/order">
-                Заказать
-              </button>
+      <div class="row g-4" *ngIf="!isLoading && !error">
+        <div class="col-md-6 col-lg-4" *ngFor="let cake of featuredCakes; let i = index">
+          <div class="cake-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'">
+            <div class="cake-image">
+              <img
+                [src]="getCakeImageUrl(cake)"
+                [alt]="cake.name"
+                loading="lazy"
+                (error)="handleImageError($event)">
+              <div class="cake-overlay">
+                <button class="btn-view" routerLink="/order" [queryParams]="{cake: cake.id}">
+                  Заказать
+                </button>
+              </div>
+            </div>
+            <div class="cake-info">
+              <h3 class="cake-name">{{ cake.name }}</h3>
             </div>
           </div>
         </div>
 
         <div *ngIf="featuredCakes.length === 0" class="col-12 text-center">
-          <p style="color: #7F6B58;">Скоро здесь появятся наши торты!</p>
+          <p class="empty-message">Скоро здесь появятся наши торты!</p>
         </div>
+      </div>
+
+      <!-- Кнопка для перехода в портфолио -->
+      <div class="text-center mt-5 animate-on-scroll">
+        <button class="btn btn-outline btn-lg" routerLink="/portfolio">
+          Все торты
+          <i class="bi bi-arrow-right"></i>
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- Начинки -->
-  <section class="fillings-section py-5" style="background-color: #F5E6E8;">
+  <!-- Вкусные комбинации (бывшие начинки) -->
+  <section class="fillings-preview">
     <div class="container">
-      <h2 class="text-center mb-5" style="color: #8B6B4D;">Наши начинки</h2>
-      <div class="row">
-        <div class="col-md-4 mb-4" *ngFor="let filling of fillings">
-          <div class="card h-100 border-0 shadow-sm hover-card">
-            <img
-              [src]="getFillingImageUrl(filling.imageUrl)"
-              [alt]="filling.name"
-              class="card-img-top"
-              loading="lazy"
-              (error)="handleImageError($event)"
-              style="height: 200px; object-fit: cover;">
-            <div class="card-body text-center">
-              <h5 class="card-title" style="color: #8B6B4D;">{{ filling.name }}</h5>
-              <p class="card-text" style="color: #7F6B58;">{{ filling.description }}</p>
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Вкусные комбинации</h2>
+        <p class="section-description">Откройте для себя мир неповторимых вкусов</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3" *ngFor="let filling of fillings.slice(0, 4); let i = index">
+          <div class="filling-preview-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'" routerLink="/fillings">
+            <div class="filling-image">
+              <img
+                [src]="getFillingImageUrl(filling.imageUrl)"
+                [alt]="filling.name"
+                loading="lazy"
+                (error)="handleImageError($event)">
+              <div class="filling-icon" *ngIf="filling.hasCrossSection">
+                <i class="bi bi-cake"></i>
+              </div>
+            </div>
+            <div class="filling-info">
+              <h3 class="filling-name">{{ filling.name }}</h3>
+              <p class="filling-description">{{ filling.description }}</p>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="view-all-btn animate-on-scroll">
+        <button class="btn btn-outline btn-lg" routerLink="/fillings">
+          Все начинки
+          <i class="bi bi-arrow-right"></i>
+        </button>
       </div>
     </div>
   </section>
 
   <!-- Отзывы -->
-  <section class="testimonials-section py-5">
-    <div class="container">
-      <h2 class="text-center mb-5" style="color: #8B6B4D;">Отзывы наших клиентов</h2>
-      <div class="row">
-        <div class="col-md-4 mb-4" *ngFor="let testimonial of testimonials">
-          <div class="testimonial-card p-4 rounded shadow-sm" style="background-color: #FFF5EB;">
-            <div class="mb-3">
-              <i class="quote-icon" style="font-size: 2rem; color: #F9C6C9;">"</i>
-            </div>
-            <p class="mb-3" style="color: #4A3B2C; font-style: italic;">{{ testimonial.text }}</p>
-            <div class="mt-3">
-              <strong style="color: #8B6B4D;">{{ testimonial.author }}</strong>
-              <p class="small mb-0" style="color: #B89A7A;">{{ testimonial.date | date:'dd.MM.yyyy' }}</p>
-            </div>
-          </div>
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <h2 class="section-title">Что говорят наши клиенты</h2>
+      <p class="section-description">Более 500 довольных клиентов и вкусных тортов</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card animate-on-scroll" *ngFor="let testimonial of testimonials; let i = index"
+           [style.animation-delay]="i * 0.1 + 's'">
+        <div class="testimonial-quote">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <path d="M18 16H12V24H18V16ZM36 16H30V24H36V16Z" fill="#F9C6C9" fill-opacity="0.5"/>
+            <path d="M12 32L18 24H12V32ZM30 32L36 24H30V32Z" fill="#F9C6C9" fill-opacity="0.5"/>
+          </svg>
+        </div>
+        <!-- Используем innerHTML с пайпом sanitizeHtml -->
+        <div class="testimonial-text" [innerHTML]="testimonial.text | sanitizeHtml"></div>
+        <div class="testimonial-author">
+          <strong>{{ testimonial.author }}</strong>
+          <span>{{ testimonial.date | date:'dd.MM.yyyy' }}</span>
+        </div>
+        <!-- Если есть ответ администратора -->
+        <div *ngIf="testimonial.response" class="testimonial-response mt-3">
+          <strong>Ответ кондитера:</strong>
+          <div [innerHTML]="testimonial.response | sanitizeHtml"></div>
         </div>
       </div>
-      <div class="text-center mt-4">
-        <button class="btn" style="background-color: #B89A7A; color: white;" routerLink="/reviews">
-          Все отзывы
-        </button>
-      </div>
     </div>
-  </section>
+
+    <div class="text-center mt-5 animate-on-scroll">
+      <button class="btn btn-outline btn-lg" routerLink="/reviews">
+        Все отзывы
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</section>
 </div>
