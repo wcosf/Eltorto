@@ -1,16 +1,49 @@
-// ===== COLORS =====
-$cream: #FFF5EB;
-$beige-light: #F9F3E7;
-$rose: #F5E6E8;
-$rose-light: #FDF4F5;
-$brown-light: #D9C5B0;
-$brown-medium: #B89A7A;
-$brown-dark: #8B6B4D;
-$brown-deep: #6B4E3A;
-$pink: #F9C6C9;
-$pink-soft: #FFE4E6;
-$text-dark: #4A3B2C;
-$text-light: #7F6B58;
+// Основные цвета
+$cream: #ffffff;
+$beige-light: #ffd9ea;
+$fillings-bg: #f4e1eb;
+$footer-bg: #f4b3d5;
+
+// Розовые цвета
+$rose-light: #fff0f7;
+$rose-soft: #f4e1eb;
+$rose-medium: #f5d2e4;
+$rose-dark: #f4b3d5;
+
+$brown-light: $rose-soft;
+$brown-medium: $rose-soft;
+$brown-dark: #73154b;
+$brown-deep: #73154b;
+
+$rose: $rose-soft;
+$pink: $rose-dark;
+$pink-hover: $rose-dark;
+$pink-soft: $rose-soft;
+
+// Цвета текста
+$text-dark: $brown-dark;
+$text-light: #6e234e;
+
+// Цвета кнопок
+$btn-primary-bg: $rose-dark;
+$btn-primary-hover: #ef9fc9;
+$btn-primary-text: $brown-dark;
+$btn-primary-text-hover: $brown-dark;
+
+$btn-outline-border: $rose-dark;
+$btn-outline-hover: $rose-dark;
+$btn-outline-text: $text-dark;
+$btn-outline-text-hover: $brown-dark;
+
+// Цвета hero текста
+$hero-title-color: $text-dark;
+$hero-description-color: $text-dark;
+$hero-badge-bg: rgba(0, 0, 0, 0.08);
+$hero-highlight-bg: rgba(0, 0, 0, 0.08);
+
+// Цвета навбара
+$navbar-bg: $cream;
+$navbar-text: $text-dark;
 
 // ===== TYPOGRAPHY =====
 $font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -66,6 +99,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: $font-serif;
   font-weight: 500;
   letter-spacing: -0.02em;
+  color: $brown-dark;
 }
 
 h2 {
@@ -83,7 +117,7 @@ h2 {
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: linear-gradient(90deg, $pink, $brown-medium);
+    background: linear-gradient(90deg, $rose-soft, $rose-dark);
     border-radius: 3px;
   }
 }
@@ -102,9 +136,9 @@ h2 {
 
 // Glass morphism effect
 .glass-card {
-  background: rgba(255, 245, 235, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(185, 154, 122, 0.2);
+  border: 1px solid rgba($rose-soft, 0.2);
   border-radius: 24px;
 }
 
@@ -130,25 +164,26 @@ h2 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, $brown-medium, $brown-dark);
+  background: $btn-primary-bg;
   border: none;
-  color: white;
+  color: $btn-primary-text;
 
   &:hover {
+    background: $btn-primary-hover;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba($brown-dark, 0.3);
-    color: white;
+    box-shadow: 0 6px 20px rgba($btn-primary-hover, 0.4);
+    color: $btn-primary-text-hover;
   }
 }
 
 .btn-outline {
   background: transparent;
-  border: 2px solid $brown-medium;
-  color: $brown-dark;
+  border: 2px solid $btn-outline-border;
+  color: $btn-outline-text;
 
   &:hover {
-    background: $brown-medium;
-    color: white;
+    background: $btn-outline-hover;
+    color: $btn-outline-text-hover;
     transform: translateY(-2px);
   }
 }
@@ -209,9 +244,16 @@ h2 {
 }
 
 .main-content {
-  padding-top: 76px;
+  padding-top: 68px;
+  min-height: 100vh;
+  position: relative;
+  background: $cream;
+}
 
-  @media (max-width: 768px) {
-    padding-top: 68px;
-  }
+.alert.alert-warning {
+  background-color: #fff0f7;
+  border: 1px solid #f4b3d5;
+  color: #73154b;
+  border-radius: 12px;
+  padding: 1rem;
 }

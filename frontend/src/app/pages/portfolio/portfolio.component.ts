@@ -187,6 +187,22 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
     return this.imagePaths.placeholder;
   }
 
+  getCakeImageUrl(cake: Cake): string {
+    if (cake.imageUrl) {
+      if (cake.imageUrl.startsWith('http') || cake.imageUrl.startsWith('/')) {
+        return cake.imageUrl;
+      }
+      return `/images/portfolio/${cake.imageUrl}`;
+    }
+    if (cake.thumbnailUrl) {
+      if (cake.thumbnailUrl.startsWith('http') || cake.thumbnailUrl.startsWith('/')) {
+        return cake.thumbnailUrl;
+      }
+      return `/images/portfolio/${cake.thumbnailUrl}`;
+    }
+    return this.imagePaths.placeholder;
+  }
+
   handleImageError(event: any): void {
     if (event.target.src === this.imagePaths.placeholder) {
       return;

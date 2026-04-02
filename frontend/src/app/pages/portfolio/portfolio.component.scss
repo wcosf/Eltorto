@@ -5,16 +5,16 @@
   width: 100%;
 }
 
-// Hero секция
 .portfolio-hero {
   position: relative;
-  min-height: 50vh;
+  min-height: 35vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #FFF8F0 0%, #FEF4E8 100%);
+  background: linear-gradient(135deg, $rose-soft 0%, $rose-medium 100%) !important;
   width: 100%;
-  padding: 5rem 0;
+  margin-top: -8px;
+  padding: 3rem 0;
 
   .portfolio-hero-bg {
     position: absolute;
@@ -22,11 +22,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('/backgrounds/texture-marble.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 1;
+    background: radial-gradient(circle at 20% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 80%);
     pointer-events: none;
     width: 100%;
     height: 100%;
@@ -43,17 +39,17 @@
 
   .portfolio-hero-title {
     font-family: $font-serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 500;
-    color: $brown-dark;
-    margin-bottom: 1rem;
+    color: $text-dark;
+    margin-bottom: 0.75rem;
     text-align: center;
   }
 
   .portfolio-hero-description {
-    font-size: 1.125rem;
-    color: $text-light;
-    line-height: 1.7;
+    font-size: 1rem;
+    color: $text-dark;
+    line-height: 1.6;
     text-align: center;
     max-width: 700px;
     margin: 0 auto;
@@ -62,7 +58,7 @@
 
 .portfolio-wave {
   position: absolute;
-  bottom: -2px;
+  bottom: -100px;
   left: 0;
   right: 0;
   line-height: 0;
@@ -71,37 +67,28 @@
   svg {
     width: 100%;
     height: auto;
+    path {
+      fill: $cream;
+    }
   }
 }
 
-// Фильтры
 .filters-section {
   position: sticky;
   top: 76px;
   background: $cream;
   z-index: 10;
   padding: 1rem 0;
-  border-bottom: 1px solid rgba($brown-light, 0.3);
+  border-bottom: 1px solid rgba($rose-soft, 0.3);
   width: 100%;
 
   .filters-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: $beige-light;
-      border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: $brown-medium;
-      border-radius: 4px;
-    }
+    overflow-x: visible;
+    overflow-y: visible;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .filters-scroll {
@@ -111,8 +98,8 @@
     flex-wrap: wrap;
 
     @media (max-width: 768px) {
-      justify-content: flex-start;
-      padding-bottom: 0.5rem;
+      justify-content: center;
+      gap: 0.5rem;
     }
   }
 
@@ -120,39 +107,53 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
+    padding: 0.5rem 1.25rem;
     background: white;
-    border: 1px solid $brown-light;
+    border: 1.5px solid $rose-dark;
     border-radius: 50px;
-    color: $text-light;
-    font-size: 0.9rem;
+    color: $text-dark;
+    font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.3s ease;
     cursor: pointer;
     white-space: nowrap;
 
     i {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      color: $text-dark;
     }
 
     &:hover {
-      background: $beige-light;
-      border-color: $brown-medium;
-      color: $brown-dark;
+      background: $rose-light;
+      border-color: $rose-medium;
+      color: $text-dark;
       transform: translateY(-2px);
+
+      i {
+        color: $text-dark;
+      }
     }
 
     &.active {
-      background: $brown-medium;
-      border-color: $brown-medium;
-      color: white;
+      background: $rose-medium;
+      border-color: $rose-medium;
+      color: $text-dark;
+
+      i {
+        color: $text-dark;
+      }
+    }
+
+    @media (max-width: 768px) {
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
     }
   }
 }
 
-// Галерея
 .portfolio-grid-section {
-  padding: 5rem 0;
+  padding: 4rem 0;
   background: $cream;
   width: 100%;
 }
@@ -162,7 +163,7 @@
   border-radius: 24px;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba($text-dark, 0.05);
   cursor: pointer;
   height: 100%;
   display: flex;
@@ -170,7 +171,7 @@
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba($text-dark, 0.12);
 
     .portfolio-card-image img {
       transform: scale(1.05);
@@ -182,6 +183,7 @@
     height: 280px;
     overflow: hidden;
     width: 100%;
+    background: $rose-light;
 
     img {
       width: 100%;
@@ -198,59 +200,97 @@
     .portfolio-card-title {
       font-family: $font-serif;
       font-size: 1rem;
-      color: $brown-dark;
+      color: $text-dark;
       margin: 0;
       font-weight: 500;
     }
   }
 }
 
-// Пагинация
 .pagination-wrapper {
   .pagination {
-    gap: 0.25rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 
     .page-item {
       .page-link {
-        color: $brown-dark;
-        background-color: white;
-        border: 1px solid $brown-light;
-        border-radius: 8px;
-        cursor: pointer;
-        padding: 0.5rem 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 1rem;
+        background: white;
+        border: 1.5px solid $rose-dark;
+        border-radius: 40px;
+        color: $text-dark;
+        font-weight: 500;
+        font-size: 0.9rem;
         transition: all 0.3s ease;
+        cursor: pointer;
 
         i {
-          font-size: 0.8rem;
+          font-size: 0.9rem;
+          transition: transform 0.3s ease;
         }
 
         &:hover {
-          background-color: $beige-light;
-          color: $brown-medium;
-          border-color: $brown-medium;
+          background: $rose-light;
+          border-color: $rose-medium;
+          color: $text-dark;
+          transform: translateY(-2px);
+
+          i {
+            transform: translateX(0);
+          }
         }
 
         &.active {
-          background-color: $brown-medium;
-          border-color: $brown-medium;
-          color: white;
+          background: $rose-medium;
+          border-color: $rose-medium;
+          color: $text-dark;
+          box-shadow: 0 4px 12px rgba($rose-medium, 0.3);
+
+          &:hover {
+            background: $rose-dark;
+            border-color: $rose-dark;
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      &:first-child .page-link,
+      &:last-child .page-link {
+        background: white;
+        color: $text-dark;
+
+        &:hover:not(.disabled) {
+          background: $rose-light;
+          color: $rose-dark;
         }
       }
 
       &.disabled .page-link {
-        color: $brown-light;
+        background: $rose-light;
+        border-color: $rose-light;
+        color: $text-light;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        opacity: 0.6;
 
         &:hover {
-          background-color: white;
+          background: $rose-light;
+          transform: none;
         }
       }
     }
   }
 }
 
-// Loading
 .loading-container {
   display: flex;
   justify-content: center;
@@ -262,8 +302,8 @@
 .cake-loader {
   width: 50px;
   height: 50px;
-  border: 3px solid rgba($brown-medium, 0.2);
-  border-top-color: $brown-medium;
+  border: 3px solid rgba($rose-medium, 0.2);
+  border-top-color: $rose-medium;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -272,7 +312,6 @@
   to { transform: rotate(360deg); }
 }
 
-// Animations
 .animate-on-scroll {
   opacity: 0;
   transform: translateY(30px);
@@ -284,23 +323,26 @@
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
   .portfolio-hero {
-    min-height: 40vh;
-    padding: 3rem 0;
+    min-height: 30vh;
+    padding: 2rem 0;
 
     .portfolio-hero-title {
-      font-size: 2rem;
+      font-size: 1.75rem;
     }
 
     .portfolio-hero-description {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
   }
 
+  .portfolio-wave {
+    bottom: -2px;
+  }
+
   .portfolio-grid-section {
-    padding: 3rem 0;
+    padding: 2rem 0;
   }
 
   .filters-section {
@@ -308,7 +350,7 @@
 
     .filter-btn {
       padding: 0.4rem 1rem;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
   }
 
@@ -323,22 +365,11 @@
       font-size: 0.9rem !important;
     }
   }
-
-  .row.g-4 {
-    --bs-gutter-y: 1.5rem;
-  }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1199px) {
   .row.g-4 {
-    --bs-gutter-x: 1.5rem;
-    --bs-gutter-y: 1.5rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .row.g-4 {
-    --bs-gutter-x: 2rem;
-    --bs-gutter-y: 2rem;
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
   }
 }

@@ -3,21 +3,16 @@
   <section class="hero-section">
     <div class="hero-background"></div>
 
-    <!-- Декоративные элементы -->
-    <div class="decorative flour-dust"></div>
-    <div class="decorative leaf-branch"></div>
-
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-12 hero-content animate-on-scroll">
-          <span class="hero-badge">Домашняя кондитерская</span>
           <h1 class="hero-title">
             Торты, которые<br>
             <span class="highlight">созданы с любовью</span>
           </h1>
           <p class="hero-description">
-            Натуральные ингредиенты, авторский дизайн и неповторимый вкус.<br>
-            Создадим торт вашей мечты для любого праздника
+            Авторский дизайн, безупречный вкус и внимание к деталям. <br>
+            Воплотим ваши самые смелые идеи в сладком шедевре
           </p>
           <div class="hero-buttons">
             <button class="btn btn-primary btn-lg" routerLink="/order">
@@ -32,8 +27,8 @@
       </div>
     </div>
     <div class="hero-wave">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-        <path fill="#FFF5EB" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path fill="#ffffff" fill-opacity="1" d="M0,64L48,69.3C96,75,192,85,288,85.3C384,85,480,75,576,74.7C672,75,768,85,864,85.3C960,85,1056,75,1152,69.3C1248,64,1344,64,1392,64L1440,64L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
       </svg>
     </div>
   </section>
@@ -43,7 +38,7 @@
     <div class="container">
       <div class="section-header animate-on-scroll">
         <h2 class="section-title">Рекомендуемые торты</h2>
-        <p class="section-description">Самые популярные торты, которые покорили сердца наших клиентов</p>
+        <p class="section-description">Наши бестселлеры — торты, которые покоряют с первого взгляда</p>
       </div>
 
       <div *ngIf="isLoading" class="loading-container">
@@ -90,12 +85,12 @@
     </div>
   </section>
 
-  <!-- Вкусные комбинации (бывшие начинки) -->
+  <!-- Вкусные комбинации -->
   <section class="fillings-preview">
     <div class="container">
       <div class="section-header animate-on-scroll">
         <h2 class="section-title">Вкусные комбинации</h2>
-        <p class="section-description">Откройте для себя мир неповторимых вкусов</p>
+        <p class="section-description">Гармония вкусов — найдите свою идеальную пару</p>
       </div>
 
       <div class="row g-4">
@@ -128,16 +123,17 @@
     </div>
   </section>
 
-  <!-- Отзывы -->
+<!-- Отзывы -->
 <section class="testimonials-section">
   <div class="container">
     <div class="section-header animate-on-scroll">
       <h2 class="section-title">Что говорят наши клиенты</h2>
-      <p class="section-description">Более 500 довольных клиентов и вкусных тортов</p>
+      <p class="section-description">Более 14 лет радуем наших клиентов!</p>
     </div>
 
     <div class="testimonials-grid">
-      <div class="testimonial-card animate-on-scroll" *ngFor="let testimonial of testimonials; let i = index"
+      <div class="testimonial-card animate-on-scroll"
+           *ngFor="let testimonial of testimonials; let i = index"
            [style.animation-delay]="i * 0.1 + 's'">
         <div class="testimonial-quote">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -145,13 +141,11 @@
             <path d="M12 32L18 24H12V32ZM30 32L36 24H30V32Z" fill="#F9C6C9" fill-opacity="0.5"/>
           </svg>
         </div>
-        <!-- Используем innerHTML с пайпом sanitizeHtml -->
         <div class="testimonial-text" [innerHTML]="testimonial.text | sanitizeHtml"></div>
         <div class="testimonial-author">
           <strong>{{ testimonial.author }}</strong>
           <span>{{ testimonial.date | date:'dd.MM.yyyy' }}</span>
         </div>
-        <!-- Если есть ответ администратора -->
         <div *ngIf="testimonial.response" class="testimonial-response mt-3">
           <strong>Ответ кондитера:</strong>
           <div [innerHTML]="testimonial.response | sanitizeHtml"></div>

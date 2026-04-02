@@ -1,200 +1,74 @@
-<div class="order-page py-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <h1 class="text-center mb-4" style="color: #8B6B4D;">Заказать торт</h1>
-        <!-- <p class="text-center mb-5" style="color: #7F6B58;">
-          Заполните форму, и мы свяжемся с вами для уточнения деталей
-        </p> -->
+<div class="order-page">
+  <!-- HERO -->
+  <section class="order-hero">
+    <div class="order-hero-bg"></div>
 
-        <!-- Временное сообщение о необходимости связаться -->
-        <div class="contact-message text-center p-5 rounded shadow-sm" style="background-color: #FFF5EB;">
-          <i class="bi bi-cake2" style="font-size: 3rem; color: #B89A7A;"></i>
-          <h3 class="mt-3 mb-3" style="color: #8B6B4D;">Свяжитесь с нами</h3>
-          <p class="mb-4" style="color: #7F6B58;">
-            Для оформления заказа, пожалуйста, свяжитесь с нами по телефону или напишите на email.<br>
-            Мы с радостью обсудим все детали вашего будущего торта!
-          </p>
-
-          <div class="contact-info">
-            <div class="row justify-content-center">
-              <div class="col-md-6 mb-3">
-                <div class="contact-item p-3 rounded" style="background-color: #F9F3E7;">
-                  <i class="bi bi-telephone-fill" style="font-size: 1.5rem; color: #B89A7A;"></i>
-                  <p class="mt-2 mb-0">
-                    <strong style="color: #8B6B4D;">Телефон</strong><br>
-                    <a href="tel:+79139872554" style="color: #B89A7A; text-decoration: none;">+7 913 987 2554</a>
-                  </p>
-                </div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <div class="contact-item p-3 rounded" style="background-color: #F9F3E7;">
-                  <i class="bi bi-envelope-fill" style="font-size: 1.5rem; color: #B89A7A;"></i>
-                  <p class="mt-2 mb-0">
-                    <strong style="color: #8B6B4D;">Email</strong><br>
-                    <a href="mailto:79139872554&#64;yandex.ru" style="color: #B89A7A; text-decoration: none;">79139872554&#64;yandex.ru</a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p class="mt-4 small" style="color: #D9C5B0;">
-            <i class="bi bi-info-circle"></i>
-            Мы ответим на все ваши вопросы и поможем выбрать идеальный торт для вашего праздника
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center animate-on-scroll">
+          <h1>Заказать торт</h1>
+          <p>
+            Ваш праздник заслуживает идеального торта. <br>
+            Расскажите о своих пожеланиях, и мы создадим десерт, который станет главным украшением стола
           </p>
         </div>
+      </div>
+    </div>
 
-        <!-- Форма заказа - временно закомментирована -->
-        <!--
-        <div *ngIf="successMessage" class="alert alert-success text-center mb-4">
-          {{ successMessage }}
-        </div>
+    <!-- ВОЛНА -->
+    <div class="order-wave">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path
+          d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L0,320Z">
+        </path>
+      </svg>
+    </div>
+  </section>
 
-        <div *ngIf="errorMessage" class="alert alert-danger text-center mb-4">
-          {{ errorMessage }}
-        </div>
+  <!-- КОНТЕНТ -->
+  <div class="content-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto animate-on-scroll">
 
-        <form (ngSubmit)="onSubmit()" *ngIf="!submitted" style="background-color: #FFF5EB;" class="p-4 rounded shadow-sm">
-          <div class="mb-4">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                id="existingCake"
-                [(ngModel)]="customOrder"
-                [value]="false"
-                name="orderType">
-              <label class="form-check-label" for="existingCake" style="color: #4A3B2C;">
-                Выбрать из каталога
-              </label>
+          <div class="contact-message text-center p-5 rounded shadow-sm">
+            <i class="bi bi-cake2" style="font-size: 3rem;"></i>
+
+            <h3 class="mt-3 mb-3">Свяжитесь с нами</h3>
+
+            <p class="mb-4">
+              Выберите удобный способ связи, и мы с радостью поможем вам создать торт, <br>
+              который запомнится надолго
+            </p>
+
+            <div class="contact-info">
+              <div class="row justify-content-center">
+
+                <div class="col-md-6 mb-3 animate-on-scroll">
+                  <div class="contact-item p-3 rounded">
+                    <i class="bi bi-telephone-fill"></i>
+                    <p class="mt-2 mb-0">
+                      <strong>Телефон</strong><br>
+                      <a href="tel:+79139872554">+7 913 987 2554</a>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3 animate-on-scroll">
+                  <div class="contact-item p-3 rounded">
+                    <i class="bi bi-envelope-fill"></i>
+                    <p class="mt-2 mb-0">
+                      <strong>Email</strong><br>
+                      <a href="mailto:79139872554&#64;yandex.ru">79139872554&#64;yandex.ru</a>
+                    </p>
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <div class="form-check mt-2">
-              <input
-                class="form-check-input"
-                type="radio"
-                id="customCake"
-                [(ngModel)]="customOrder"
-                [value]="true"
-                name="orderType">
-              <label class="form-check-label" for="customCake" style="color: #4A3B2C;">
-                Индивидуальный дизайн
-              </label>
-            </div>
           </div>
 
-          <div *ngIf="!customOrder" class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Выберите торт</label>
-            <select class="form-select" [(ngModel)]="selectedCakeId" name="cakeId" style="border-color: #D9C5B0;">
-              <option [value]="undefined">Выберите торт</option>
-              <option *ngFor="let cake of cakes" [value]="cake.id">{{ cake.name }}</option>
-            </select>
-          </div>
-
-          <div *ngIf="customOrder" class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Ваши пожелания по дизайну</label>
-            <textarea
-              class="form-control"
-              rows="3"
-              [(ngModel)]="orderData.customCakeDescription"
-              name="customCakeDescription"
-              placeholder="Опишите желаемый дизайн, цвета, тематику"
-              style="border-color: #D9C5B0;"></textarea>
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Начинка</label>
-            <select class="form-select" [(ngModel)]="selectedFillingId" name="fillingId" style="border-color: #D9C5B0;">
-              <option [value]="undefined">Выберите начинку</option>
-              <option *ngFor="let filling of fillings" [value]="filling.id">{{ filling.name }}</option>
-            </select>
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Вес торта (кг)</label>
-            <input
-              type="number"
-              class="form-control"
-              step="0.5"
-              [(ngModel)]="orderData.weight"
-              name="weight"
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Желаемая дата доставки</label>
-            <input
-              type="date"
-              class="form-control"
-              [(ngModel)]="orderData.deliveryDate"
-              name="deliveryDate"
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Адрес доставки</label>
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="orderData.deliveryAddress"
-              name="deliveryAddress"
-              placeholder="Укажите адрес для доставки"
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #4A3B2C;">Ваше имя *</label>
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="orderData.customerName"
-              name="customerName"
-              required
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #4A3B2C;">Телефон *</label>
-            <input
-              type="tel"
-              class="form-control"
-              [(ngModel)]="orderData.customerPhone"
-              name="customerPhone"
-              required
-              placeholder="+7 (XXX) XXX-XX-XX"
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #4A3B2C;">Email</label>
-            <input
-              type="email"
-              class="form-control"
-              [(ngModel)]="orderData.customerEmail"
-              name="customerEmail"
-              style="border-color: #D9C5B0;">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" style="color: #4A3B2C;">Комментарий</label>
-            <textarea
-              class="form-control"
-              rows="3"
-              [(ngModel)]="orderData.comment"
-              name="comment"
-              placeholder="Дополнительные пожелания"
-              style="border-color: #D9C5B0;"></textarea>
-          </div>
-
-          <button
-            type="submit"
-            class="btn w-100 py-2"
-            [disabled]="isLoading"
-            style="background-color: #B89A7A; color: white;">
-            {{ isLoading ? 'Отправка...' : 'Отправить заказ' }}
-          </button>
-        </form>
-        -->
+        </div>
       </div>
     </div>
   </div>

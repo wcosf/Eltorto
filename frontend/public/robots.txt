@@ -1,0 +1,20 @@
+# robots.txt for Eltorto - Кондитерская студия
+
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию админ-панели (если есть)
+Disallow: /admin/
+Disallow: /api/
+
+# Запрещаем индексацию дублирующихся страниц
+Disallow: /?*
+
+# Основные правила
+Sitemap: https://eltorto.ru/sitemap.xml
+
+# Задержка для crawlers
+Crawl-delay: 5
+
+# Хост
+Host: https://eltorto.ru
