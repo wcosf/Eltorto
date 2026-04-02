@@ -1,12 +1,11 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { ApiService, Filling } from '../../services/api.service';
 
 @Component({
   selector: 'app-fillings',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './fillings.component.html',
   styleUrls: ['./fillings.component.scss']
 })

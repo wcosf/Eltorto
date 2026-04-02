@@ -96,6 +96,10 @@ export class ApiService {
     return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/paged`, { params });
   }
 
+  getCakeImageUrl(cake: Cake): string {
+    return cake.imageUrl || '/images/placeholder-cake.jpg';
+  }
+
   // Featured cakes
   getFeaturedCakes(): Observable<Cake[]> {
     return this.http.get<Cake[]>(`${this.apiUrl}/cakes/featured`);
@@ -134,6 +138,11 @@ export class ApiService {
 
   createTestimonial(testimonial: Partial<Testimonial>): Observable<Testimonial> {
     return this.http.post<Testimonial>(`${this.apiUrl}/testimonials`, testimonial);
+  }
+
+  // Получить один отзыв по ID
+  getTestimonialById(id: number): Observable<Testimonial> {
+    return this.http.get<Testimonial>(`${this.apiUrl}/testimonials/${id}`);
   }
 
   // Orders

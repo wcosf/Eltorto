@@ -9,8 +9,8 @@
             <h5 class="footer-title">Eltorto</h5>
           </div>
           <p class="footer-description">
-            Домашняя кондитерская, где каждый торт создается с любовью,
-            вниманием к деталям и использованием только натуральных ингредиентов.
+            Кондитерская студия Eltorto — место, где рождаются сладкие шедевры.
+            Мы вкладываем душу в каждое изделие, создавая уникальный дизайн и неповторимый вкус.
           </p>
         </div>
 
@@ -58,28 +58,6 @@
               </a>
             </li>
           </ul>
-
-          <!-- Плейсхолдер если нет данных -->
-          <ul class="footer-links" *ngIf="!isLoading && !error && !contacts">
-            <li>
-              <a href="tel:+79991234567">
-                <i class="bi bi-telephone-fill"></i>
-                +7 (999) 123-45-67
-              </a>
-            </li>
-            <li>
-              <a href="mailto:info&#64;eltorto.ru">
-                <i class="bi bi-envelope-fill"></i>
-                info&#64;eltorto.ru
-              </a>
-            </li>
-            <li>
-              <a href="https://yandex.ru/maps/?text=Москва" target="_blank">
-                <i class="bi bi-geo-alt-fill"></i>
-                г. Москва, ул. Примерная, д. 123
-              </a>
-            </li>
-          </ul>
         </div>
 
         <!-- Режим работы -->
@@ -87,16 +65,8 @@
           <h5 class="footer-heading">Режим работы</h5>
           <ul class="footer-links">
             <li>
-              <span class="day">Пн-Пт:</span>
+              <span class="day">Пн-Вс:</span>
               <span>{{ workingHours.weekdays }}</span>
-            </li>
-            <li>
-              <span class="day">Суббота:</span>
-              <span>{{ workingHours.saturday }}</span>
-            </li>
-            <li>
-              <span class="day">Воскресенье:</span>
-              <span>{{ workingHours.sunday }}</span>
             </li>
           </ul>
         </div>
@@ -104,19 +74,8 @@
     </div>
 
     <div class="footer-bottom">
-      <div class="footer-social">
-        <a href="#" class="social-link" aria-label="Instagram">
-          <i class="bi bi-instagram"></i>
-        </a>
-        <a href="#" class="social-link" aria-label="Telegram">
-          <i class="bi bi-telegram"></i>
-        </a>
-        <a href="#" class="social-link" aria-label="VK">
-          <i class="bi bi-vk"></i>
-        </a>
-      </div>
       <p class="copyright">
-        © {{ currentYear }} Eltorto. Все права защищены.
+        © {{ getYearRange() }} Eltorto.
       </p>
     </div>
   </div>

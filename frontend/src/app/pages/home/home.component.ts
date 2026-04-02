@@ -7,7 +7,7 @@ import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, SanitizeHtmlPipe], // Добавляем пайп
+  imports: [CommonModule, RouterLink, SanitizeHtmlPipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -56,14 +56,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.error = null;
 
+    const testimonialIds = [20, 11, 7];
+
     Promise.all([
       this.apiService.getFeaturedCakes().toPromise(),
       this.apiService.getAvailableFillings().toPromise(),
-      this.apiService.getLatestTestimonials(3).toPromise()
-    ]).then(([cakes, fillings, testimonials]) => {
+      ...testimonialIds.map(id => this.apiService.getTestimonialById(id).toPromise())
+    ]).then(results => {
+      const [cakes, fillings, ...testimonials] = results;
+
       this.featuredCakes = cakes || [];
       this.fillings = fillings || [];
-      this.testimonials = testimonials || [];
+      this.testimonials = testimonials.filter(Boolean) as Testimonial[];
+
       this.isLoading = false;
       setTimeout(() => this.checkVisibility(), 100);
     }).catch(error => {
@@ -74,11 +79,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   getCakeImageUrl(cake: Cake): string {
-    const imageName = cake.thumbnailUrl || cake.imageUrl;
-    if (!imageName) {
-      return this.imagePaths.placeholder;
+    if (cake.imageUrl) {
+      if (cake.imageUrl.startsWith('http') || cake.imageUrl.startsWith('/')) {
+        return cake.imageUrl;
+      }
+      return `/images/portfolio/${cake.imageUrl}`;
     }
-    return `${this.imagePaths.portfolio}${imageName}`;
+    if (cake.thumbnailUrl) {
+      if (cake.thumbnailUrl.startsWith('http') || cake.thumbnailUrl.startsWith('/')) {
+        return cake.thumbnailUrl;
+      }
+      return `/images/portfolio/${cake.thumbnailUrl}`;
+    }
+    return this.imagePaths.placeholder;
   }
 
   getFillingImageUrl(imageName: string): string {

@@ -1,20 +1,15 @@
 @use '../../../styles.scss' as *;
 
-.home-page {
-  overflow-x: hidden;
-  width: 100%;
-}
-
-// Hero Section
 .hero-section {
   position: relative;
-  min-height: 90vh;
+  min-height: 45vh;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: linear-gradient(135deg, #FFF8F0 0%, #FEF4E8 100%) !important;
+  background: linear-gradient(135deg, $rose-soft 0%, $rose-medium 100%) !important;
   width: 100%;
-  padding: 5rem 0 !important;
+  margin-top: -8px;
+  padding: 3rem 0 !important;
 
   .hero-background {
     position: absolute;
@@ -22,11 +17,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('/backgrounds/texture-marble.jpg') !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    opacity: 1;
+    background: radial-gradient(circle at 20% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 80%);
     pointer-events: none;
     width: 100%;
     height: 100%;
@@ -43,22 +34,22 @@
 
   .hero-badge {
     display: inline-block;
-    padding: 0.5rem 1.25rem;
-    background: rgba($pink, 0.2);
+    padding: 0.4rem 1rem;
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 50px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    color: $brown-dark;
-    margin-bottom: 1.5rem;
+    color: $text-dark;
+    margin-bottom: 1rem;
     backdrop-filter: blur(5px);
   }
 
   .hero-title {
     font-family: $font-serif;
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 500;
-    color: $brown-dark;
-    margin-bottom: 1.5rem;
+    color: $text-dark;
+    margin-bottom: 1rem;
     line-height: 1.2;
     text-align: center !important;
 
@@ -69,21 +60,21 @@
       &::after {
         content: '';
         position: absolute;
-        bottom: 10px;
+        bottom: 8px;
         left: 0;
         right: 0;
-        height: 12px;
-        background: rgba($pink, 0.3);
+        height: 10px;
+        background: $rose-dark;
         z-index: -1;
       }
     }
   }
 
   .hero-description {
-    font-size: 1.125rem;
-    color: $text-light;
-    margin-bottom: 2rem;
-    line-height: 1.7;
+    font-size: 1rem;
+    color: $text-dark;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
     text-align: center !important;
   }
 
@@ -92,11 +83,36 @@
     gap: 1rem;
     justify-content: center !important;
     flex-wrap: wrap;
+
+    .btn-primary {
+      background: $btn-primary-bg !important;
+      border: none !important;
+      color: $btn-primary-text !important;
+
+      &:hover {
+        background: $btn-primary-hover !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba($btn-primary-hover, 0.4);
+        color: $btn-primary-text-hover !important;
+      }
+    }
+
+    .btn-outline {
+      background: transparent !important;
+      border: 2px solid $btn-outline-border !important;
+      color: $btn-outline-text !important;
+
+      &:hover {
+        background: $btn-outline-hover !important;
+        color: $btn-outline-text-hover !important;
+        transform: translateY(-2px);
+      }
+    }
   }
 
   .hero-wave {
     position: absolute;
-    bottom: -2px;
+    bottom: -30px;
     left: 0;
     right: 0;
     line-height: 0;
@@ -105,11 +121,14 @@
     svg {
       width: 100%;
       height: auto;
+      display: block;
+      path {
+        fill: $cream;
+      }
     }
   }
 }
 
-// Section Header
 .section-header {
   text-align: center;
   margin-bottom: 4rem;
@@ -145,14 +164,12 @@
   }
 }
 
-// Featured Cakes Section
 .featured-section {
   padding: 5rem 0 !important;
   background: $cream !important;
   width: 100%;
 }
 
-// Cake Card
 .cake-card {
   background: white;
   border-radius: 24px;
@@ -160,10 +177,11 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  margin-bottom: 0 !important;
+  margin-bottom: 2rem;
+  height: auto;
+  min-height: 280px;
 
   &:hover {
     transform: translateY(-8px);
@@ -183,6 +201,7 @@
     overflow: hidden;
     aspect-ratio: 1 / 1;
     width: 100%;
+    background: $rose-light;
 
     img {
       width: 100%;
@@ -197,7 +216,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba($brown-dark, 0.8);
+      background: rgba($brown-dark, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -216,7 +235,7 @@
 
         &:hover {
           transform: scale(1.05);
-          background: $pink;
+          background: $rose;
           color: $brown-dark;
         }
       }
@@ -224,50 +243,36 @@
   }
 
   .cake-info {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
     text-align: center;
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
+    justify-content: center;
 
     .cake-name {
       font-family: $font-serif;
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       color: $brown-dark;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.25rem;
     }
 
     .cake-description {
       color: $text-light;
-      font-size: 0.875rem;
-      line-height: 1.5;
+      font-size: 0.8rem;
+      line-height: 1.3;
       margin: 0;
     }
   }
 }
 
-// Fillings Preview Section
 .fillings-preview {
   padding: 5rem 0;
-  background: $beige-light;
+  background: $fillings-bg !important;
   position: relative;
   width: 100%;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('/backgrounds/texture-paper.jpg');
-    background-size: 300px;
-    background-repeat: repeat;
-    opacity: 1;
-    pointer-events: none;
-    width: 100%;
-    height: 100%;
-  }
+  border-radius: 48px;
+  margin: 2rem 0;
 
   .view-all-btn {
     text-align: center;
@@ -300,6 +305,7 @@
     height: 200px;
     overflow: hidden;
     width: 100%;
+    background: $rose-light;
 
     img {
       width: 100%;
@@ -312,7 +318,7 @@
       position: absolute;
       top: 1rem;
       right: 1rem;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -321,7 +327,7 @@
       justify-content: center;
 
       i {
-        color: $brown-medium;
+        color: $pink;
         font-size: 1rem;
       }
     }
@@ -347,7 +353,6 @@
   }
 }
 
-// Testimonials Section
 .testimonials-section {
   padding: 5rem 0;
   background: $cream;
@@ -366,15 +371,19 @@
   background: white;
   padding: 2rem;
   border-radius: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba($rose-dark, 0.4);
+  position: relative;
+  background: linear-gradient(135deg, $rose-light 0%, $rose-soft 100%);
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: rgba($rose-dark, 0.7);
   }
 
   .testimonial-quote {
@@ -383,6 +392,11 @@
     svg {
       width: 40px;
       height: 40px;
+
+      path {
+        fill: $rose-dark;
+        fill-opacity: 0.6;
+      }
     }
   }
 
@@ -396,25 +410,38 @@
   }
 
   .testimonial-author {
-    border-top: 1px solid rgba($brown-light, 0.3);
+    border-top: 1px solid rgba($rose-dark, 0.5);
     padding-top: 1rem;
 
     strong {
       display: block;
       color: $brown-dark;
       font-weight: 600;
+      font-size: 1rem;
     }
 
     span {
       display: block;
       font-size: 0.75rem;
-      color: $text-light;
+      color: $brown-dark;
       margin-top: 0.25rem;
+    }
+  }
+
+  .testimonial-response {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba($rose-dark, 0.5);
+    font-size: 0.9rem;
+
+    strong {
+      color: $brown-dark;
+      display: block;
+      margin-bottom: 0.5rem;
     }
   }
 }
 
-// Grid с отступами
 .row.g-4 {
   --bs-gutter-x: 2rem !important;
   --bs-gutter-y: 2rem !important;
@@ -430,7 +457,6 @@
   margin-bottom: var(--bs-gutter-y) !important;
 }
 
-// Loading
 .loading-container {
   display: flex;
   justify-content: center;
@@ -442,8 +468,8 @@
 .cake-loader {
   width: 50px;
   height: 50px;
-  border: 3px solid rgba($brown-medium, 0.2);
-  border-top-color: $brown-medium;
+  border: 3px solid rgba($pink, 0.2);
+  border-top-color: $pink;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -452,7 +478,6 @@
   to { transform: rotate(360deg); }
 }
 
-// Animations
 .animate-on-scroll {
   opacity: 0;
   transform: translateY(30px);
@@ -464,11 +489,15 @@
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
   .hero-section {
     padding: 3rem 0 !important;
     min-height: 80vh;
+
+    .hero-wave {
+      display: block !important;
+      bottom: 0px;
+    }
   }
 
   .featured-section,
@@ -496,121 +525,5 @@
   .row.g-4 {
     --bs-gutter-x: 1.5rem !important;
     --bs-gutter-y: 1.5rem !important;
-  }
-}
-.decorative {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-
-  &.flour-dust {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('/backgrounds/flour-dust.png');
-    background-size: 300px;
-    background-repeat: repeat;
-    opacity: 0;
-  }
-
-  &.leaf-branch {
-    bottom: 0;
-    right: 0;
-    width: 250px;
-    height: 250px;
-    background-image: url('/backgrounds/leaf-branch.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: bottom right;
-    opacity: 0.3;
-
-    @media (max-width: 768px) {
-      width: 120px;
-      height: 120px;
-      opacity: 0.3;
-    }
-  }
-}
-
-
-.text-center.mt-5 {
-  margin-top: 3rem !important;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 2px solid $brown-medium;
-  color: $brown-dark;
-  padding: 0.75rem 2rem;
-  font-weight: 500;
-  border-radius: 50px;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  i {
-    transition: transform 0.3s ease;
-  }
-
-  &:hover {
-    background: $brown-medium;
-    color: white;
-    transform: translateY(-2px);
-
-    i {
-      transform: translateX(4px);
-    }
-  }
-}
-
-.view-all-btn {
-  text-align: center;
-  margin-top: 3rem;
-}
-
-.testimonial-text {
-  color: $text-dark;
-  font-size: 1rem;
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-  font-style: italic;
-  flex: 1;
-
-  // Стили для HTML-содержимого
-  p {
-    margin-bottom: 0.75rem;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  strong, b {
-    font-weight: 600;
-    color: $brown-dark;
-  }
-
-  em, i {
-    font-style: italic;
-  }
-
-  br {
-    display: block;
-    margin: 0.25rem 0;
-  }
-}
-
-.testimonial-response {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba($brown-light, 0.3);
-  font-size: 0.9rem;
-
-  strong {
-    color: $brown-dark;
-    display: block;
-    margin-bottom: 0.5rem;
   }
 }

@@ -9,8 +9,8 @@
             Наше портфолио
           </h1>
           <p class="portfolio-hero-description">
-            Вдохновляйтесь нашими работами! Каждый торт — это уникальное произведение искусства,
-            созданное с любовью и вниманием к деталям.
+            Каждый торт — это история, рассказанная на языке сладостей.<br>
+            Вдохновляйтесь нашими работами и воплощайте свои идеи
           </p>
         </div>
       </div>
@@ -63,7 +63,7 @@
           <div class="portfolio-card animate-on-scroll" [style.animation-delay]="i * 0.05 + 's'">
             <div class="portfolio-card-image">
               <img
-                [src]="getThumbnailUrl(cake.imageUrl, cake.thumbnailUrl)"
+                [src]="getCakeImageUrl(cake)"
                 [alt]="cake.name"
                 loading="lazy"
                 (error)="handleImageError($event)">

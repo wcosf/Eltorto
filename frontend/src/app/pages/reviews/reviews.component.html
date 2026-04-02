@@ -1,105 +1,51 @@
-<div class="reviews-page py-5">
-  <div class="container">
-    <h1 class="text-center mb-4" style="color: #8B6B4D;">Отзывы наших клиентов</h1>
-    <p class="text-center mb-5" style="color: #7F6B58;">
-      Мы ценим мнение каждого клиента и благодарны за ваши отзывы
-    </p>
+<div class="reviews-page">
+  <section class="reviews-hero">
+    <div class="reviews-hero-bg"></div>
 
-    <!-- Форма добавления отзыва - временно закомментирована -->
-    <!--
-    <div class="review-form mb-5 p-4 rounded" style="background-color: #FFF5EB;">
-      <h3 class="mb-4" style="color: #8B6B4D;">Оставить отзыв</h3>
-
-      <div *ngIf="successMessage" class="alert alert-success">
-        {{ successMessage }}
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
-      </div>
-
-      <form (ngSubmit)="onSubmitReview()">
-        <div class="mb-3">
-          <label for="author" class="form-label" style="color: #4A3B2C;">Ваше имя *</label>
-          <input
-            type="text"
-            class="form-control"
-            id="author"
-            [(ngModel)]="newReview.author"
-            name="author"
-            required
-            style="border-color: #D9C5B0;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center animate-on-scroll">
+          <h1>Отзывы наших клиентов</h1>
+          <p>
+            Ваши слова — наша главная награда. Спасибо, что доверяете нам самые важные моменты!<br>
+          </p>
         </div>
-
-        <div class="mb-3">
-          <label for="email" class="form-label" style="color: #4A3B2C;">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            [(ngModel)]="newReview.email"
-            name="email"
-            style="border-color: #D9C5B0;">
-        </div>
-
-        <div class="mb-3">
-          <label for="text" class="form-label" style="color: #4A3B2C;">Ваш отзыв *</label>
-          <textarea
-            class="form-control"
-            id="text"
-            rows="6"
-            [(ngModel)]="newReview.text"
-            name="text"
-            required
-            style="border-color: #D9C5B0;"
-            placeholder="Напишите ваш отзыв...&#10;Вы можете использовать эмодзи и форматирование текста."></textarea>
-          <small class="text-muted">Вы можете использовать переносы строк для форматирования текста.</small>
-        </div>
-
-        <button
-          type="submit"
-          class="btn px-4"
-          [disabled]="isSubmitting"
-          style="background-color: #B89A7A; color: white;">
-          {{ isSubmitting ? 'Отправка...' : 'Отправить отзыв' }}
-        </button>
-      </form>
-    </div>
-    -->
-
-    <!-- Список отзывов -->
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border" style="color: #B89A7A;" role="status">
-        <span class="visually-hidden">Загрузка...</span>
       </div>
     </div>
 
-    <div *ngIf="!isLoading && testimonials.length === 0" class="text-center py-5">
-      <p style="color: #7F6B58;">Пока нет отзывов. Будьте первым!</p>
+    <div class="reviews-wave">
+      <svg viewBox="0 0 1440 320">
+        <path d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,208C960,213,1056,203,1152,186.7C1248,171,1344,149,1392,138.7L1440,128L1440,320L0,320Z"></path>
+      </svg>
     </div>
+  </section>
 
-    <div class="row">
-      <div class="col-md-6 mb-4" *ngFor="let review of testimonials">
-        <div class="review-card p-4 rounded shadow-sm" style="background-color: #FFF5EB;">
-          <div class="mb-3">
-            <i class="quote-icon" style="font-size: 2rem; color: #F9C6C9;">"</i>
-          </div>
+  <div class="reviews-content">
+    <div class="container py-5">
 
-          <!-- HTML-содержимое отзыва с санитизацией -->
-          <div class="review-text" [innerHTML]="review.text | sanitizeHtml"></div>
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border"></div>
+      </div>
 
-          <div class="mt-3">
-            <strong style="color: #8B6B4D;">{{ review.author }}</strong>
-            <p class="small mb-0" style="color: #B89A7A;">{{ review.date | date:'dd.MM.yyyy' }}</p>
-          </div>
-
-          <!-- Если есть ответ администратора -->
-          <div *ngIf="review.response" class="review-response mt-3">
-            <strong style="color: #8B6B4D;">Ответ кондитера:</strong>
-            <div class="response-text mt-2" [innerHTML]="review.response | sanitizeHtml"></div>
+      <div class="reviews-grid">
+        <div class="animate-on-scroll"
+            *ngFor="let review of testimonials; let i = index"
+            [style.animation-delay]="i * 0.05 + 's'">
+          <div class="review-card p-4 rounded shadow-sm">
+            <i class="quote-icon">"</i>
+            <div class="review-text" [innerHTML]="review.text | sanitizeHtml"></div>
+            <div class="mt-3">
+              <strong>{{ review.author }}</strong>
+              <p class="small mb-0">{{ review.date | date:'dd.MM.yyyy' }}</p>
+            </div>
+            <div *ngIf="review.response" class="review-response mt-3">
+              <strong>Ответ кондитера:</strong>
+              <div class="response-text mt-2" [innerHTML]="review.response | sanitizeHtml"></div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>

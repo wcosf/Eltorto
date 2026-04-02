@@ -53,6 +53,22 @@ export class OrderComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach(el => observer.observe(el));
+  }
+
   onSubmit(): void {
     if (!this.orderData.customerName || !this.orderData.customerPhone) {
       this.errorMessage = 'Пожалуйста, заполните имя и телефон';

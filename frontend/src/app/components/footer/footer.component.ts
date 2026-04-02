@@ -11,14 +11,15 @@ import { ApiService, ContactSettings } from '../../services/api.service';
 })
 export class FooterComponent implements OnInit {
   currentYear = new Date().getFullYear();
+  startYear = 2012;
   contacts: ContactSettings | null = null;
   isLoading = true;
   error: string | null = null;
 
   workingHours = {
-    weekdays: '10:00 - 20:00',
-    saturday: '11:00 - 18:00',
-    sunday: 'Выходной'
+    weekdays: '8:00 - 20:00',
+    saturday: '8:00 - 20:00',
+    sunday: '8:00 - 20:00'
   };
 
   constructor(private apiService: ApiService) { }
@@ -63,5 +64,12 @@ export class FooterComponent implements OnInit {
 
   formatPhone(phone: string): string {
     return phone;
+  }
+
+  getYearRange(): string {
+    if (this.currentYear === this.startYear) {
+      return `${this.startYear}`;
+    }
+    return `${this.startYear}-${this.currentYear}`;
   }
 }
