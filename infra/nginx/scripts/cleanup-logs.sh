@@ -10,10 +10,10 @@ echo "Запуск: $(date)"
 
 # нормализация дат
 date_to_seconds() {
-    local date_str="$1"
-    local year=$(echo "$date_str" | cut -d'_' -f1)
-    local month=$(echo "$date_str" | cut -d'_' -f2)
-    local day=$(echo "$date_str" | cut -d'_' -f3)
+    date_str="$1"
+    year=$(echo "$date_str" | cut -d'_' -f1)
+    month=$(echo "$date_str" | cut -d'_' -f2)
+    day=$(echo "$date_str" | cut -d'_' -f3)
     date -d "$year-$month-$day" +%s 2>/dev/null
 }
 
@@ -21,9 +21,8 @@ CURRENT_TIMESTAMP=$(date +%s)
 
 for dir in "$LOG_BASE_DIR"/*/; do
     dir_name=$(basename "$dir")
-    if [[ $dir_name =~ ^[0-9]{4}_[0-9]{2}_[0-9]{2}$ ]]; then
+    if echo "$dir_name" | grep -qE '^[0-9]{4}_[0-9]{2}_[0-9]{2}$'; then
         dir_timestamp=$(date_to_seconds "$dir_name")
-        
         if [ -n "$dir_timestamp" ]; then
             if [ $CURRENT_TIMESTAMP -lt $dir_timestamp ]; then
                 days_diff=0
@@ -36,6 +35,13 @@ for dir in "$LOG_BASE_DIR"/*/; do
                 rm -rf "$dir"
             fi
         fi
+    fi
+done
+
+for logfile in access.log error.log; do
+    if [ -f "$LOG_BASE_DIR/$logfile" ]; then
+        echo "Очищаем файл: $LOG_BASE_DIR/$logfile"
+        > "$LOG_BASE_DIR/$logfile"
     fi
 done
 
