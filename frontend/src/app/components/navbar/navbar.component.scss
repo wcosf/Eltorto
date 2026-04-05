@@ -1,0 +1,219 @@
+@use '../../../styles.scss' as *;
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  padding: 0.75rem 0;
+  transition: all 0.3s ease;
+  background-color: rgba(#ffffff, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+
+  &.navbar-scrolled {
+    padding: 0.5rem 0;
+    background-color: rgba(#ffffff, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    img {
+      width: 45px;
+      height: 45px;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      display: block;
+    }
+
+    .brand-name {
+      font-family: $font-serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: $navbar-text;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      display: inline-block;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  .navbar-toggler {
+    display: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    height: 45px;
+    width: 45px;
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2373154b' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+    }
+  }
+
+  .navbar-collapse {
+    display: flex !important;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .navbar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+    margin: 0;
+    align-items: center;
+  }
+
+  .nav-link {
+    position: relative;
+    color: $navbar-text;
+    font-weight: 500;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, $rose-soft, $rose-medium);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    &:hover::after {
+      width: 0;
+    }
+
+    &:hover {
+      color: $rose-dark;
+    }
+
+    &.active::after {
+      width: 70%;
+    }
+
+    &.active {
+      color: $rose-dark;
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar {
+    padding: 0.75rem 0;
+
+    .container {
+      flex-wrap: wrap;
+    }
+
+    .navbar-brand {
+      flex: 1;
+    }
+
+    .navbar-toggler {
+      display: flex;
+    }
+
+    .navbar-collapse {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: $navbar-bg;
+      padding: 1.5rem;
+      border-radius: 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transform: translateY(-150%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1029;
+      max-height: calc(100vh - 70px);
+      overflow-y: auto;
+      display: block !important;
+      width: 100%;
+
+      &.show {
+        transform: translateY(0);
+      }
+    }
+
+    .navbar-nav {
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .nav-item {
+      width: 100%;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.9rem 1rem;
+      font-size: 1.1rem;
+      text-align: center;
+      border-radius: 12px;
+      white-space: normal;
+
+      &::after {
+        display: none;
+      }
+
+      &:hover {
+        background: rgba($rose-medium, 0.1);
+      }
+
+      &.active {
+        background: rgba($rose-medium, 0.3);
+        color: $rose-dark;
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+<nav class="navbar" [class.navbar-scrolled]="isScrolled">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/" (click)="onLinkClick()">
+      <div class="brand-logo">
+        <img src="/images/logo/logo-icon.png" alt="Eltorto" height="40">
+        <span class="brand-name">Eltorto</span>
+      </div>
+    </a>
+
+    <button class="navbar-toggler" type="button" (click)="toggleMenu()" [attr.aria-expanded]="isMenuOpen">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" [class.show]="isMenuOpen">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onLinkClick()">
+            Главная
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/portfolio" routerLinkActive="active" (click)="onLinkClick()">
+            Портфолио
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/fillings" routerLinkActive="active" (click)="onLinkClick()">
+            Начинки
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/order" routerLinkActive="active" (click)="onLinkClick()">
+            Заказать торт
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/reviews" routerLinkActive="active" (click)="onLinkClick()">
+            Отзывы
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

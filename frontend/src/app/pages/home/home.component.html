@@ -1,0 +1,164 @@
+<div class="home-page">
+  <!-- Hero секция -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 hero-content animate-on-scroll">
+          <h1 class="hero-title">
+            Торты, которые<br>
+            <span class="highlight">созданы с любовью</span>
+          </h1>
+          <p class="hero-description">
+            Авторский дизайн, безупречный вкус и внимание к деталям. <br>
+            Воплотим ваши самые смелые идеи в сладком шедевре
+          </p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary btn-lg" routerLink="/order">
+              Заказать торт
+              <i class="bi bi-arrow-right"></i>
+            </button>
+            <button class="btn btn-outline btn-lg" routerLink="/portfolio">
+              Смотреть портфолио
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <path fill="#ffffff" fill-opacity="1" d="M0,64L48,69.3C96,75,192,85,288,85.3C384,85,480,75,576,74.7C672,75,768,85,864,85.3C960,85,1056,75,1152,69.3C1248,64,1344,64,1392,64L1440,64L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Рекомендуемые торты -->
+  <section class="featured-section">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Рекомендуемые торты</h2>
+        <p class="section-description">Наши бестселлеры — торты, которые покоряют с первого взгляда</p>
+      </div>
+
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="cake-loader"></div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-warning text-center">
+        {{ error }}
+      </div>
+
+      <div class="row g-4" *ngIf="!isLoading && !error">
+        <div class="col-md-6 col-lg-4" *ngFor="let cake of featuredCakes; let i = index">
+          <div class="cake-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'">
+            <div class="cake-image">
+              <img
+                [src]="getCakeImageUrl(cake)"
+                [alt]="cake.name"
+                loading="lazy"
+                (error)="handleImageError($event)">
+              <div class="cake-overlay">
+                <button class="btn-view" routerLink="/order" [queryParams]="{cake: cake.id}">
+                  Заказать
+                </button>
+              </div>
+            </div>
+            <div class="cake-info">
+              <h3 class="cake-name">{{ cake.name }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="featuredCakes.length === 0" class="col-12 text-center">
+          <p class="empty-message">Скоро здесь появятся наши торты!</p>
+        </div>
+      </div>
+
+      <!-- Кнопка для перехода в портфолио -->
+      <div class="text-center mt-5 animate-on-scroll">
+        <button class="btn btn-outline btn-lg" routerLink="/portfolio">
+          Все торты
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Вкусные комбинации -->
+  <section class="fillings-preview">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Вкусные комбинации</h2>
+        <p class="section-description">Гармония вкусов — найдите свою идеальную пару</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3" *ngFor="let filling of fillings.slice(0, 4); let i = index">
+          <div class="filling-preview-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'" routerLink="/fillings">
+            <div class="filling-image">
+              <img
+                [src]="getFillingImageUrl(filling.imageUrl)"
+                [alt]="filling.name"
+                loading="lazy"
+                (error)="handleImageError($event)">
+              <div class="filling-icon" *ngIf="filling.hasCrossSection">
+                <i class="bi bi-cake"></i>
+              </div>
+            </div>
+            <div class="filling-info">
+              <h3 class="filling-name">{{ filling.name }}</h3>
+              <p class="filling-description">{{ filling.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-all-btn animate-on-scroll">
+        <button class="btn btn-outline btn-lg" routerLink="/fillings">
+          Все начинки
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+<!-- Отзывы -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header animate-on-scroll">
+      <h2 class="section-title">Что говорят наши клиенты</h2>
+      <p class="section-description">Более 14 лет радуем наших клиентов!</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card animate-on-scroll"
+           *ngFor="let testimonial of testimonials; let i = index"
+           [style.animation-delay]="i * 0.1 + 's'">
+        <div class="testimonial-quote">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <path d="M18 16H12V24H18V16ZM36 16H30V24H36V16Z" fill="#F9C6C9" fill-opacity="0.5"/>
+            <path d="M12 32L18 24H12V32ZM30 32L36 24H30V32Z" fill="#F9C6C9" fill-opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="testimonial-text" [innerHTML]="testimonial.text | sanitizeHtml"></div>
+        <div class="testimonial-author">
+          <strong>{{ testimonial.author }}</strong>
+          <span>{{ testimonial.date | date:'dd.MM.yyyy' }}</span>
+        </div>
+        <div *ngIf="testimonial.response" class="testimonial-response mt-3">
+          <strong>Ответ кондитера:</strong>
+          <div [innerHTML]="testimonial.response | sanitizeHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5 animate-on-scroll">
+      <button class="btn btn-outline btn-lg" routerLink="/reviews">
+        Все отзывы
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</section>
+</div>
