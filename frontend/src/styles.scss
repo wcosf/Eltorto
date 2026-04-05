@@ -1,0 +1,259 @@
+// Основные цвета
+$cream: #ffffff;
+$beige-light: #ffd9ea;
+$fillings-bg: #f4e1eb;
+$footer-bg: #f4b3d5;
+
+// Розовые цвета
+$rose-light: #fff0f7;
+$rose-soft: #f4e1eb;
+$rose-medium: #f5d2e4;
+$rose-dark: #f4b3d5;
+
+$brown-light: $rose-soft;
+$brown-medium: $rose-soft;
+$brown-dark: #73154b;
+$brown-deep: #73154b;
+
+$rose: $rose-soft;
+$pink: $rose-dark;
+$pink-hover: $rose-dark;
+$pink-soft: $rose-soft;
+
+// Цвета текста
+$text-dark: $brown-dark;
+$text-light: #6e234e;
+
+// Цвета кнопок
+$btn-primary-bg: $rose-dark;
+$btn-primary-hover: #ef9fc9;
+$btn-primary-text: $brown-dark;
+$btn-primary-text-hover: $brown-dark;
+
+$btn-outline-border: $rose-dark;
+$btn-outline-hover: $rose-dark;
+$btn-outline-text: $text-dark;
+$btn-outline-text-hover: $brown-dark;
+
+// Цвета hero текста
+$hero-title-color: $text-dark;
+$hero-description-color: $text-dark;
+$hero-badge-bg: rgba(0, 0, 0, 0.08);
+$hero-highlight-bg: rgba(0, 0, 0, 0.08);
+
+// Цвета навбара
+$navbar-bg: $cream;
+$navbar-text: $text-dark;
+
+// ===== TYPOGRAPHY =====
+$font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-serif: 'Cormorant Garamond', Georgia, serif;
+
+// ===== ANIMATIONS =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+// ===== GLOBAL STYLES =====
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  color: $text-dark;
+  background-color: $cream;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: $brown-dark;
+}
+
+h2 {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: $brown-dark;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, $rose-soft, $rose-dark);
+    border-radius: 3px;
+  }
+}
+
+// Utility classes
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Glass morphism effect
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba($rose-soft, 0.2);
+  border-radius: 24px;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover i {
+    transform: translateX(4px);
+  }
+}
+
+.btn-primary {
+  background: $btn-primary-bg;
+  border: none;
+  color: $btn-primary-text;
+
+  &:hover {
+    background: $btn-primary-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($btn-primary-hover, 0.4);
+    color: $btn-primary-text-hover;
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid $btn-outline-border;
+  color: $btn-outline-text;
+
+  &:hover {
+    background: $btn-outline-hover;
+    color: $btn-outline-text-hover;
+    transform: translateY(-2px);
+  }
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+// Переопределение Bootstrap стилей
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.row > * {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.col-md-4, .col-md-6, .col-lg-3, .col-lg-4 {
+  margin-bottom: 2rem !important;
+}
+
+.cake-card, .filling-preview-card, .testimonial-card {
+  margin-bottom: 0 !important;
+  height: 100%;
+}
+
+.g-4 {
+  --bs-gutter-x: 2rem !important;
+  --bs-gutter-y: 2rem !important;
+}
+
+@media (min-width: 768px) {
+  .g-4 {
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .g-4 {
+    --bs-gutter-x: 2rem !important;
+    --bs-gutter-y: 2rem !important;
+  }
+}
+
+.main-content {
+  padding-top: 68px;
+  min-height: 100vh;
+  position: relative;
+  background: $cream;
+}
+
+.alert.alert-warning {
+  background-color: #fff0f7;
+  border: 1px solid #f4b3d5;
+  color: #73154b;
+  border-radius: 12px;
+  padding: 1rem;
+}

@@ -1,0 +1,82 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="row g-4">
+        <!-- О компании -->
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand">
+            <img src="images/logo/logo-icon.png" alt="Eltorto" height="40" onerror="this.src='images/placeholder-cake.jpg'">
+            <h5 class="footer-title">Eltorto</h5>
+          </div>
+          <p class="footer-description">
+            Кондитерская студия Eltorto — место, где рождаются сладкие шедевры.
+            Мы вкладываем душу в каждое изделие, создавая уникальный дизайн и неповторимый вкус.
+          </p>
+        </div>
+
+        <!-- Контакты -->
+        <div class="col-lg-4 col-md-6">
+          <h5 class="footer-heading">Контакты</h5>
+
+          <div *ngIf="isLoading" class="loading-contacts">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+          </div>
+
+          <div *ngIf="error" class="error-message">
+            {{ error }}
+          </div>
+
+          <ul class="footer-links" *ngIf="!isLoading && !error && contacts">
+            <!-- Основной телефон -->
+            <li *ngIf="contacts.phone">
+              <a [href]="getPhoneLink(contacts.phone)">
+                <i class="bi bi-telephone-fill"></i>
+                {{ contacts.phone }}
+              </a>
+            </li>
+            <!-- Дополнительный телефон -->
+            <li *ngIf="contacts.additionalPhone">
+              <a [href]="getPhoneLink(contacts.additionalPhone)">
+                <i class="bi bi-phone-fill"></i>
+                {{ contacts.additionalPhone }}
+              </a>
+            </li>
+            <!-- Email -->
+            <li *ngIf="contacts.email">
+              <a [href]="'mailto:' + contacts.email">
+                <i class="bi bi-envelope-fill"></i>
+                {{ contacts.email }}
+              </a>
+            </li>
+            <!-- Адрес -->
+            <li *ngIf="contacts.address">
+              <a [href]="getMapLink()" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-geo-alt-fill"></i>
+                {{ contacts.address }}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Режим работы -->
+        <div class="col-lg-4">
+          <h5 class="footer-heading">Режим работы</h5>
+          <ul class="footer-links">
+            <li>
+              <span class="day">Пн-Вс:</span>
+              <span>{{ workingHours.weekdays }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="copyright">
+        © {{ getYearRange() }} Eltorto.
+      </p>
+    </div>
+  </div>
+</footer>
