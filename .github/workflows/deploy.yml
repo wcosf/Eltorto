@@ -58,8 +58,18 @@ jobs:
           cd infra
           echo "DB_PASSWORD=test" > .env.test
           docker compose --env-file .env.test up -d
-          echo "Waiting for containers to start (30 seconds)..."
-          sleep 30
+          echo "Waiting for containers to be ready (60 seconds)..."
+          sleep 60
+    
+          echo "Container status after wait:"
+          docker compose ps
+
+          if ! docker compose ps | grep -q "Up"; then
+            echo "ERROR: Containers are not running!"
+            docker compose logs
+            exit 1
+          fi
+    
           cd ..
           pip install -r tests/requirements.txt
           pytest tests/ -v --tb=short
