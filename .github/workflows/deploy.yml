@@ -58,6 +58,14 @@ jobs:
           cd infra
           echo "DB_PASSWORD=test" > .env.test
           docker compose --env-file .env.test up -d
+          echo "Waiting for containers to be healthy..."
+          for service in postgres api frontend; do
+            while [ "$(docker inspect -f '{{.State.Health.Status}}' eltorto_$service 2>/dev/null)" != "healthy" ]; do
+              echo "Waiting for $service..."
+              sleep 5
+            done
+            echo "$service is healthy"
+          done
           cd ..
           pip install -r tests/requirements.txt
           pytest tests/ -v --tb=short
