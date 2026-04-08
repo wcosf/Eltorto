@@ -69,4 +69,4 @@ jobs:
           pytest tests/ -v --tb=short
           cd infra
           docker compose -f docker-compose.dev.yml down
-          rm .env.test
+          rm -f .env.test
