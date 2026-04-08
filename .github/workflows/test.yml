@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test and Validate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose syntax
+        run: |
+          cd infra
+          docker compose -f docker-compose.dev.yml config -q
+          echo "docker-compose.dev.yml syntax is valid"
+
+      - name: Check environment variables template
+        run: |
+          if [ ! -f infra/.env.example ]; then
+            echo "Error: .env.example file is missing"
+            exit 1
+          fi
+
+      - name: Check required files exist
+        run: |
+          required_files=(
+            "infra/docker-compose.dev.yml"
+            "infra/nginx/nginx.dev.conf"
+            "infra/postgres/init.sql"
+            "backend/Eltorto/Eltorto.API/Dockerfile"
+            "frontend/Dockerfile"
+          )
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Error: $file not found"
+              exit 1
+            fi
+          done
+
+      - name: Run Python integration tests
+        run: |
+          cd infra
+          cp nginx/nginx.dev.conf nginx/nginx.conf
+          echo "DB_PASSWORD=test" > .env.test
+          docker compose -f docker-compose.dev.yml --env-file .env.test up -d
+          echo "Waiting for containers to be ready (60 seconds)..."
+          sleep 60
+    
+          echo "Container status after wait:"
+          docker compose -f docker-compose.dev.yml ps
+
+          if ! docker compose -f docker-compose.dev.yml ps | grep -q "Up"; then
+            echo "ERROR: Containers are not running!"
+            docker compose -f docker-compose.dev.yml logs
+            exit 1
+          fi
+    
+          cd ..
+          pip install -r tests/requirements.txt
+          pytest tests/ -v --tb=short
+          cd infra
+          docker compose -f docker-compose.dev.yml down
+          rm .env.test
