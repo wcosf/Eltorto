@@ -59,13 +59,15 @@ jobs:
             -v $(pwd)/infra/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
             nginx:alpine nginx -t
 
-      - name: Test database dump import
+      - name: Run Python integration tests
         run: |
           cd infra
           echo "DB_PASSWORD=test" > .env.test
-          docker compose --env-file .env.test up -d postgres
-          sleep 15
-          docker exec eltorto_postgres psql -U postgres -d eltorto_pg -c "SELECT COUNT(*) FROM \"Cakes\";" | grep -q "1643"
+          docker compose --env-file .env.test up -d
+          cd ..
+          pip install -r tests/requirements.txt
+          pytest tests/ -v --tb=short
+          cd infra
           docker compose down
           rm .env.test
 
@@ -99,6 +101,7 @@ jobs:
             --exclude='infra/nginx/logs/' \
             --exclude='infra/ssl/' \
             --exclude='temp.txt' \
+            --exclude='tests/' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
 
