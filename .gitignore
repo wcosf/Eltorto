@@ -60,6 +60,7 @@ nunit-*.xml
 
 .env
 *.log
+.temp
 
 # SSL certificates
 infra/ssl/
