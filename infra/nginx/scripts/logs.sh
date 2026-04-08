@@ -62,7 +62,7 @@ if [ -f "$LOG_BASE_DIR/error.log" ]; then
     echo "error.log обработан и удален"
 fi
 
-nginx -s reopen 2>/dev/null || kill -USR1 $(cat /var/run/nginx.pid) 2>/dev/null
+nginx -s reopen 2>/dev/null || docker exec eltorto_nginx nginx -s reopen 2>/dev/null
 
 echo "Сбор логов завершен: $CURRENT_DATE"
 echo "Файлы созданы в: $LOG_DIR"
