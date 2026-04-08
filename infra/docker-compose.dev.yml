@@ -28,6 +28,8 @@ services:
       context: ../backend/Eltorto
       dockerfile: Eltorto.API/Dockerfile
     container_name: eltorto_api
+    ports:
+      - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
