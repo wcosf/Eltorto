@@ -6,7 +6,7 @@ import os
 
 @pytest.fixture(scope="session")
 def docker_compose_file(pytestconfig):
-    return str(pytestconfig.rootdir / "infra" / "docker-compose.yml")
+    return str(pytestconfig.rootdir / "infra" / "docker-compose.dev.yml")
 
 @pytest.fixture(scope="session")
 def docker_compose_project_name():
