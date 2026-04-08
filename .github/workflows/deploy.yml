@@ -75,6 +75,17 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Sync files with rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='README.md' \
+            --exclude='.gitignore' \
+            --exclude='infra/nginx/logs/' \
+            --exclude='infra/ssl/' \
+            --exclude='temp.txt' \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
+
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -87,9 +98,6 @@ jobs:
             echo " Starting deployment at $(date) "
             
             cd ${{ env.PROJECT_PATH }}
-            
-            echo "Pulling latest changes..."
-            git pull origin main
             
             cd infra
             
