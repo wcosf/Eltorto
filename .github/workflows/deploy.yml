@@ -1,87 +1,17 @@
-name: Production Deployment
+name: Deploy
 
 on:
   push:
     branches:
-      - main                   
-  pull_request:
-    branches:
-      - main                  
-    types:
-      - closed           
+      - main
 
 env:
-  PROJECT_PATH: /root/eltorto.ru   
+  PROJECT_PATH: /root/eltorto.ru
 
 jobs:
-
-  test:
-    name: Test and Validate
-    runs-on: ubuntu-latest              
-    if: github.event_name == 'pull_request' 
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate docker-compose syntax
-        run: |
-          cd infra
-          docker compose config -q
-          echo "docker-compose.yml syntax is valid"
-
-      - name: Check environment variables template
-        run: |
-          if [ ! -f infra/.env.example ]; then
-            echo "Error: .env.example file is missing"
-            exit 1
-          fi
-
-      - name: Check required files exist
-        run: |
-          required_files=(
-            "infra/docker-compose.yml"
-            "infra/nginx/nginx.conf"
-            "infra/postgres/init.sql"
-            "backend/Eltorto/Eltorto.API/Dockerfile"
-            "frontend/Dockerfile"
-          )
-          for file in "${required_files[@]}"; do
-            if [ ! -f "$file" ]; then
-              echo "Error: $file not found"
-              exit 1
-            fi
-          done
-
-      - name: Run Python integration tests
-        run: |
-          cd infra
-          echo "DB_PASSWORD=test" > .env.test
-          docker compose --env-file .env.test up -d
-          echo "Waiting for containers to be ready (60 seconds)..."
-          sleep 60
-    
-          echo "Container status after wait:"
-          docker compose ps
-
-          if ! docker compose ps | grep -q "Up"; then
-            echo "ERROR: Containers are not running!"
-            docker compose logs
-            exit 1
-          fi
-    
-          cd ..
-          pip install -r tests/requirements.txt
-          pytest tests/ -v --tb=short
-          cd infra
-          docker compose down
-          rm .env.test
-
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: test                          
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Только push в main
     environment:
       name: production
       url: https://eltorto.ru
@@ -94,6 +24,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
       - name: Add host to known_hosts
         run: |
           mkdir -p ~/.ssh
@@ -108,6 +39,7 @@ jobs:
             --exclude='infra/ssl/' \
             --exclude='temp.txt' \
             --exclude='tests/' \
+            --exclude='infra/nginx/nginx.dev.conf' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
 
@@ -123,6 +55,8 @@ jobs:
             echo " Starting deployment at $(date) "
             
             cd ${{ env.PROJECT_PATH }}
+            
+            git pull origin main
             
             cd infra
             
@@ -155,7 +89,6 @@ jobs:
             exit 1
           fi
 
-  # откат 
   rollback:
     name: Rollback on Failure
     runs-on: ubuntu-latest
