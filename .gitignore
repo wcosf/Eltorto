@@ -12,6 +12,11 @@
 *.user
 *migration_log.txt
 
+.env
+*.log
+.temp
+.env.test
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -57,11 +62,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-
-.env
-*.log
-.temp
-.env.test
 
 # SSL certificates
 infra/ssl/

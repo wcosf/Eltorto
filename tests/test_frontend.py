@@ -14,7 +14,10 @@ def test_frontend_has_css(frontend_url):
     assert len(css_files) > 0, "No CSS files found"
     
     css_url = css_files[0]
-    if css_url.startswith('/'):
-        css_url = frontend_url + css_url
+    if not css_url.startswith('http'):
+        if css_url.startswith('/'):
+            css_url = frontend_url + css_url
+        else:
+            css_url = frontend_url + '/' + css_url
     response = requests.get(css_url)
     assert response.status_code == 200

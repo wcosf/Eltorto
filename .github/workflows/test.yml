@@ -49,11 +49,14 @@ jobs:
           cp nginx/nginx.dev.conf nginx/nginx.conf
           echo "DB_PASSWORD=test" > .env.test
           docker compose -f docker-compose.dev.yml --env-file .env.test up -d
-          echo "Waiting for containers to be ready (60 seconds)..."
-          sleep 60
+          echo "Waiting for containers to be ready (40 seconds)..."
+          sleep 40
     
           echo "Container status after wait:"
           docker compose -f docker-compose.dev.yml ps
+
+          echo "API logs:"
+          docker compose -f docker-compose.dev.yml logs api || true
 
           if ! docker compose -f docker-compose.dev.yml ps | grep -q "Up"; then
             echo "ERROR: Containers are not running!"
@@ -66,4 +69,4 @@ jobs:
           pytest tests/ -v --tb=short
           cd infra
           docker compose -f docker-compose.dev.yml down
-          rm .env.test
+          rm -f .env.test
