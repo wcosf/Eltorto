@@ -16,6 +16,8 @@
 *.log
 .temp
 .env.test
+spam_patterns.txt
+whitelist.txt
 
 # Build results
 [Dd]ebug/
