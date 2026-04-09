@@ -3,7 +3,7 @@ import time
 import subprocess
 from collections import defaultdict
 
-LOG_PATH = "/var/log/nginx/access.log"
+LOG_PATH = "/root/eltorto.ru/infra/nginx/logs/access.log"
 BAN_DURATION = 3600
 REQUEST_LIMIT = 200
 BAN_LIST = "/etc/nginx/ban.conf"
