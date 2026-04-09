@@ -76,7 +76,7 @@ def update_ban_list():
             for ip in active_bans:
                 f.write(f"deny {ip};\n")
         
-        subprocess.run(["nginx", "-s", "reload"], capture_output=True)
+        subprocess.run(["docker", "exec", "eltorto_nginx", "nginx", "-s", "reload"], capture_output=True)
     except Exception as e:
         print(f"Error updating ban list: {e}")
 
