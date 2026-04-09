@@ -4,10 +4,10 @@ import subprocess
 import os
 from collections import defaultdict
 
-LOG_PATH = "/var/log/nginx/access.log"  # внутри контейнера
+LOG_PATH = "/root/eltorto.ru/infra/nginx/logs/access.log"
 BAN_DURATION = 3600
 REQUEST_LIMIT = 500
-BAN_LIST = "/etc/nginx/ban.conf"
+BAN_LIST = "/root/eltorto.ru/infra/nginx/ban.conf"
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
