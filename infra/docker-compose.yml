@@ -62,6 +62,7 @@ services:
       - ./nginx/scripts:/scripts:ro
       - ./ssl:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
+      - ./nginx/ban.conf:/etc/nginx/ban.conf:ro
     depends_on:
       - api
       - frontend
