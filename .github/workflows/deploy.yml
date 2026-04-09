@@ -40,6 +40,9 @@ jobs:
             --exclude='temp.txt' \
             --exclude='tests/' \
             --exclude='infra/nginx/nginx.dev.conf' \
+            --exclude='scripts/whitelist.txt' \
+            --exclude='infra/nginx/ban.conf' \
+            --exclude='scripts/spam_patterns.txt' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
 
