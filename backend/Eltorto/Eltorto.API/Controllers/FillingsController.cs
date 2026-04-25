@@ -86,6 +86,10 @@ public class FillingsController : BaseApiController
         {
             return NotFound();
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpDelete("{id:int}")]
