@@ -68,8 +68,8 @@ jobs:
           cp nginx/nginx.dev.conf nginx/nginx.conf
           echo "DB_PASSWORD=test" > .env.test
 
-          docker compose -f docker-compose.dev.yml --env-file .env.test build
-          docker compose -f docker-compose.dev.yml --env-file .env.test up -d
+          docker compose -f docker-compose.dev.yml build
+          DB_PASSWORD=test docker compose -f docker-compose.dev.yml up -d
 
           echo "Waiting for containers to be ready (25 seconds)..."
           sleep 25
