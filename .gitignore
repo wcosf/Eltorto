@@ -70,3 +70,5 @@ infra/ssl/
 *.pem
 *.crt
 *.key
+scripts/spam_patterns.txt
+scripts/whitelist.txt
