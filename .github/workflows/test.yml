@@ -14,6 +14,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Validate docker-compose syntax
         run: |
           cd infra
@@ -42,18 +53,29 @@ jobs:
               exit 1
             fi
           done
+            
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('tests/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Run Python integration tests
         run: |
           cd infra
           cp nginx/nginx.dev.conf nginx/nginx.conf
           echo "DB_PASSWORD=test" > .env.test
+
+          docker compose -f docker-compose.dev.yml --env-file .env.test build --cache-from=type=local,src=/tmp/.buildx-cache
           docker compose -f docker-compose.dev.yml --env-file .env.test up -d
-          echo "Waiting for containers to be ready (40 seconds)..."
-          sleep 40
+
+          echo "Waiting for containers to be ready (25 seconds)..."
+          sleep 25
     
           echo "Container status after wait:"
-          docker compose -f docker-compose.dev.yml ps
+          docker compose -f docker-compose.dev.yml ps 
 
           echo "API logs:"
           docker compose -f docker-compose.dev.yml logs api || true
@@ -65,7 +87,7 @@ jobs:
           fi
     
           cd ..
-          pip install -r tests/requirements.txt
+          pip install --cache-dir ~/.cache/pip -r tests/requirements.txt
           pytest tests/ -v --tb=short
           cd infra
           docker compose -f docker-compose.dev.yml down
