@@ -42,6 +42,7 @@ jobs:
             --exclude='infra/nginx/nginx.dev.conf' \
             --exclude='infra/docker-compose.dev.yml' \
             --exclude='infra/.env.example' \
+            --exclude='infra/.env' \
             --exclude='scripts/config.example.txt' \
             --exclude='scripts/whitelist.txt' \
             --exclude='infra/nginx/ban.conf' \
