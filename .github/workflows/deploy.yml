@@ -40,6 +40,9 @@ jobs:
             --exclude='temp.txt' \
             --exclude='tests/' \
             --exclude='infra/nginx/nginx.dev.conf' \
+            --exclude='infra/docker-compose.dev.yml' \
+            --exclude='infra/.env.example' \ 
+            --exclude='scripts/config.example.txt' \
             --exclude='scripts/whitelist.txt' \
             --exclude='infra/nginx/ban.conf' \
             --exclude='scripts/spam_patterns.txt' \
@@ -59,14 +62,15 @@ jobs:
             
             cd ${{ env.PROJECT_PATH }}
             
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             
             cd infra
             
             echo "Creating .env file if not exists..."
             if [ ! -f .env ]; then
-              cp .env.example .env
-              echo "WARNING: .env created from example. Please update passwords manually!"
+              echo "ERROR: .env file not found! Aborting deployment."
+              exit 1
             fi
             
             echo "Stopping old containers..."
@@ -84,7 +88,7 @@ jobs:
       - name: Health check
         run: |
           sleep 10
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SSH_HOST }})
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
           if [ $STATUS_CODE -eq 200 ] || [ $STATUS_CODE -eq 301 ]; then
             echo "Health check passed. Status code: $STATUS_CODE"
           else
