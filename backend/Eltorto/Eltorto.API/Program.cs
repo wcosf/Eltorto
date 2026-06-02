@@ -52,11 +52,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // ТОЛЬКО EF Core миграции (структура таблиц)
         await services.ApplyMigrationsAsync();
-
-        // ПОКА ЗАКОММЕНТИРУЙТЕ миграцию данных
-        //await services.MigrateDataAsync();
     }
     catch (Exception ex)
     {

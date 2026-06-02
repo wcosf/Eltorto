@@ -1,7 +1,6 @@
 ﻿using Eltorto.Application.Interfaces;
 using Eltorto.Application.Interfaces.Repositories;
 using Eltorto.Infrastructure.Data;
-using Eltorto.Infrastructure.DataMigration;
 using Eltorto.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -47,9 +46,6 @@ public static class DependencyInjection
         // Регистрация UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Регистрация миграций данных
-        services.AddSingleton<MigrationRunner>();
-
         return services;
     }
 
@@ -58,12 +54,5 @@ public static class DependencyInjection
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await dbContext.Database.MigrateAsync();
-    }
-
-    public static async Task MigrateDataAsync(this IServiceProvider serviceProvider)
-    {
-        using var scope = serviceProvider.CreateScope();
-        var migrationRunner = scope.ServiceProvider.GetRequiredService<MigrationRunner>();
-        await migrationRunner.RunMigrationsAsync();
     }
 }
