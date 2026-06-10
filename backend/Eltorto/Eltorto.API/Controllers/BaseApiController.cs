@@ -3,7 +3,7 @@
 namespace Eltorto.API.Controllers;
 
 /// <summary>
-/// Базовый контроллер для всех API контроллеров
+/// Base controller for all API controllers.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]

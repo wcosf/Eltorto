@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -19,6 +20,7 @@ public class OrdersController : BaseApiController
     /// Create new order
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateOrderDto createDto, CancellationToken cancellationToken)
@@ -38,6 +40,7 @@ public class OrdersController : BaseApiController
     /// Get order by id
     /// </summary>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
@@ -53,6 +56,7 @@ public class OrdersController : BaseApiController
     /// Get orders by customer phone
     /// </summary>
     [HttpGet("by-phone/{phone}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByPhone(string phone, CancellationToken cancellationToken)
     {
@@ -61,9 +65,10 @@ public class OrdersController : BaseApiController
     }
 
     /// <summary>
-    /// Get all orders (Admin only)
+    /// Get all orders
     /// </summary>
     [HttpGet("admin/all")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -72,9 +77,10 @@ public class OrdersController : BaseApiController
     }
 
     /// <summary>
-    /// Get paged orders with status filter (Admin only)
+    /// Get paged orders with status filter 
     /// </summary>
     [HttpGet("admin/paged")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(PagedResultDto<OrderDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPaged(
         [FromQuery] int page = 1,
@@ -87,9 +93,10 @@ public class OrdersController : BaseApiController
     }
 
     /// <summary>
-    /// Update order status (Admin only)
+    /// Update order status
     /// </summary>
     [HttpPatch("{id:int}/status")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
