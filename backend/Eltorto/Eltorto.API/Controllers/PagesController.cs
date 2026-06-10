@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -18,7 +19,7 @@ public class PagesController : BaseApiController
     // ========== PAGE ENDPOINTS ==========
 
     /// <summary>
-    /// Get page by slug (for public access)
+    /// Get page by slug
     /// </summary>
     [HttpGet("by-slug/{slug}")]
     [ProducesResponseType(typeof(PageDto), StatusCodes.Status200OK)]
@@ -33,7 +34,7 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Get page by id (for admin)
+    /// Get page by id
     /// </summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(PageDto), StatusCodes.Status200OK)]
@@ -59,9 +60,10 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Update page content (Admin only)
+    /// Update page content 
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(PageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePageDto updateDto, CancellationToken cancellationToken)
@@ -91,9 +93,10 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Add content block to page (Admin only)
+    /// Add content block to page
     /// </summary>
     [HttpPost("{pageId:int}/blocks")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ContentBlockDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -135,9 +138,10 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Update content block (Admin only)
+    /// Update content block 
     /// </summary>
     [HttpPut("blocks/{blockId:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ContentBlockDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -162,9 +166,10 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Delete content block (Admin only)
+    /// Delete content block
     /// </summary>
     [HttpDelete("blocks/{blockId:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteBlock(int blockId, CancellationToken cancellationToken)
@@ -181,9 +186,10 @@ public class PagesController : BaseApiController
     }
 
     /// <summary>
-    /// Reorder content blocks (Admin only)
+    /// Reorder content blocks
     /// </summary>
     [HttpPost("{pageId:int}/blocks/reorder")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ReorderBlocks(int pageId, [FromBody] List<int> orderedIds, CancellationToken cancellationToken)
     {

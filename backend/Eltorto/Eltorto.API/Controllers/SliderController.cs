@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -15,6 +16,7 @@ public class SliderController : BaseApiController
         _logger = logger;
     }
 
+    /// <summary>Gets all slider items in order.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<SliderItemDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -23,6 +25,7 @@ public class SliderController : BaseApiController
         return Ok(sliderItems);
     }
 
+    /// <summary>Gets a slider item by ID.</summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(SliderItemDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -35,7 +38,9 @@ public class SliderController : BaseApiController
         return Ok(sliderItem);
     }
 
+    /// <summary>Creates a new slider item.</summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(SliderItemDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateSliderItemDto createDto, CancellationToken cancellationToken)
     {
@@ -43,7 +48,9 @@ public class SliderController : BaseApiController
         return CreatedAtAction(nameof(GetById), new { id = sliderItem.Id }, sliderItem);
     }
 
+    /// <summary>Updates a slider item.</summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(SliderItemDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateSliderItemDto updateDto, CancellationToken cancellationToken)
@@ -62,7 +69,9 @@ public class SliderController : BaseApiController
         }
     }
 
+    /// <summary>Deletes a slider item. (Admin only)</summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
@@ -78,7 +87,9 @@ public class SliderController : BaseApiController
         }
     }
 
+    /// <summary>Reorders slider items.</summary>
     [HttpPost("reorder")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Reorder([FromBody] List<int> orderedIds, CancellationToken cancellationToken)
     {

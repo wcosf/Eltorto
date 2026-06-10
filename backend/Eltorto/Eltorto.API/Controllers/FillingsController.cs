@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -15,6 +16,7 @@ public class FillingsController : BaseApiController
         _logger = logger;
     }
 
+    /// <summary>Gets all fillings.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<FillingDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -23,6 +25,7 @@ public class FillingsController : BaseApiController
         return Ok(fillings);
     }
 
+    /// <summary>Gets available fillings.</summary>
     [HttpGet("available")]
     [ProducesResponseType(typeof(IEnumerable<FillingDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAvailable(CancellationToken cancellationToken)
@@ -31,6 +34,7 @@ public class FillingsController : BaseApiController
         return Ok(fillings);
     }
 
+    /// <summary>Gets a filling by ID.</summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(FillingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -43,6 +47,7 @@ public class FillingsController : BaseApiController
         return Ok(filling);
     }
 
+    /// <summary>Gets a filling with its cakes.</summary>
     [HttpGet("{id:int}/with-cakes")]
     [ProducesResponseType(typeof(FillingWithCakesDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,7 +64,9 @@ public class FillingsController : BaseApiController
         }
     }
 
+    /// <summary>Creates a new filling.</summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(FillingDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateFillingDto createDto, CancellationToken cancellationToken)
@@ -68,7 +75,9 @@ public class FillingsController : BaseApiController
         return CreatedAtAction(nameof(GetById), new { id = filling.Id }, filling);
     }
 
+    /// <summary>Updates a filling.</summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(FillingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -92,7 +101,9 @@ public class FillingsController : BaseApiController
         }
     }
 
+    /// <summary>Deletes a filling. (Admin only)</summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
