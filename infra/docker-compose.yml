@@ -28,6 +28,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=eltorto_pg;Username=postgres;Password=${DB_PASSWORD}
+      - JwtSettings__SecretKey=${JWT_SECRET}
+      - JwtSettings__Issuer=EltortoAPI
+      - JwtSettings__Audience=EltortoClient
     depends_on:
       postgres:
         condition: service_healthy
