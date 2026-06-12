@@ -16,6 +16,7 @@ def docker_compose_project_name():
 def docker_setup():
     with open("infra/.env.test", "w") as f:
         f.write("DB_PASSWORD=test\n")
+        f.write("JWT_SECRET=YourSecretKeyHereAtLeast32CharsLong!\n")
     yield
     os.remove("infra/.env.test")
 
