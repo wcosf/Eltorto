@@ -9,4 +9,8 @@ public interface IAuthService
     Task<bool> ChangePasswordAsync(string userName, ChangePasswordRequest request);
     Task<bool> CreateAdminIfNotExistsAsync();
     Task<bool> CreateRoleIfNotExistsAsync(string roleName);
+
+    Task<LoginResponse> RefreshTokenAsync(string refreshToken);
+    Task<bool> RevokeRefreshTokenAsync(string refreshToken);
+    Task RevokeAllUserTokensAsync(string userId);
 }
