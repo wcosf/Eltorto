@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -15,6 +16,7 @@ public class ContactsController : BaseApiController
         _logger = logger;
     }
 
+    /// <summary>Gets the contact settings.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(ContactSettingsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -27,7 +29,9 @@ public class ContactsController : BaseApiController
         return Ok(settings);
     }
 
+    /// <summary>Updates the contact settings. (Admin only)</summary>
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ContactSettingsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update([FromBody] UpdateContactSettingsDto updateDto, CancellationToken cancellationToken)
     {

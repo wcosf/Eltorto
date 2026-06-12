@@ -12,7 +12,8 @@ public interface IUnitOfWork : IDisposable
     IPageRepository Pages { get; }
     IOrderRepository Orders { get; }
     ISliderRepository Sliders { get; }
-    IContentBlockRepository ContentBlocks { get; } 
+    IContentBlockRepository ContentBlocks { get; }
+    IRefreshTokenRepository RefreshTokens { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

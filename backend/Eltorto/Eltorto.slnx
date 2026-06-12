@@ -2,6 +2,7 @@
   <Folder Name="/Элементы решения/">
     <File Path="../../docker-compose.yml" />
   </Folder>
+  <Project Path="../../tests/Eltorto.Api.Tests/Eltorto.Api.Tests.csproj" />
   <Project Path="Eltorto.API/Eltorto.API.csproj" />
   <Project Path="Eltorto.Application/Eltorto.Application.csproj" Id="bbb32b2f-9288-4f9f-ae69-ef842653c15d" />
   <Project Path="Eltorto.Domain/Eltorto.Domain.csproj" />

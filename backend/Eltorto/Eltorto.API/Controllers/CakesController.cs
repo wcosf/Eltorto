@@ -1,6 +1,7 @@
 ﻿using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eltorto.API.Controllers;
 
@@ -90,9 +91,10 @@ public class CakesController : BaseApiController
     }
 
     /// <summary>
-    /// Create new cake (Admin only)
+    /// Create new cake
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CakeDetailDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateCakeDto createDto, CancellationToken cancellationToken)
@@ -109,9 +111,10 @@ public class CakesController : BaseApiController
     }
 
     /// <summary>
-    /// Update cake (Admin only)
+    /// Update cake
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CakeDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -136,9 +139,10 @@ public class CakesController : BaseApiController
     }
 
     /// <summary>
-    /// Delete cake (Admin only)
+    /// Delete cake
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
