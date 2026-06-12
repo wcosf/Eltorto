@@ -61,7 +61,6 @@ public class TestimonialsController : BaseApiController
 
     /// <summary>Gets a testimonial by ID.</summary>
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
