@@ -1,7 +1,6 @@
 ﻿using Eltorto.Application.Interfaces;
 using Eltorto.Application.Interfaces.Repositories;
 using Eltorto.Infrastructure.Data;
-using Eltorto.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -22,6 +21,8 @@ public class UnitOfWork : IUnitOfWork
     public ISliderRepository Sliders { get; }
     public IContentBlockRepository ContentBlocks { get; }
 
+    public IRefreshTokenRepository RefreshTokens { get; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -33,6 +34,7 @@ public class UnitOfWork : IUnitOfWork
         Orders = new OrderRepository(context);
         Sliders = new SliderRepository(context);
         ContentBlocks = new ContentBlockRepository(context);
+        RefreshTokens = new RefreshTokenRepository(context);
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

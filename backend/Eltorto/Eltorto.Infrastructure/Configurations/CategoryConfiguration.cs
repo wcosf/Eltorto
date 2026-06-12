@@ -27,6 +27,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasColumnName("Description");
 
         builder.Property(e => e.SortOrder)
+            .IsRequired()
             .HasColumnName("SortOrder");
 
         // Индексы

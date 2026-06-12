@@ -1,9 +1,10 @@
 ﻿using Eltorto.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eltorto.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -24,17 +25,5 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Database=eltorto_pg;Username=postgres;Password=password",
-                npgsqlOptions => npgsqlOptions.SetPostgresVersion(16, 0)
-                    .MigrationsAssembly("Eltorto.Infrastructure")); 
-        }
     }
 }
