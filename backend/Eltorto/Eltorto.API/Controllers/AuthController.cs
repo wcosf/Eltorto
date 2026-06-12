@@ -57,6 +57,37 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Refreshes the access token using a valid refresh token.
+    /// </summary>
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { error = "Invalid or expired refresh token" });
+        }
+    }
+
+    /// <summary>
+    ///  Logs out the user by revoking the provided refresh token.
+    /// </summary>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
+    {
+        await _authService.RevokeRefreshTokenAsync(request.RefreshToken);
+        return NoContent();
+    }
+
+    /// <summary>
     /// Changes the password for the currently authenticated user.
     /// </summary>
     [HttpPost("change-password")]
