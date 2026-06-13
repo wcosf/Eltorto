@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Eltorto.Application.DTOs;
-using Eltorto.Application.Interfaces;
+using Eltorto.Domain.Abstractions;
 using Eltorto.Application.Interfaces.Services;
-using Eltorto.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eltorto.Application.Services;
 

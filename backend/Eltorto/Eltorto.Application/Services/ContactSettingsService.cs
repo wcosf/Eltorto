@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Eltorto.Application.DTOs;
-using Eltorto.Application.Interfaces;
+using Eltorto.Domain.Abstractions;
 using Eltorto.Application.Interfaces.Services;
 using Eltorto.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eltorto.Application.Services;
 
@@ -20,27 +19,25 @@ public class ContactSettingsService : IContactSettingsService
 
     public async Task<ContactSettingsDto?> GetAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await _unitOfWork.Set<ContactSettings>()
-            .FirstOrDefaultAsync(cancellationToken);
+        var settings = (await _unitOfWork.ContactSettings.GetAllAsync(cancellationToken)).FirstOrDefault();
 
         return settings != null ? _mapper.Map<ContactSettingsDto>(settings) : null;
     }
 
     public async Task<ContactSettingsDto> UpdateAsync(UpdateContactSettingsDto updateDto, CancellationToken cancellationToken = default)
     {
-        var settings = await _unitOfWork.Set<ContactSettings>()
-            .FirstOrDefaultAsync(cancellationToken);
+        var settings = (await _unitOfWork.ContactSettings.GetAllAsync(cancellationToken)).FirstOrDefault();
 
         if (settings == null)
         {
             settings = new ContactSettings();
             _mapper.Map(updateDto, settings);
-            await _unitOfWork.Set<ContactSettings>().AddAsync(settings, cancellationToken);
+            await _unitOfWork.ContactSettings.AddAsync(settings, cancellationToken);
         }
         else
         {
             _mapper.Map(updateDto, settings);
-            _unitOfWork.Set<ContactSettings>().Update(settings);
+            await _unitOfWork.ContactSettings.UpdateAsync(settings, cancellationToken);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

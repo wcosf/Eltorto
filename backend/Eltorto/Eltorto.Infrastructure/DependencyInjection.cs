@@ -1,11 +1,10 @@
-﻿using Eltorto.Application.Interfaces;
-using Eltorto.Application.Interfaces.Repositories;
+﻿using Eltorto.Domain.Abstractions;
+using Eltorto.Domain.Repositories;
 using Eltorto.Infrastructure.Data;
 using Eltorto.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Eltorto.Infrastructure;
 
@@ -26,6 +25,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICakeRepository, CakeRepository>();
+        services.AddScoped<IContactSettingsRepository, ContactSettingsRepository>();
         services.AddScoped<IFillingRepository, FillingRepository>();
         services.AddScoped<ITestimonialRepository, TestimonialRepository>();
         services.AddScoped<IPageRepository, PageRepository>();
