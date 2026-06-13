@@ -1,4 +1,4 @@
-﻿using Eltorto.Application.Interfaces.Repositories;
+﻿using Eltorto.Domain.Repositories;
 using Eltorto.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

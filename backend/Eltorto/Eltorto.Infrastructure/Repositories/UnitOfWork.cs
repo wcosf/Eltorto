@@ -1,7 +1,6 @@
-﻿using Eltorto.Application.Interfaces;
-using Eltorto.Application.Interfaces.Repositories;
+﻿using Eltorto.Domain.Repositories;
+using Eltorto.Domain.Abstractions;
 using Eltorto.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Eltorto.Infrastructure.Repositories;
@@ -14,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
 
     public ICategoryRepository Categories { get; }
     public ICakeRepository Cakes { get; }
+    public IContactSettingsRepository ContactSettings { get; }
     public IFillingRepository Fillings { get; }
     public ITestimonialRepository Testimonials { get; }
     public IPageRepository Pages { get; }
@@ -28,6 +28,7 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         Categories = new CategoryRepository(context);
         Cakes = new CakeRepository(context);
+        ContactSettings = new ContactSettingsRepository(context);
         Fillings = new FillingRepository(context);
         Testimonials = new TestimonialRepository(context);
         Pages = new PageRepository(context);
@@ -67,15 +68,9 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public DbSet<T> Set<T>() where T : class
-    {
-        return _context.Set<T>();
-    }
-
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     protected virtual void Dispose(bool disposing)

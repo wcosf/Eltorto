@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Eltorto.Domain\Eltorto.Domain.csproj" />
-    <ProjectReference Include="..\Eltorto.Application\Eltorto.Application.csproj" />
   </ItemGroup>
 
 </Project> 
