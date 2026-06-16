@@ -1,6 +1,4 @@
-﻿using Eltorto.Domain.Entities;
-
-namespace Eltorto.Application.Interfaces.Repositories;
+﻿namespace Eltorto.Domain.Repositories;
 
 public interface IContentBlockRepository : IRepository<ContentBlock>
 {

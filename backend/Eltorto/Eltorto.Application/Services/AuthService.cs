@@ -2,13 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Eltorto.Application.DTOs;
-using Eltorto.Application.Interfaces;
-using Eltorto.Application.Interfaces.Services;
-using Eltorto.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Eltorto.Application.DTOs;
+using Eltorto.Application.Interfaces.Services;
+using Eltorto.Domain.Entities;
+using Eltorto.Domain.Abstractions;
 
 namespace Eltorto.Application.Services;
 

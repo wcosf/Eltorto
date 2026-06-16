@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
-namespace Eltorto.Application.Interfaces.Repositories;
+namespace Eltorto.Domain.Repositories;
 
 public interface IRepository<T> where T : class
 {

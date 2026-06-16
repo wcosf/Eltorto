@@ -1,12 +1,12 @@
-﻿using Eltorto.Application.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
+using Eltorto.Domain.Repositories;
 
-namespace Eltorto.Application.Interfaces;
+namespace Eltorto.Domain.Abstractions;
 
 public interface IUnitOfWork : IDisposable
 {
     ICategoryRepository Categories { get; }
     ICakeRepository Cakes { get; }
+    IContactSettingsRepository ContactSettings { get; }
     IFillingRepository Fillings { get; }
     ITestimonialRepository Testimonials { get; }
     IPageRepository Pages { get; }
@@ -19,5 +19,4 @@ public interface IUnitOfWork : IDisposable
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task CommitTransactionAsync(CancellationToken cancellationToken = default);
     Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
-    DbSet<T> Set<T>() where T : class;
 }
