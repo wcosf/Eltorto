@@ -56,6 +56,12 @@ public class PageService : IPageService
         return _mapper.Map<PageDto>(page);
     }
 
+    public async Task<ContentBlockDto?> GetContentBlockByIdAsync(int blockId, CancellationToken cancellationToken = default)
+    {
+        var block = await _unitOfWork.ContentBlocks.GetByIdAsync(blockId, cancellationToken);
+        return block != null ? _mapper.Map<ContentBlockDto>(block) : null;
+    }
+
     public async Task<ContentBlockDto> AddContentBlockAsync(int pageId, CreateContentBlockDto createDto, CancellationToken cancellationToken = default)
     {
         var page = await _unitOfWork.Pages.GetByIdAsync(pageId, cancellationToken);

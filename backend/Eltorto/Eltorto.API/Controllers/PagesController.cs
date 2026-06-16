@@ -125,12 +125,7 @@ public class PagesController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBlockById(int blockId, CancellationToken cancellationToken)
     {
-        // We need to get a single block - might want to add this method to service
-        var page = await _pageService.GetByIdAsync(1, cancellationToken); // Temporary
-        if (page == null)
-            return NotFound();
-
-        var block = page.ContentBlocks.FirstOrDefault(b => b.Id == blockId);
+        var block = await _pageService.GetContentBlockByIdAsync(blockId, cancellationToken);
         if (block == null)
             return NotFound();
 

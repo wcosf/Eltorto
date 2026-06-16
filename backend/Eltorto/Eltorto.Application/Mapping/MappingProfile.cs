@@ -44,9 +44,9 @@ public class MappingProfile : Profile
         // Order mappings
         CreateMap<Order, OrderDto>()
             .ForMember(dest => dest.CakeName,
-                opt => opt.Ignore())
+                opt => opt.MapFrom(src => src.Cake != null ? src.Cake.Name : null))
             .ForMember(dest => dest.FillingName,
-                opt => opt.Ignore());
+                opt => opt.MapFrom(src => src.Filling != null ? src.Filling.Name : null));
 
         CreateMap<CreateOrderDto, Order>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
