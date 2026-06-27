@@ -154,6 +154,69 @@ public abstract class IntegrationTestBase : IAsyncLifetime
             await unitOfWork.ContentBlocks.AddAsync(block);
             await unitOfWork.SaveChangesAsync();
         }
+
+        if (!await unitOfWork.Orders.ExistsAsync(o => o.CustomerPhone == "+7 (999) 111-22-33"))
+        {
+            var cake = (await unitOfWork.Cakes.FindAsync(c => c.Name == "Наполеон")).FirstOrDefault();
+            var filling = (await unitOfWork.Fillings.FindAsync(f => f.Name == "Сливочный")).FirstOrDefault();
+
+            var order = new Order
+            {
+                CreatedAt = DateTime.UtcNow,
+                CustomerName = "Иван Петров",
+                CustomerPhone = "+7 (999) 111-22-33",
+                CustomerEmail = "ivan@example.com",
+                CakeId = cake?.Id,
+                FillingId = filling?.Id,
+                Weight = 2.5m,
+                DeliveryDate = DateTime.UtcNow.AddDays(3),
+                DeliveryAddress = "г. Москва, ул. Ленина, д. 10, кв. 5",
+                Status = "New",
+                Comment = "Позвонить за час до доставки"
+            };
+            await unitOfWork.Orders.AddAsync(order);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        if (!await unitOfWork.Sliders.ExistsAsync(s => true))
+        {
+            var slide = new SliderItem
+            {
+                ImageUrl = "https://example.com/slide1.jpg",
+                Title = "Первый слайд",
+                Subtitle = "Добро пожаловать в Eltorto!",
+                SortOrder = 1
+            };
+            await unitOfWork.Sliders.AddAsync(slide);
+            await unitOfWork.SaveChangesAsync();
+        }
+
+        if (!await unitOfWork.Testimonials.ExistsAsync(t => true))
+        {
+            var testimonial1 = new Testimonial
+            {
+                Date = DateTime.UtcNow.AddDays(-5),
+                Author = "Анна Смирнова",
+                Email = "anna@example.com",
+                Text = "Очень вкусный торт! Заказывали на день рождения, всем понравился. Спасибо!",
+                IsApproved = true,
+                Response = "Спасибо за отзыв! Рады, что вам понравилось."
+            };
+            await unitOfWork.Testimonials.AddAsync(testimonial1);
+
+            var testimonial2 = new Testimonial
+            {
+                Date = DateTime.UtcNow.AddDays(-2),
+                Author = "Петр Иванов",
+                Email = "petr@example.com",
+                Text = "Отличная кондитерская! Буду заказывать еще.",
+                IsApproved = false,
+                Response = null
+            };
+            await unitOfWork.Testimonials.AddAsync(testimonial2);
+
+            await unitOfWork.SaveChangesAsync();
+        }
     }
 
     protected async Task<string> GetAdminTokenAsync()
