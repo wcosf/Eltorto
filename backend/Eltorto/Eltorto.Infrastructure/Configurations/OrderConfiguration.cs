@@ -55,12 +55,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnName("Comment");
 
         // Внешние ключи
-        builder.HasOne<Cake>()
+        builder.HasOne(o => o.Cake)
             .WithMany()
             .HasForeignKey(e => e.CakeId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne<Filling>()
+        builder.HasOne(o => o.Filling)
             .WithMany()
             .HasForeignKey(e => e.FillingId)
             .OnDelete(DeleteBehavior.SetNull);

@@ -10,7 +10,14 @@ public class OrderRepository : Repository<Order>, IOrderRepository
     public OrderRepository(AppDbContext context) : base(context)
     {
     }
-
+    public override async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(o => o.Cake)
+            .Include(o => o.Filling)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
     public override async Task<Order?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbSet

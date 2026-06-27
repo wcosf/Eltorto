@@ -74,7 +74,7 @@ public class TestimonialsController : BaseApiController
 
     /// <summary>Creates a new testimonial.</summary>
     [HttpPost]
-    [Authorize(Roles = "Admin Customer")]
+    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateTestimonialDto createDto, CancellationToken cancellationToken)
@@ -85,7 +85,7 @@ public class TestimonialsController : BaseApiController
 
     /// <summary>Updates a testimonial.</summary>
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin Customer")]
+    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateTestimonialDto updateDto, CancellationToken cancellationToken)
@@ -142,7 +142,7 @@ public class TestimonialsController : BaseApiController
 
     /// <summary>Deletes a testimonial.</summary>
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin Customer")]
+    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)

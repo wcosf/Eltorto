@@ -20,7 +20,7 @@ public class OrdersController : BaseApiController
     /// Create new order
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin Customer")]
+    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateOrderDto createDto, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class OrdersController : BaseApiController
     /// Get order by id
     /// </summary>
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin Customer")]
+    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)

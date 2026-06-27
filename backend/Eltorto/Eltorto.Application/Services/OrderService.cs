@@ -82,7 +82,8 @@ public class OrderService : IOrderService
         await _unitOfWork.Orders.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<OrderDto>(order);
+        var createdOrder = await _unitOfWork.Orders.GetByIdAsync(order.Id, cancellationToken);
+        return _mapper.Map<OrderDto>(createdOrder);
     }
 
     public async Task<OrderDto> UpdateStatusAsync(int id, string status, CancellationToken cancellationToken = default)
