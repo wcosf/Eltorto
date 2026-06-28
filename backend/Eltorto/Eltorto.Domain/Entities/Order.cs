@@ -1,4 +1,5 @@
 ﻿namespace Eltorto.Domain.Entities;
+
 public class Order
 {
     public int Id { get; set; }
@@ -14,4 +15,7 @@ public class Order
     public string? DeliveryAddress { get; set; }
     public string Status { get; set; } = "New";
     public string? Comment { get; set; }
+
+    public virtual Cake? Cake { get; set; }
+    public virtual Filling? Filling { get; set; }
 }

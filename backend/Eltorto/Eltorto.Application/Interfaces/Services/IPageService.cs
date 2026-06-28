@@ -10,6 +10,7 @@ public interface IPageService
     Task<PageDto> UpdateAsync(int id, UpdatePageDto updateDto, CancellationToken cancellationToken = default);
 
     // Content Block methods
+    Task<ContentBlockDto?> GetContentBlockByIdAsync(int blockId, CancellationToken cancellationToken = default);
     Task<ContentBlockDto> AddContentBlockAsync(int pageId, CreateContentBlockDto createDto, CancellationToken cancellationToken = default);
     Task<ContentBlockDto> UpdateContentBlockAsync(int blockId, UpdateContentBlockDto updateDto, CancellationToken cancellationToken = default);
     Task DeleteContentBlockAsync(int blockId, CancellationToken cancellationToken = default);
