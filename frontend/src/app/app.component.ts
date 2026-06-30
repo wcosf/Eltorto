@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -7,7 +8,7 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [CommonModule, RouterOutlet, NavbarComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -15,7 +16,12 @@ import { filter } from 'rxjs/operators';
 export class AppComponent implements OnInit {
   title = 'Eltorto';
 
-  constructor(private router: Router) {}
+  constructor(public router: Router) {}
+
+  get showFooter(): boolean {
+    return !this.router.url.startsWith('/admin') &&
+           this.router.url !== '/login';
+  }
 
   ngOnInit() {
     this.router.events.pipe(

@@ -114,6 +114,16 @@
     align-items: center;
     line-height: 1;
 
+    .nav-link.admin-link {
+      color: $rose-dark;
+      font-weight: 600;
+    }
+
+    .nav-link.logout-link {
+      color: #c0392b;
+      font-weight: 600;
+    }
+
     &::after {
       content: '';
       position: absolute;

@@ -1,0 +1,17 @@
+<div class="login-container">
+  <mat-card>
+    <mat-card-title>Вход в админ-панель</mat-card-title>
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <mat-form-field appearance="fill">
+        <mat-label>Имя пользователя</mat-label>
+        <input matInput [(ngModel)]="username" name="username" required>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Пароль</mat-label>
+        <input matInput type="password" [(ngModel)]="password" name="password" required>
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Войти</button>
+    </form>
+    <div *ngIf="error" class="error">{{ error }}</div>
+  </mat-card>
+</div>

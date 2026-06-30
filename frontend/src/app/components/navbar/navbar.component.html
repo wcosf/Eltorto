@@ -38,6 +38,34 @@
             Отзывы
           </a>
         </li>
+        <li class="nav-item" *ngIf="!isAdmin">
+          <a
+            class="nav-link"
+            routerLink="/login"
+            routerLinkActive="active"
+            (click)="onLinkClick()">
+            Вход
+          </a>
+        </li>
+
+        <li class="nav-item" *ngIf="isAdmin">
+          <a
+            class="nav-link admin-link"
+            routerLink="/admin/dashboard"
+            routerLinkActive="active"
+            (click)="onLinkClick()">
+            Админ-панель
+          </a>
+        </li>
+
+        <li class="nav-item" *ngIf="isAdmin">
+          <a
+            class="nav-link logout-link"
+            href="#"
+            (click)="logout(); $event.preventDefault()">
+            Выйти
+          </a>
+        </li>
       </ul>
     </div>
   </div>

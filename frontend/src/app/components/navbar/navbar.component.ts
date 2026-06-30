@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit, Inject, PLATFORM_ID } from '@angular/c
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -16,6 +17,7 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -64,5 +66,16 @@ export class NavbarComponent implements OnInit {
       window.removeEventListener('scroll', this.onWindowScroll.bind(this));
       document.body.style.overflow = '';
     }
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAuthenticated() &&
+          this.authService.isAdmin();
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.closeMenu();
+    this.router.navigate(['/']);
   }
 }
