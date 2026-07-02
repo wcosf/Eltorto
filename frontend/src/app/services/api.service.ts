@@ -159,4 +159,27 @@ export class ApiService {
   getContacts(): Observable<any> {
     return this.http.get(`${this.apiUrl}/contacts`);
   }
+
+  // ===== CATEGORIES CRUD =====
+
+  // Create
+  createCategory(category: Partial<Category>): Observable<Category> {
+    return this.http.post<Category>(`${this.apiUrl}/categories`, category);
+  }
+
+  // Update
+  updateCategory(id: number, category: Partial<Category>): Observable<Category> {
+    return this.http.put<Category>(`${this.apiUrl}/categories/${id}`, category);
+  }
+
+  // Delete
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/categories/${id}`);
+  }
+
+  // Get by ID
+  getCategoryById(id: number): Observable<Category> {
+    return this.http.get<Category>(`${this.apiUrl}/categories/${id}`);
+  }
+
 }

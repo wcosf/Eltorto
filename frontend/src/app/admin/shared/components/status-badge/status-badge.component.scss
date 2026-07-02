@@ -1,0 +1,43 @@
+@use '../../../../styles.scss' as *;
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+
+  &.new {
+    background: #e3f2fd;
+    color: #0d47a1;
+  }
+  &.processing {
+    background: #fff3e0;
+    color: #e65100;
+  }
+  &.completed {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  &.cancelled {
+    background: #ffebee;
+    color: #b71c1c;
+  }
+  &.approved {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  &.pending {
+    background: #fff3e0;
+    color: #e65100;
+  }
+  &.active {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  &.inactive {
+    background: #f5f5f5;
+    color: #757575;
+  }
+}
