@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -38,11 +38,15 @@ export interface FormModalData {
   templateUrl: './form-modal.component.html',
   styleUrls: ['./form-modal.component.scss']
 })
+
 export class FormModalComponent implements OnInit {
+  @Output() submitForm = new EventEmitter<any>();
   form!: FormGroup;
   loading = false;
   config: FormConfig;
   fields: FormField[];
+  error: string | null = null;
+
 
   constructor(
     public dialogRef: MatDialogRef<FormModalComponent>,
@@ -67,7 +71,11 @@ export class FormModalComponent implements OnInit {
       if (field.validators) {
         validators.push(...field.validators);
       }
-      group[field.key] = [value, validators];
+      const controlConfig: any = {
+        value: value,
+        disabled: field.disabled || false
+      };
+      group[field.key] = controlConfig;
     });
 
     this.form = this.fb.group(group);
@@ -78,7 +86,18 @@ export class FormModalComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    this.error = null;
     this.loading = true;
+    this.submitForm.emit(this.form.value);
+  }
+
+  setError(message: string) {
+    this.error = message;
+    this.loading = false;
+  }
+
+  setSuccess() {
+    this.loading = false;
     this.dialogRef.close(this.form.value);
   }
 

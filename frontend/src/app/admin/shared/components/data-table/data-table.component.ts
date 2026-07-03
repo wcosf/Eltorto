@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -31,7 +31,8 @@ import { TableConfig, TableAction, TableColumn } from '../../models/table-config
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })
-export class DataTableComponent<T> implements OnInit, OnChanges {
+
+export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() data: T[] = [];
   @Input() totalCount = 0;
   @Input() pageSize = 10;
@@ -42,7 +43,6 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
 
   @Output() pageChange = new EventEmitter<{ pageIndex: number; pageSize: number }>();
   @Output() sortChange = new EventEmitter<{ active: string; direction: 'asc' | 'desc' }>();
-  @Output() searchChange = new EventEmitter<string>();
   @Output() actionClick = new EventEmitter<{ action: TableAction<T>; row: T }>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -54,6 +54,13 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
 
   ngOnInit() {
     this.initTable();
+    this.setupFilter();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.updateDataSource();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -68,18 +75,37 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
       this.displayedColumns.push('actions');
     }
     this.dataSource = new MatTableDataSource(this.data);
-    this.dataSource.sort = this.sort;
+  }
+
+  private setupFilter() {
+    if (this.filterableColumns && this.filterableColumns.length > 0) {
+      this.dataSource.filterPredicate = (data: T, filter: string) => {
+        const searchTerm = filter.trim().toLowerCase();
+        return this.filterableColumns.some(key => {
+          const value = data[key as keyof T];
+          return value?.toString().toLowerCase().includes(searchTerm);
+        });
+      };
+    } else {
+      this.dataSource.filterPredicate = (data: T, filter: string) => {
+        const searchTerm = filter.trim().toLowerCase();
+        return JSON.stringify(data).toLowerCase().includes(searchTerm);
+      };
+    }
   }
 
   private updateDataSource() {
     this.dataSource.data = this.data;
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
+    if (this.searchTerm) {
+      this.dataSource.filter = this.searchTerm;
     }
     if (this.paginator) {
       this.paginator.length = this.totalCount;
       this.paginator.pageIndex = this.pageIndex;
       this.paginator.pageSize = this.pageSize;
+    }
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
     }
   }
 
@@ -98,7 +124,13 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
   }
 
   onSearch() {
-    this.searchChange.emit(this.searchTerm);
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    if (!this.searchTerm) {
+      this.dataSource.filter = '';
+    }
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 
   onAction(action: TableAction<T>, row: T) {
@@ -111,5 +143,13 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
       return column.format(value, row);
     }
     return value as string;
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.dataSource.filter = '';
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 }

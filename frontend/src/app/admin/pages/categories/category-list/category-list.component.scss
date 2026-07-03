@@ -1,0 +1,34 @@
+@use '../../../../../styles.scss' as *;
+
+.category-list-page {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      font-family: $font-serif;
+      color: $brown-dark;
+      margin: 0;
+      position: static;
+
+      &::after {
+        display: none;
+      }
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  ::ng-deep .data-table-container {
+    .mat-column-actions {
+      width: 120px;
+      text-align: right;
+    }
+  }
+}

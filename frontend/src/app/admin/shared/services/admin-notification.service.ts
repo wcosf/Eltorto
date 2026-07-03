@@ -1,35 +1,26 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class AdminNotificationService {
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(private toastr: ToastrService) {}
 
-  success(message: string, duration = 3000) {
-    this.show(message, 'success', duration);
+  success(message: string): void {
+    this.toastr.success(message, 'Успех');
   }
 
-  error(message: string, duration = 5000) {
-    this.show(message, 'error', duration);
+  error(message: string): void {
+    this.toastr.error(message, 'Ошибка');
   }
 
-  warning(message: string, duration = 4000) {
-    this.show(message, 'warning', duration);
+  warning(message: string): void {
+    this.toastr.warning(message, 'Внимание');
   }
 
-  info(message: string, duration = 3000) {
-    this.show(message, 'info', duration);
-  }
-
-  private show(message: string, type: 'success' | 'error' | 'warning' | 'info', duration: number) {
-    const config: MatSnackBarConfig = {
-      duration,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: [`snackbar-${type}`]
-    };
-    this.snackBar.open(message, '✕', config);
+  info(message: string): void {
+    this.toastr.info(message, 'Информация');
   }
 }

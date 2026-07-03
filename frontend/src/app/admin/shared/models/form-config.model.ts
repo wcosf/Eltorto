@@ -29,6 +29,7 @@ export interface FormField {
   disabled?: boolean;
   fileAccept?: string;
   rows?: number;
+  hint?: string;
 }
 
 export interface FormConfig {

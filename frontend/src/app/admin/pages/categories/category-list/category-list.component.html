@@ -1,1 +1,19 @@
-<p>category-list works!</p>
+<div class="category-list-page">
+  <div class="page-header">
+    <h2>Категории</h2>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Добавить категорию
+    </button>
+  </div>
+
+  <app-data-table
+    [data]="categories"
+    [totalCount]="totalCount"
+    [pageSize]="pageSize"
+    [config]="tableConfig"
+    [loading]="loading"
+    [filterableColumns]="['name', 'slug']"
+    (actionClick)="onTableAction($event)">
+  </app-data-table>
+</div>

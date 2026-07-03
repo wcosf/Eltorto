@@ -3,27 +3,32 @@
 <mat-dialog-content>
   <form [formGroup]="form" class="form-grid">
     <div *ngFor="let field of fields" class="form-field" [class.hidden]="field.hidden">
+      <!-- Текстовое поле -->
       <mat-form-field appearance="fill" *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number'">
         <mat-label>{{ field.label }}</mat-label>
         <input matInput [type]="field.type" [formControlName]="field.key"
                [placeholder]="field.placeholder || ''"
                [required]="isRequired(field)">
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
         <mat-error *ngIf="form.get(field.key)?.hasError('required')">
           {{ field.label }} обязательно
         </mat-error>
       </mat-form-field>
 
+      <!-- Текстовая область -->
       <mat-form-field appearance="fill" *ngIf="field.type === 'textarea'">
         <mat-label>{{ field.label }}</mat-label>
         <textarea matInput [formControlName]="field.key"
                   [rows]="field.rows || 4"
                   [placeholder]="field.placeholder || ''"
                   [required]="isRequired(field)"></textarea>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
         <mat-error *ngIf="form.get(field.key)?.hasError('required')">
           {{ field.label }} обязательно
         </mat-error>
       </mat-form-field>
 
+      <!-- Выпадающий список -->
       <mat-form-field appearance="fill" *ngIf="field.type === 'select'">
         <mat-label>{{ field.label }}</mat-label>
         <mat-select [formControlName]="field.key" [required]="isRequired(field)">
@@ -31,30 +36,37 @@
             {{ option.label }}
           </mat-option>
         </mat-select>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
         <mat-error *ngIf="form.get(field.key)?.hasError('required')">
           {{ field.label }} обязательно
         </mat-error>
       </mat-form-field>
 
+      <!-- Чекбокс -->
       <div class="checkbox-wrapper" *ngIf="field.type === 'checkbox'">
         <mat-checkbox [formControlName]="field.key" [required]="isRequired(field)">
           {{ field.label }}
         </mat-checkbox>
+        <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
       </div>
 
+      <!-- Дата -->
       <mat-form-field appearance="fill" *ngIf="field.type === 'date'">
         <mat-label>{{ field.label }}</mat-label>
         <input matInput [matDatepicker]="picker" [formControlName]="field.key">
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
         <mat-error *ngIf="form.get(field.key)?.hasError('required')">
           {{ field.label }} обязательно
         </mat-error>
       </mat-form-field>
 
+      <!-- Загрузка файла -->
       <div *ngIf="field.type === 'file'" class="file-upload-wrapper">
         <label>{{ field.label }}</label>
         <input type="file" [accept]="field.fileAccept" (change)="onFileSelected($event, field.key)">
+        <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
       </div>
     </div>
   </form>
@@ -68,4 +80,7 @@
     <mat-icon *ngIf="loading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
     {{ config.submitLabel || 'Сохранить' }}
   </button>
+  <div *ngIf="error" class="form-error">
+    {{ error }}
+  </div>
 </mat-dialog-actions>
