@@ -19,8 +19,8 @@ import { AuthService } from '../../core/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AdminAuthGuard
-  implements CanMatch, CanActivate, CanActivateChild {
+
+export class AdminAuthGuard implements CanMatch, CanActivate, CanActivateChild {
 
   constructor(
     private authService: AuthService,
@@ -28,20 +28,16 @@ export class AdminAuthGuard
   ) {}
 
   private check(): boolean | UrlTree {
-
     const authenticated = this.authService.isAuthenticated();
-    const admin = this.authService.isAdmin();
+    const isAdmin = this.authService.isAdmin();
+    const tokenExpired = this.authService.isTokenExpired();
 
-    console.log('----- ADMIN GUARD -----');
-    console.log('Authenticated:', authenticated);
-    console.log('Admin:', admin);
-
-    if (!authenticated || !admin) {
-      console.log('Redirect -> /login');
+    if (!authenticated || !isAdmin || tokenExpired) {
+      if (tokenExpired) {
+        this.authService.logout();
+      }
       return this.router.parseUrl('/login');
     }
-
-    console.log('Access granted');
 
     return true;
   }
