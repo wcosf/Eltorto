@@ -7,6 +7,7 @@ export interface TableColumn<T = any> {
   format?: (value: any, row: T) => string;
   template?: any;
   cssClass?: string;
+  sticky?: boolean;
 }
 
 export interface TableAction<T = any> {

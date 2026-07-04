@@ -5,11 +5,8 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule } from '@angular/forms';
 import { TableConfig, TableAction, TableColumn } from '../../models/table-config.model';
 
 @Component({
@@ -17,21 +14,17 @@ import { TableConfig, TableAction, TableColumn } from '../../models/table-config
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
     MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })
-
 export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() data: T[] = [];
   @Input() totalCount = 0;
@@ -40,6 +33,7 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig<T>;
   @Input() loading = false;
   @Input() filterableColumns: string[] = [];
+  @Input() filterValue: string = ''; // внешний поиск
 
   @Output() pageChange = new EventEmitter<{ pageIndex: number; pageSize: number }>();
   @Output() sortChange = new EventEmitter<{ active: string; direction: 'asc' | 'desc' }>();
@@ -50,7 +44,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<T>([]);
-  searchTerm = '';
 
   ngOnInit() {
     this.initTable();
@@ -66,6 +59,9 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] || changes['totalCount'] || changes['pageSize'] || changes['pageIndex']) {
       this.updateDataSource();
+    }
+    if (changes['filterValue']) {
+      this.applyFilter();
     }
   }
 
@@ -96,9 +92,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   private updateDataSource() {
     this.dataSource.data = this.data;
-    if (this.searchTerm) {
-      this.dataSource.filter = this.searchTerm;
-    }
     if (this.paginator) {
       this.paginator.length = this.totalCount;
       this.paginator.pageIndex = this.pageIndex;
@@ -106,6 +99,14 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     }
     if (this.sort) {
       this.dataSource.sort = this.sort;
+    }
+    this.applyFilter();
+  }
+
+  private applyFilter() {
+    this.dataSource.filter = this.filterValue.trim().toLowerCase();
+    if (this.paginator) {
+      this.paginator.firstPage();
     }
   }
 
@@ -123,16 +124,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  onSearch() {
-    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    if (!this.searchTerm) {
-      this.dataSource.filter = '';
-    }
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-  }
-
   onAction(action: TableAction<T>, row: T) {
     this.actionClick.emit({ action, row });
   }
@@ -143,13 +134,5 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       return column.format(value, row);
     }
     return value as string;
-  }
-
-  clearSearch() {
-    this.searchTerm = '';
-    this.dataSource.filter = '';
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
   }
 }

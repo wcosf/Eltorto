@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { finalize } from 'rxjs/operators';
+
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FormModalComponent } from '../../../shared/components/form-modal/form-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -11,16 +15,18 @@ import { AdminNotificationService } from '../../../shared/services/admin-notific
 import { ApiService, Category } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
 import { FormConfig, FormField } from '../../../shared/models/form-config.model';
-import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     DataTableComponent,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
@@ -31,6 +37,7 @@ export class CategoryListComponent implements OnInit {
   pageSize = 10;
   pageIndex = 0;
   loading = false;
+  searchTerm: string = '';
 
   tableConfig!: TableConfig<Category>;
 
@@ -64,8 +71,8 @@ export class CategoryListComponent implements OnInit {
 
     this.tableConfig = {
       columns: [
-        { key: 'id', label: 'ID', sortable: true },
-        { key: 'name', label: 'Название', sortable: true },
+        { key: 'id', label: 'ID', sortable: true, sticky: true },
+        { key: 'name', label: 'Название', sortable: true},
         { key: 'slug', label: 'Slug', sortable: true },
         { key: 'sortOrder', label: 'Порядок', sortable: true },
         {
@@ -78,38 +85,8 @@ export class CategoryListComponent implements OnInit {
       actions,
       pageSizeOptions: [5, 10, 25, 50],
       defaultPageSize: 10,
-      enableSearch: true,
       enableSort: true
     };
-  }
-
-  private extractErrorMessage(err: any): string {
-    if (err.error) {
-      const body = err.error;
-      if (body.errors) {
-        const messages = Object.values(body.errors).flat() as string[];
-        if (messages.length) {
-          return messages.join('; ');
-        }
-      }
-      if (body.error) {
-        return body.error;
-      }
-      if (body.title) {
-        return body.title;
-      }
-      if (body.message) {
-        return body.message;
-      }
-      if (typeof body === 'string') {
-        return body;
-      }
-    }
-
-    if (err.message) {
-      return err.message;
-    }
-    return 'Произошла ошибка';
   }
 
   loadCategories(): void {
@@ -129,36 +106,60 @@ export class CategoryListComponent implements OnInit {
       });
   }
 
+  onSearch(): void {
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+  }
+
+  private extractErrorMessage(err: any): string {
+    if (err.error) {
+      const body = err.error;
+      if (body.errors) {
+        const messages = Object.values(body.errors).flat() as string[];
+        if (messages.length) {
+          return messages.join('; ');
+        }
+      }
+      if (body.error) return body.error;
+      if (body.title) return body.title;
+      if (body.message) return body.message;
+      if (typeof body === 'string') return body;
+    }
+    if (err.message) return err.message;
+    return 'Произошла ошибка';
+  }
+
   openCreateDialog(): void {
     const formConfig = this.getFormConfig();
-    const dialogRef = this.dialog.open(FormModalComponent, {
+    this.dialog.open(FormModalComponent, {
       width: '600px',
       data: { config: formConfig }
-    });
-
-    const dialogComponent = dialogRef.componentInstance;
-    dialogComponent.submitForm.subscribe((formData) => {
-      this.createCategory(formData, dialogRef, dialogComponent);
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.createCategory(result);
+      }
     });
   }
 
   openEditDialog(category: Category): void {
     const formConfig = this.getFormConfig(category);
-    const dialogRef = this.dialog.open(FormModalComponent, {
+    this.dialog.open(FormModalComponent, {
       width: '600px',
       data: {
         config: formConfig,
         initialValue: category
       }
-    });
-
-    const dialogComponent = dialogRef.componentInstance;
-    dialogComponent.submitForm.subscribe((formData) => {
-      this.updateCategory(category.id, formData, dialogRef, dialogComponent);
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.updateCategory(category.id, result);
+      }
     });
   }
 
   private getFormConfig(existing?: Category): FormConfig {
+    const isEdit = !!existing;
     const fields: FormField[] = [
       {
         key: 'name',
@@ -174,7 +175,7 @@ export class CategoryListComponent implements OnInit {
         required: true,
         placeholder: 'naprimer-torti',
         hint: 'Используется в URL. Только латиница, цифры и дефис. Рекомендуется задать один раз и не менять в дальнейшем.',
-        disabled: !!existing
+        disabled: isEdit
       },
       {
         key: 'description',
@@ -196,53 +197,41 @@ export class CategoryListComponent implements OnInit {
     ];
 
     return {
-      title: existing ? 'Редактировать категорию' : 'Создать категорию',
+      title: isEdit ? 'Редактировать категорию' : 'Создать категорию',
       fields,
-      submitLabel: existing ? 'Обновить' : 'Создать',
+      submitLabel: isEdit ? 'Обновить' : 'Создать',
       cancelLabel: 'Отмена'
     };
   }
 
-private createCategory(
-  data: Partial<Category>,
-  dialogRef: MatDialogRef<FormModalComponent>,
-  dialogComponent: FormModalComponent
-): void {
-  const payload: Partial<Category> = {
-    name: data.name,
-    slug: data.slug,
-    description: data.description || '',
-    sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : 0
-  };
-  console.log('Creating with payload:', payload);
-  this.loading = true;
-  this.apiService.createCategory(payload)
-    .pipe(finalize(() => this.loading = false))
-    .subscribe({
-      next: (response) => {
-        console.log('Category created:', response);
-        this.notification.success('Категория создана');
-        this.loadCategories();
-        dialogComponent.setSuccess();
-        dialogRef.close();
-      },
-      error: (err) => {
-        const msg = this.extractErrorMessage(err);
-        dialogComponent.setError(msg);
-        console.error('Create error:', err);
-      }
-    });
-}
+  private createCategory(data: Partial<Category>): void {
+    const payload: Partial<Category> = {
+      name: data.name,
+      slug: data.slug,
+      description: data.description || '',
+      sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : 0
+    };
 
-  private updateCategory(
-    id: number,
-    data: Partial<Category>,
-    dialogRef: MatDialogRef<FormModalComponent>,
-    dialogComponent: FormModalComponent
-  ): void {
+    this.loading = true;
+    this.apiService.createCategory(payload)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: () => {
+          this.notification.success('Категория создана');
+          this.loadCategories();
+        },
+        error: (err) => {
+          const msg = this.extractErrorMessage(err);
+          this.notification.error(msg);
+          console.error('Create error:', err);
+        }
+      });
+  }
+
+  private updateCategory(id: number, data: Partial<Category>): void {
     const original = this.categories.find(c => c.id === id);
     if (!original) {
-      dialogComponent.setError('Категория не найдена');
+      this.notification.error('Категория не найдена');
       return;
     }
 
@@ -254,8 +243,6 @@ private createCategory(
       sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : original.sortOrder
     };
 
-    console.log('📤 Update payload:', payload);
-
     this.loading = true;
     this.apiService.updateCategory(id, payload)
       .pipe(finalize(() => this.loading = false))
@@ -263,12 +250,10 @@ private createCategory(
         next: () => {
           this.notification.success('Категория обновлена');
           this.loadCategories();
-          dialogComponent.setSuccess();
-          dialogRef.close();
         },
         error: (err) => {
           const msg = this.extractErrorMessage(err);
-          dialogComponent.setError(msg);
+          this.notification.error(msg);
           console.error('Update error:', err);
         }
       });

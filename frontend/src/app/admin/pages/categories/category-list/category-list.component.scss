@@ -2,21 +2,33 @@
 
 .category-list-page {
   .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 
     h2 {
       font-family: $font-serif;
       color: $brown-dark;
       margin: 0;
-      position: static;
-
       &::after {
         display: none;
       }
     }
+  }
+
+  .search-wrapper {
+    margin-bottom: 1rem;
+    max-width: 600px;
+
+    .search-field {
+      width: 100%;
+
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none !important;
+      }
+    }
+  }
+
+  .action-wrapper {
+    margin-bottom: 1.5rem;
 
     button {
       display: flex;
@@ -29,6 +41,51 @@
     .mat-column-actions {
       width: 120px;
       text-align: right;
+    }
+  }
+}
+
+.table-wrapper {
+  position: relative;
+  min-height: 200px;
+  overflow-x: auto;
+  overflow-y: visible;
+
+  table {
+    width: 100%;
+    min-width: 600px;
+
+    .mat-column-id,
+    .mat-column-name {
+      position: sticky !important;
+      background: #fff;
+      z-index: 2;
+    }
+
+    .mat-column-id {
+      left: 0;
+    }
+
+    .mat-column-name {
+      left: 70px;
+    }
+
+    th.mat-column-id,
+    th.mat-column-name {
+      z-index: 3 !important;
+      background: #fafafa;
+    }
+
+    .mat-column-actions {
+      position: sticky !important;
+      right: 0;
+      background: #fff;
+      z-index: 2;
+    }
+
+    th.mat-column-actions {
+      z-index: 3 !important;
+      background: #fafafa;
     }
   }
 }

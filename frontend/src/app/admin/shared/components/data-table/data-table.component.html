@@ -1,16 +1,4 @@
 <div class="data-table-container">
-  <!-- Строка поиска -->
-  <div class="data-table-toolbar" *ngIf="config.enableSearch">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Поиск по названию</mat-label>
-      <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
-      <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
-    </mat-form-field>
-  </div>
-
   <!-- Пагинатор сверху -->
   <div class="paginator-top">
     <mat-paginator
@@ -26,7 +14,7 @@
   <div class="table-wrapper">
     <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)" *ngIf="!loading">
       <!-- Динамические колонки -->
-      <ng-container *ngFor="let column of config.columns" [matColumnDef]="column.key">
+      <ng-container *ngFor="let column of config.columns" [matColumnDef]="column.key" [sticky]="column.sticky">
         <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!column.sortable">
           {{ column.label }}
         </th>
@@ -65,9 +53,9 @@
     </div>
 
     <!-- Пустой результат поиска -->
-    <div class="empty-state" *ngIf="!loading && dataSource.filteredData.length === 0 && dataSource.data.length > 0 && searchTerm">
+    <div class="empty-state" *ngIf="!loading && dataSource.filteredData.length === 0 && dataSource.data.length > 0 && filterValue">
       <mat-icon>search_off</mat-icon>
-      <p>Ничего не найдено по запросу "{{ searchTerm }}"</p>
+      <p>Ничего не найдено по запросу "{{ filterValue }}"</p>
     </div>
   </div>
 </div>
