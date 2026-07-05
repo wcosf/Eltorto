@@ -265,3 +265,29 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mdc-dialog__title::after {
   display: none !important;
 }
+
+.image-preview-dialog {
+  .mat-mdc-dialog-container {
+    background: transparent;
+    box-shadow: none;
+  }
+  .mat-mdc-dialog-content {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+.image-preview-dialog {
+  .mat-mdc-dialog-container {
+    background: transparent;
+    box-shadow: none;
+  }
+  .mat-mdc-dialog-content {
+    padding: 0;
+    overflow: hidden;
+  }
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}

@@ -1,1 +1,49 @@
-<p>filling-list works!</p>
+<ng-template #imageTemplate let-row>
+  <div class="image-cell" (click)="openImagePreview(row.imageUrl, row.name)">
+    <img
+      *ngIf="row.imageUrl"
+      [src]="'/images/fillings/' + row.imageUrl"
+      [alt]="row.name"
+      class="thumbnail"
+      (error)="handleImageError($event, row)" />
+    <span *ngIf="!row.imageUrl" class="no-image">Нет фото</span>
+  </div>
+</ng-template>
+
+<div class="filling-list-page">
+  <div class="page-header">
+    <h2>Начинки</h2>
+  </div>
+
+  <div class="action-wrapper">
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Добавить начинку
+    </button>
+  </div>
+
+  <div class="search-wrapper">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Поиск по названию или описанию</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
+      <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <app-data-table
+    [data]="fillings"
+    [totalCount]="totalCount"
+    [pageSize]="pageSize"
+    [config]="tableConfig"
+    [loading]="loading"
+    [filterableColumns]="['name', 'description']"
+    [filterValue]="searchTerm"
+    [columnTemplates]="columnTemplates"
+    (pageChange)="onPageChange($event)"
+    (sortChange)="onSortChange($event)"
+    (actionClick)="onTableAction($event)">
+  </app-data-table>
+</div>

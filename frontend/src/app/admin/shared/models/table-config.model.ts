@@ -5,6 +5,7 @@ export interface TableColumn<T = any> {
   label: string;
   sortable?: boolean;
   format?: (value: any, row: T) => string;
+  html?: boolean;
   template?: any;
   cssClass?: string;
   sticky?: boolean;

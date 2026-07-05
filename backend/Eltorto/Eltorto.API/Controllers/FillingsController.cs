@@ -101,6 +101,37 @@ public class FillingsController : BaseApiController
         }
     }
 
+    /// <summary>
+    /// Uploads an image for a filling.
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { error = "No file uploaded" });
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(extension))
+            return BadRequest(new { error = "Invalid file format. Allowed: jpg, jpeg, png, webp" });
+
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "fillings");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        var filePath = Path.Combine(uploadsFolder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        return Ok(new { imageUrl = fileName });
+    }
+
     /// <summary>Deletes a filling. (Admin only)</summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]

@@ -182,4 +182,39 @@ export class ApiService {
     return this.http.get<Category>(`${this.apiUrl}/categories/${id}`);
   }
 
+  // ===== FILLINGS CRUD =====
+
+  // Get all
+  getFillings(page: number = 1, pageSize: number = 10, search?: string): Observable<PaginatedResponse<Filling>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<PaginatedResponse<Filling>>(`${this.apiUrl}/fillings`, { params });
+  }
+
+  // Create
+  createFilling(filling: Partial<Filling>): Observable<Filling> {
+    return this.http.post<Filling>(`${this.apiUrl}/fillings`, filling);
+  }
+
+  // Update
+  updateFilling(id: number, filling: Partial<Filling>): Observable<Filling> {
+    return this.http.put<Filling>(`${this.apiUrl}/fillings/${id}`, filling);
+  }
+
+  // Delete
+  deleteFilling(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/fillings/${id}`);
+  }
+
+  // Upload image
+  uploadFillingImage(file: File): Observable<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/fillings/upload`, formData);
+  }
+
 }

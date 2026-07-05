@@ -1,5 +1,4 @@
 <div class="data-table-container">
-  <!-- Пагинатор сверху -->
   <div class="paginator-top">
     <mat-paginator
       [length]="totalCount"
@@ -19,7 +18,12 @@
           {{ column.label }}
         </th>
         <td mat-cell *matCellDef="let row" [class]="column.cssClass">
-          {{ getColumnValue(row, column) }}
+          <ng-container *ngIf="columnTemplates[column.key]; else defaultCell">
+            <ng-container *ngTemplateOutlet="columnTemplates[column.key]; context: { $implicit: row }"></ng-container>
+          </ng-container>
+          <ng-template #defaultCell>
+            {{ getColumnValue(row, column) }}
+          </ng-template>
         </td>
       </ng-container>
 

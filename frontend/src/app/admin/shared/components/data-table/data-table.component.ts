@@ -1,4 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  Component, Input, Output, EventEmitter, OnInit, AfterViewInit,
+  OnChanges, SimpleChanges, ViewChild, TemplateRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -33,7 +36,9 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig<T>;
   @Input() loading = false;
   @Input() filterableColumns: string[] = [];
-  @Input() filterValue: string = ''; // внешний поиск
+  @Input() filterValue: string = '';
+  @Input() columnTemplates: { [key: string]: TemplateRef<any> } = {};
+  @Input() defaultSort?: { active: string; direction: 'asc' | 'desc' };
 
   @Output() pageChange = new EventEmitter<{ pageIndex: number; pageSize: number }>();
   @Output() sortChange = new EventEmitter<{ active: string; direction: 'asc' | 'desc' }>();
@@ -53,6 +58,11 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    if (this.defaultSort && this.sort) {
+      this.sort.active = this.defaultSort.active;
+      this.sort.direction = this.defaultSort.direction;
+      this.sort.sortChange.emit({ active: this.defaultSort.active, direction: this.defaultSort.direction });
+    }
     this.updateDataSource();
   }
 
