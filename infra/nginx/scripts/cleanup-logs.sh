@@ -2,7 +2,8 @@
 
 # Скрипт очистки старых логов (удаляет папки старше 7 дней)
 
-LOG_BASE_DIR="/var/log/nginx"
+# LOG_BASE_DIR="/var/log/nginx"
+LOG_BASE_DIR="/root/eltorto.ru/infra/nginx/logs"
 DAYS_TO_KEEP=7
 
 echo "Очистка логов:"
