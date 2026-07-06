@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # LOG_BASE_DIR="/var/log/nginx"
 LOG_BASE_DIR="/root/eltorto.ru/infra/nginx/logs"
