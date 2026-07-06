@@ -35,6 +35,8 @@ services:
       - JwtSettings__SecretKey=${JWT_SECRET}
       - JwtSettings__Issuer=EltortoAPI
       - JwtSettings__Audience=EltortoClient
+    volumes:
+      - ../storage:/app/storage
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,6 +64,7 @@ services:
       - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/logs:/var/log/nginx
       - ./nginx/scripts:/scripts:ro
+      - ../storage:/usr/share/nginx/html/storage
     depends_on:
       - api
       - frontend

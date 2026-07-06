@@ -8,11 +8,16 @@ namespace Eltorto.API.Controllers;
 public class PagesController : BaseApiController
 {
     private readonly IPageService _pageService;
+    private readonly IFileStorageService _fileStorage;
     private readonly ILogger<PagesController> _logger;
 
-    public PagesController(IPageService pageService, ILogger<PagesController> logger)
+    public PagesController(
+        IPageService pageService,
+        IFileStorageService fileStorage,
+        ILogger<PagesController> logger)
     {
         _pageService = pageService;
+        _fileStorage = fileStorage;
         _logger = logger;
     }
 
@@ -190,5 +195,30 @@ public class PagesController : BaseApiController
     {
         await _pageService.ReorderContentBlocksAsync(pageId, orderedIds, cancellationToken);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Upload image for page content block
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(UploadResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        try
+        {
+            var fileName = await _fileStorage.SaveFileAsync(file, "pages");
+            return Ok(new UploadResultDto { ImageUrl = fileName });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading page image");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
     }
 }

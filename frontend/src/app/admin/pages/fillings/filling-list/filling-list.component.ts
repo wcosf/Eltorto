@@ -45,7 +45,7 @@ export class FillingListComponent implements OnInit {
   columnTemplates: { [key: string]: TemplateRef<any> } = {};
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
     private dialog: MatDialog,
     private notification: AdminNotificationService
   ) {}
@@ -154,8 +154,13 @@ export class FillingListComponent implements OnInit {
       width: '600px',
       data: { config: formConfig }
     }).afterClosed().subscribe((result) => {
+      console.log('Dialog result:', result);
       if (result) {
-        this.createFilling(result);
+        const imageFile = result._file || result.imageFile;
+        console.log('ImageFile from dialog:', imageFile);
+        this.createFilling({ ...result, imageFile });
+      } else {
+        console.log('Dialog closed without result');
       }
     });
   }
@@ -170,7 +175,8 @@ export class FillingListComponent implements OnInit {
       }
     }).afterClosed().subscribe((result) => {
       if (result) {
-        this.updateFilling(filling.id, result);
+        const imageFile = result._file || result.imageFile;
+        this.updateFilling(filling.id, { ...result, imageFile });
       }
     });
   }
@@ -199,22 +205,30 @@ export class FillingListComponent implements OnInit {
         type: 'text',
         required: false,
         placeholder: 'например, my_filling.jpg',
-        hint: 'Файл должен лежать в папке /images/fillings/'
+        disabled: isEdit
       },
       {
         key: 'imageFile',
-        label: 'Загрузить новое изображение (пока не реализовано)',
+        label: 'Загрузить новое изображение',
         type: 'file',
         required: false,
         fileAccept: 'image/*',
-        hint: 'Выберите файл для загрузки (загрузка на сервер пока не реализована)'
+        hint: 'Выберите файл для загрузки (jpg, png, webp, до 5 МБ)'
       },
       {
         key: 'hasCrossSection',
-        label: 'Показывать как "в разрезе" (хит)',
+        label: 'Показывать как "хит"',
         type: 'checkbox',
         required: false,
         defaultValue: false
+      },
+      {
+        key: 'removeImage',
+        label: 'Удалить текущее изображение',
+        type: 'checkbox',
+        required: false,
+        defaultValue: false,
+        hint: 'Если отмечено, текущее фото будет удалено'
       }
     ];
 
@@ -227,6 +241,7 @@ export class FillingListComponent implements OnInit {
   }
 
   private createFilling(data: any): void {
+    console.log('Create data:', data);
     const payload: Partial<Filling> = {
       name: data.name,
       description: data.description || '',
@@ -234,10 +249,26 @@ export class FillingListComponent implements OnInit {
       imageUrl: data.imageUrl || ''
     };
 
-    if (data.imageFile) {
-      this.notification.warning('Загрузка файлов пока не реализована, будет сохранено только имя файла');
+    if (data.imageFile && data.imageFile instanceof File) {
+      this.loading = true;
+      this.apiService.uploadFile(data.imageFile, 'fillings').subscribe({
+        next: (uploadRes) => {
+          payload.imageUrl = uploadRes.imageUrl;
+          this.sendCreateRequest(payload);
+        },
+        error: (err) => {
+          this.loading = false;
+          const msg = this.extractErrorMessage(err);
+          this.notification.error('Ошибка загрузки изображения: ' + msg);
+          console.error('Upload error:', err);
+        }
+      });
+    } else {
+      this.sendCreateRequest(payload);
     }
+  }
 
+  private sendCreateRequest(payload: Partial<Filling>): void {
     this.loading = true;
     this.apiService.createFilling(payload)
       .pipe(finalize(() => this.loading = false))
@@ -255,25 +286,73 @@ export class FillingListComponent implements OnInit {
   }
 
   private updateFilling(id: number, data: any): void {
+    console.log('Update data:', data);
     const original = this.fillings.find(f => f.id === id);
     if (!original) {
       this.notification.error('Начинка не найдена');
       return;
     }
 
+    if (data.imageFile && data.imageFile instanceof File) {
+      this.loading = true;
+      this.apiService.uploadFile(data.imageFile, 'fillings', id).subscribe({
+        next: (uploadRes) => {
+          const payload: Partial<Filling> = {
+            id: id,
+            name: data.name ?? original.name,
+            description: data.description !== undefined ? data.description : original.description,
+            hasCrossSection: data.hasCrossSection !== undefined ? data.hasCrossSection : original.hasCrossSection,
+            imageUrl: uploadRes.imageUrl
+          };
+          this.sendUpdateRequest(id, payload);
+        },
+        error: (err) => {
+          this.loading = false;
+          const msg = this.extractErrorMessage(err);
+          this.notification.error('Ошибка загрузки изображения: ' + msg);
+          console.error('Upload error:', err);
+        }
+      });
+      return;
+    }
+
+    if (data.removeImage === true) {
+      this.loading = true;
+      this.apiService.deleteFillingImage(id).subscribe({
+        next: () => {
+          const payload: Partial<Filling> = {
+            id: id,
+            name: data.name ?? original.name,
+            description: data.description !== undefined ? data.description : original.description,
+            hasCrossSection: data.hasCrossSection !== undefined ? data.hasCrossSection : original.hasCrossSection,
+            imageUrl: ''
+          };
+          this.sendUpdateRequest(id, payload);
+        },
+        error: (err) => {
+          this.loading = false;
+          const msg = this.extractErrorMessage(err);
+          this.notification.error('Ошибка удаления изображения: ' + msg);
+          console.error('Delete image error:', err);
+        }
+      });
+      return;
+    }
+
     const payload: Partial<Filling> = {
+      id: id,
       name: data.name ?? original.name,
       description: data.description !== undefined ? data.description : original.description,
       hasCrossSection: data.hasCrossSection !== undefined ? data.hasCrossSection : original.hasCrossSection,
       imageUrl: data.imageUrl ?? original.imageUrl
     };
+    this.sendUpdateRequest(id, payload);
+  }
 
-    if (data.imageFile) {
-      this.notification.warning('Загрузка файлов пока не реализована, имя файла не изменится');
-    }
-
+  private sendUpdateRequest(id: number, payload: Partial<Filling>): void {
+    const updatePayload = { ...payload, id };
     this.loading = true;
-    this.apiService.updateFilling(id, payload)
+    this.apiService.updateFilling(id, updatePayload)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: () => {
@@ -328,7 +407,7 @@ export class FillingListComponent implements OnInit {
 
   openImagePreview(imageUrl: string, name: string): void {
     if (!imageUrl) return;
-    const fullUrl = `/images/fillings/${imageUrl}`;
+    const fullUrl = this.apiService.getFillingImageUrl(imageUrl);
     this.dialog.open(ImagePreviewDialogComponent, {
       data: { imageUrl: fullUrl, alt: name },
       panelClass: 'image-preview-dialog'

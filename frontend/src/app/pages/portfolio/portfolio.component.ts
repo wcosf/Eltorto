@@ -9,7 +9,6 @@ import { ApiService, Cake, Category, PaginatedResponse } from '../../services/ap
   templateUrl: './portfolio.component.html',
   styleUrls: ['./portfolio.component.scss']
 })
-
 export class PortfolioComponent implements OnInit, AfterViewInit {
   categories: Category[] = [];
   allCakes: Cake[] = [];
@@ -24,13 +23,9 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
   totalPages = 0;
   totalItems = 0;
 
-  imagePaths = {
-    portfolio: '/images/portfolio/',
-    fillings: '/images/fillings/',
-    placeholder: '/images/placeholder-cake.jpg'
-  };
+  placeholderImage = '/images/placeholder-cake.jpg';
 
-  constructor(private apiService: ApiService) { }
+  constructor(public apiService: ApiService) { }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -177,38 +172,16 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
     return pages;
   }
 
-  getThumbnailUrl(imageUrl: string, thumbnailUrl: string): string {
-    if (thumbnailUrl) {
-      return `${this.imagePaths.portfolio}${thumbnailUrl}`;
-    }
-    if (imageUrl) {
-      return `${this.imagePaths.portfolio}${imageUrl}`;
-    }
-    return this.imagePaths.placeholder;
-  }
-
   getCakeImageUrl(cake: Cake): string {
-    if (cake.imageUrl) {
-      if (cake.imageUrl.startsWith('http') || cake.imageUrl.startsWith('/')) {
-        return cake.imageUrl;
-      }
-      return `/images/portfolio/${cake.imageUrl}`;
-    }
-    if (cake.thumbnailUrl) {
-      if (cake.thumbnailUrl.startsWith('http') || cake.thumbnailUrl.startsWith('/')) {
-        return cake.thumbnailUrl;
-      }
-      return `/images/portfolio/${cake.thumbnailUrl}`;
-    }
-    return this.imagePaths.placeholder;
+    const fileName = cake.imageUrl || cake.thumbnailUrl;
+    return this.apiService.getCakeImageUrl(fileName);
   }
 
   handleImageError(event: any): void {
-    if (event.target.src === this.imagePaths.placeholder) {
-      return;
+    if (event.target.src !== this.placeholderImage) {
+      event.target.src = this.placeholderImage;
+      event.target.onerror = null;
     }
-    event.target.src = this.imagePaths.placeholder;
-    event.target.onerror = null;
   }
 
   trackById(index: number, cake: Cake): number {

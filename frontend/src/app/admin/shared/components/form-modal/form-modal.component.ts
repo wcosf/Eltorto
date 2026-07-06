@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -40,13 +40,12 @@ export interface FormModalData {
 })
 
 export class FormModalComponent implements OnInit {
-  @Output() submitForm = new EventEmitter<any>();
   form!: FormGroup;
   loading = false;
   config: FormConfig;
   fields: FormField[];
   error: string | null = null;
-
+  selectedFile: File | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<FormModalComponent>,
@@ -88,17 +87,8 @@ export class FormModalComponent implements OnInit {
     }
     this.error = null;
     this.loading = true;
-    this.submitForm.emit(this.form.value);
-  }
-
-  setError(message: string) {
-    this.error = message;
-    this.loading = false;
-  }
-
-  setSuccess() {
-    this.loading = false;
-    this.dialogRef.close(this.form.value);
+    const result = { ...this.form.value, _file: this.selectedFile };
+    this.dialogRef.close(result);
   }
 
   onCancel() {
@@ -109,6 +99,7 @@ export class FormModalComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
+      this.selectedFile = file;
       this.form.patchValue({ [key]: file });
     }
   }

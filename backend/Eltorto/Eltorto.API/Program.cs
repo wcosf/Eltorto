@@ -21,6 +21,28 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+// Create directory for uploading images
+var uploadSettings = app.Configuration.GetSection("UploadSettings");
+var basePath = uploadSettings["BasePath"] ?? "uploads";
+var subPaths = new[]
+{
+    uploadSettings["FillingsSubPath"] ?? "fillings",
+    uploadSettings["PortfolioSubPath"] ?? "portfolio",
+    uploadSettings["SliderSubPath"] ?? "slider",
+    uploadSettings["PagesSubPath"] ?? "pages"
+};
+
+var fullBasePath = Path.Combine(Directory.GetCurrentDirectory(), basePath);
+if (!Directory.Exists(fullBasePath))
+    Directory.CreateDirectory(fullBasePath);
+
+foreach (var sub in subPaths)
+{
+    var fullSubPath = Path.Combine(fullBasePath, sub);
+    if (!Directory.Exists(fullSubPath))
+        Directory.CreateDirectory(fullSubPath);
+}
+
 // Apply migrations and seed admin
 using (var scope = app.Services.CreateScope())
 {

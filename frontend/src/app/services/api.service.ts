@@ -96,10 +96,6 @@ export class ApiService {
     return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/paged`, { params });
   }
 
-  getCakeImageUrl(cake: Cake): string {
-    return cake.imageUrl || '/images/placeholder-cake.jpg';
-  }
-
   // Featured cakes
   getFeaturedCakes(): Observable<Cake[]> {
     return this.http.get<Cake[]>(`${this.apiUrl}/cakes/featured`);
@@ -215,6 +211,47 @@ export class ApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/fillings/upload`, formData);
+  }
+
+  deleteFillingImage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/fillings/${id}/image`);
+  }
+
+  // ===== FILE STORAGE HELPERS =====
+  uploadFile(file: File, category: 'fillings' | 'cakes' | 'slider' | 'pages', entityId?: number): Observable<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    let url = `${this.apiUrl}/${category}/upload`;
+    if (entityId) {
+      url += `?id=${entityId}`;
+    }
+    return this.http.post<{ imageUrl: string }>(url, formData);
+  }
+
+  private getFileUrl(fileName: string | null | undefined, category: 'fillings' | 'cakes' | 'slider' | 'pages'): string {
+    if (!fileName) return '';
+
+    if (fileName.startsWith('http://') || fileName.startsWith('https://') || fileName.startsWith('/')) {
+      return fileName;
+    }
+
+    return `/storage/${category}/${encodeURIComponent(fileName)}`;
+  }
+
+  getFillingImageUrl(fileName: string | null | undefined): string {
+    return this.getFileUrl(fileName, 'fillings');
+  }
+
+  getCakeImageUrl(fileName: string | null | undefined): string {
+    return this.getFileUrl(fileName, 'cakes');
+  }
+
+  getSliderImageUrl(fileName: string | null | undefined): string {
+    return this.getFileUrl(fileName, 'slider');
+  }
+
+  getPageImageUrl(fileName: string | null | undefined): string {
+    return this.getFileUrl(fileName, 'pages');
   }
 
 }

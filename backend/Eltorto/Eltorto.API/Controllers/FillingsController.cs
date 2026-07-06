@@ -8,11 +8,16 @@ namespace Eltorto.API.Controllers;
 public class FillingsController : BaseApiController
 {
     private readonly IFillingService _fillingService;
+    private readonly IFileStorageService _fileStorage;
     private readonly ILogger<FillingsController> _logger;
 
-    public FillingsController(IFillingService fillingService, ILogger<FillingsController> logger)
+    public FillingsController(
+        IFillingService fillingService,
+        IFileStorageService fileStorage,
+        ILogger<FillingsController> logger)
     {
         _fillingService = fillingService;
+        _fileStorage = fileStorage;
         _logger = logger;
     }
 
@@ -101,37 +106,6 @@ public class FillingsController : BaseApiController
         }
     }
 
-    /// <summary>
-    /// Uploads an image for a filling.
-    /// </summary>
-    [HttpPost("upload")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UploadImage(IFormFile file)
-    {
-        if (file == null || file.Length == 0)
-            return BadRequest(new { error = "No file uploaded" });
-
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (!allowedExtensions.Contains(extension))
-            return BadRequest(new { error = "Invalid file format. Allowed: jpg, jpeg, png, webp" });
-
-        var fileName = $"{Guid.NewGuid():N}{extension}";
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "fillings");
-        if (!Directory.Exists(uploadsFolder))
-            Directory.CreateDirectory(uploadsFolder);
-
-        var filePath = Path.Combine(uploadsFolder, fileName);
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        return Ok(new { imageUrl = fileName });
-    }
-
     /// <summary>Deletes a filling. (Admin only)</summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
@@ -142,6 +116,11 @@ public class FillingsController : BaseApiController
     {
         try
         {
+            var filling = await _fillingService.GetByIdAsync(id, cancellationToken);
+            if (filling != null && !string.IsNullOrEmpty(filling.ImageUrl))
+            {
+                await _fileStorage.DeleteFileAsync(filling.ImageUrl, "fillings", cancellationToken);
+            }
             await _fillingService.DeleteAsync(id, cancellationToken);
             return NoContent();
         }
@@ -153,5 +132,61 @@ public class FillingsController : BaseApiController
         {
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Upload an image for filling
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(UploadResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file, [FromQuery] int? id = null)
+    {
+        try
+        {
+            if (id.HasValue)
+            {
+                var existing = await _fillingService.GetByIdAsync(id.Value, CancellationToken.None);
+                if (existing != null && !string.IsNullOrEmpty(existing.ImageUrl))
+                {
+                    await _fileStorage.DeleteFileAsync(existing.ImageUrl, "fillings", CancellationToken.None);
+                }
+            }
+
+            var fileName = await _fileStorage.SaveFileAsync(file, "fillings");
+            return Ok(new UploadResultDto { ImageUrl = fileName });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading filling image");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Delete image for filling
+    /// </summary>
+    [HttpDelete("{id:int}/image")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteImage(int id, CancellationToken cancellationToken)
+    {
+        var filling = await _fillingService.GetByIdAsync(id, cancellationToken);
+        if (filling == null)
+            return NotFound();
+
+        if (!string.IsNullOrEmpty(filling.ImageUrl))
+        {
+            await _fileStorage.DeleteFileAsync(filling.ImageUrl, "fillings", cancellationToken);
+            await _fillingService.UpdateImageUrlAsync(id, string.Empty, cancellationToken);
+        }
+
+        return NoContent();
     }
 }

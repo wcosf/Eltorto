@@ -8,11 +8,16 @@ namespace Eltorto.API.Controllers;
 public class CakesController : BaseApiController
 {
     private readonly ICakeService _cakeService;
+    private readonly IFileStorageService _fileStorage;
     private readonly ILogger<CakesController> _logger;
 
-    public CakesController(ICakeService cakeService, ILogger<CakesController> logger)
+    public CakesController(
+        ICakeService cakeService,
+        IFileStorageService fileStorage,
+        ILogger<CakesController> logger)
     {
         _cakeService = cakeService;
+        _fileStorage = fileStorage;
         _logger = logger;
     }
 
@@ -155,6 +160,31 @@ public class CakesController : BaseApiController
         catch (KeyNotFoundException)
         {
             return NotFound();
+        }
+    }
+
+    /// <summary>
+    /// Upload image for cake
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(UploadResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        try
+        {
+            var fileName = await _fileStorage.SaveFileAsync(file, "cakes");
+            return Ok(new UploadResultDto { ImageUrl = fileName });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading cake image");
+            return StatusCode(500, new { error = "Internal server error" });
         }
     }
 }

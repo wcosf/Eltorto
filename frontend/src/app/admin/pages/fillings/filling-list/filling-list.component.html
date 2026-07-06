@@ -2,10 +2,10 @@
   <div class="image-cell" (click)="openImagePreview(row.imageUrl, row.name)">
     <img
       *ngIf="row.imageUrl"
-      [src]="'/images/fillings/' + row.imageUrl"
+      [src]="apiService.getFillingImageUrl(row.imageUrl)"
       [alt]="row.name"
       class="thumbnail"
-      (error)="handleImageError($event, row)" />
+      (error)="row.imageUrl = null" />
     <span *ngIf="!row.imageUrl" class="no-image">Нет фото</span>
   </div>
 </ng-template>

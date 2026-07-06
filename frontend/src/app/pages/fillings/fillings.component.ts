@@ -14,12 +14,9 @@ export class FillingsComponent implements OnInit, AfterViewInit {
   isLoading = true;
   error: string | null = null;
 
-  imagePaths = {
-    fillings: '/images/fillings/',
-    placeholder: '/images/placeholder-cake.jpg'
-  };
+  placeholderImage = '/images/placeholder-cake.jpg';
 
-  constructor(private apiService: ApiService) { }
+  constructor(public apiService: ApiService) { }
 
   ngOnInit(): void {
     this.loadFillings();
@@ -64,13 +61,13 @@ export class FillingsComponent implements OnInit, AfterViewInit {
   }
 
   getFillingImageUrl(imageName: string): string {
-    if (!imageName) {
-      return this.imagePaths.placeholder;
-    }
-    return `${this.imagePaths.fillings}${imageName}`;
+    return this.apiService.getFillingImageUrl(imageName);
   }
 
   handleImageError(event: any): void {
-    event.target.src = this.imagePaths.placeholder;
+    if (event.target.src !== this.placeholderImage) {
+      event.target.src = this.placeholderImage;
+      event.target.onerror = null;
+    }
   }
 }

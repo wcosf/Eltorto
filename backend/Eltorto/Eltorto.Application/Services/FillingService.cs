@@ -74,6 +74,17 @@ public class FillingService : IFillingService
         return _mapper.Map<FillingDto>(existingFilling);
     }
 
+    public async Task UpdateImageUrlAsync(int id, string? imageUrl, CancellationToken cancellationToken = default)
+    {
+        var filling = await _unitOfWork.Fillings.GetByIdAsync(id, cancellationToken);
+        if (filling == null)
+            throw new KeyNotFoundException($"Filling with id {id} not found");
+
+        filling.ImageUrl = imageUrl ?? string.Empty;
+        await _unitOfWork.Fillings.UpdateAsync(filling, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var filling = await _unitOfWork.Fillings.GetByIdAsync(id, cancellationToken);
