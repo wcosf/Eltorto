@@ -1,6 +1,7 @@
 #!/bin/sh
 
-LOG_BASE_DIR="/var/log/nginx"
+# LOG_BASE_DIR="/var/log/nginx"
+LOG_BASE_DIR="/root/eltorto.ru/infra/nginx/logs"
 CURRENT_DATE=$(date +%Y_%m_%d)
 LOG_DIR="$LOG_BASE_DIR/$CURRENT_DATE"
 ACCESS_LOG="$LOG_DIR/access_$CURRENT_DATE.log"
