@@ -89,7 +89,7 @@ jobs:
       - name: Health check
         run: |
           sleep 25
-          STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
+          STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" --user-agent "HealthCheck/1.0" https://${{ secrets.SSH_HOST }})
           if [ $STATUS_CODE -eq 200 ] || [ $STATUS_CODE -eq 301 ]; then
             echo "Health check passed. Status code: $STATUS_CODE"
           else
