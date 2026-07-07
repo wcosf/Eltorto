@@ -131,8 +131,8 @@ def load_manual_bans():
     except FileNotFoundError:
         print(f"Warning: {MANUAL_BAN_LIST} not found, creating...")
         with open(MANUAL_BAN_LIST, 'w') as f:
-            f.write("# === РУЧНОЙ БАН ===\n")
-            f.write("# Добавляйте сюда IP в формате: deny IP;\n")
+            f.write("#------ РУЧНОЙ БАН ------\n")
+            f.write("# IP в формате: deny IP;\n")
     return manual_bans
 
 def update_ban_list():
