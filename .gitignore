@@ -11,6 +11,13 @@
 *.vs/
 *.user
 *migration_log.txt
+infra/postgres/init.sql
+/backups/
+infra/backups/
+/var/backups/
+*.backup.sql
+*_backup.sql
+backup_*.sql
 
 .env
 *.log
