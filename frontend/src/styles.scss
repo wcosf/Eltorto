@@ -291,3 +291,87 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     box-shadow: none !important;
   }
 }
+
+.admin-content {
+  .admin-action-button {
+    min-width: 213px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .data-table-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    padding: 0 0.5rem !important;
+  }
+
+  .mat-mdc-paginator {
+    width: 100% !important;
+    min-width: auto !important;
+    overflow: visible !important;
+  }
+
+  .mat-mdc-paginator-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 56px !important;
+    gap: 0.5rem !important;
+    padding: 0 8px !important;
+    width: 100% !important;
+  }
+
+  .mat-mdc-paginator-page-size,
+  .mat-mdc-paginator-range-label,
+  .mat-mdc-paginator-range-actions {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .mat-mdc-paginator-touch-target {
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .mat-mdc-paginator-range-actions {
+    display: flex !important;
+    gap: 0 !important;
+    align-items: center !important;
+  }
+
+  @media (max-width: 768px) {
+    .data-table-container {
+      padding: 0 0.25rem !important;
+    }
+
+    .mat-mdc-paginator-container {
+      flex-wrap: wrap !important;
+      justify-content: flex-start !important;
+      gap: 0.25rem !important;
+      padding: 0.5rem !important;
+    }
+
+    .mat-mdc-paginator-range-actions {
+      flex: 0 0 100% !important;
+      justify-content: flex-start !important;
+      display: flex !important;
+      gap: 0.25rem !important;
+      margin-top: 0.25rem !important;
+    }
+
+    .mat-mdc-paginator-page-size,
+    .mat-mdc-paginator-range-label {
+      flex-shrink: 0 !important;
+    }
+  }
+}
