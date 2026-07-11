@@ -95,7 +95,7 @@ export class CategoryListComponent implements OnInit {
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (data) => {
-          this.categories = data.sort((a, b) => b.id - a.id);
+          this.categories = data;
           this.totalCount = this.categories.length;
         },
         error: (err) => {

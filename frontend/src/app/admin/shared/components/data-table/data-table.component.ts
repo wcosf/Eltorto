@@ -132,6 +132,10 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       active: event.active,
       direction: event.direction,
     });
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    this.updateDataSource();
   }
 
   onAction(action: TableAction<T>, row: T) {

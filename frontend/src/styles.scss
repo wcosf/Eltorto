@@ -375,3 +375,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     }
   }
 }
+
+.mat-sort-header-arrow {
+  opacity: 0.4 !important;
+  color: #999 !important;
+
+  .mat-sort-header-stem,
+  .mat-sort-header-indicator {
+    opacity: 1 !important;
+    color: #b34766 !important;
+  }
+}
+
+.mat-sort-header-sorted {
+  .mat-sort-header-arrow {
+    opacity: 1 !important;
+    color: #b34766 !important;
+  }
+}
