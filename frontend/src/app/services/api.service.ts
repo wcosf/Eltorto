@@ -254,4 +254,30 @@ export class ApiService {
     return this.getFileUrl(fileName, 'pages');
   }
 
+  // ===== CAKES CRUD =====
+
+  // create
+  createCake(cake: Partial<Cake>): Observable<Cake> {
+    return this.http.post<Cake>(`${this.apiUrl}/cakes`, cake);
+  }
+
+  // update
+  updateCake(id: number, cake: Partial<Cake>): Observable<Cake> {
+    return this.http.put<Cake>(`${this.apiUrl}/cakes/${id}`, cake);
+  }
+
+  // delete
+  deleteCake(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/cakes/${id}`);
+  }
+
+  // get by id
+  getCakeById(id: number): Observable<Cake> {
+    return this.http.get<Cake>(`${this.apiUrl}/cakes/${id}`);
+  }
+
+  // delete image
+  deleteCakeImage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/cakes/${id}/image`);
+  }
 }

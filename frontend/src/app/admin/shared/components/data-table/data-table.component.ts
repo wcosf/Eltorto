@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter, OnInit, AfterViewInit,
-  OnChanges, SimpleChanges, ViewChild, TemplateRef
+  OnChanges, SimpleChanges, ViewChild, TemplateRef, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -36,7 +36,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig<T>;
   @Input() loading = false;
   @Input() filterableColumns: string[] = [];
-  @Input() filterValue: string = '';
   @Input() columnTemplates: { [key: string]: TemplateRef<any> } = {};
   @Input() defaultSort?: { active: string; direction: 'asc' | 'desc' };
 
@@ -47,8 +46,27 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  private _filterValue = '';
+  @Input() set filterValue(value: string) {
+    const newValue = value || '';
+    if (this._filterValue !== newValue) {
+      this._filterValue = newValue;
+      console.log('filterValue changed to:', this._filterValue);
+      this.applyFilterAndUpdate();
+      if (this.paginator) {
+        this.paginator.firstPage();
+      }
+      this.cdr.detectChanges();
+    }
+  }
+  get filterValue(): string {
+    return this._filterValue;
+  }
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
   displayedColumns: string[] = [];
-  dataSource = new MatTableDataSource<T>([]);
+  dataSource!: MatTableDataSource<T>;
 
   ngOnInit() {
     this.initTable();
@@ -67,11 +85,9 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('DataTable ngOnChanges:', Object.keys(changes));
     if (changes['data'] || changes['totalCount'] || changes['pageSize'] || changes['pageIndex']) {
       this.updateDataSource();
-    }
-    if (changes['filterValue']) {
-      this.applyFilter();
     }
   }
 
@@ -101,26 +117,28 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   private updateDataSource() {
+    console.log('updateDataSource: data length =', this.data.length);
     this.dataSource.data = this.data;
+    this.applyFilterAndUpdate();
     if (this.paginator) {
-      this.paginator.length = this.totalCount;
-      this.paginator.pageIndex = this.pageIndex;
-      this.paginator.pageSize = this.pageSize;
+      this.paginator.length = this.dataSource.filteredData.length;
+      console.log('Paginator length set to:', this.paginator.length);
     }
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
-    }
-    this.applyFilter();
+    this.cdr.detectChanges();
   }
 
-  private applyFilter() {
-    this.dataSource.filter = this.filterValue.trim().toLowerCase();
+  private applyFilterAndUpdate() {
+    const filterValue = this._filterValue.trim().toLowerCase();
+    console.log('Applying filter:', filterValue);
+    this.dataSource.filter = filterValue;
     if (this.paginator) {
-      this.paginator.firstPage();
+      this.paginator.length = this.dataSource.filteredData.length;
+      console.log('Filtered data length:', this.dataSource.filteredData.length);
     }
   }
 
   onPageChange(event: any) {
+    console.log('DataTable onPageChange:', event);
     this.pageChange.emit({
       pageIndex: event.pageIndex,
       pageSize: event.pageSize,
@@ -128,14 +146,23 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   onSortChange(event: any) {
+    console.log('onSortChange:', event);
     this.sortChange.emit({
       active: event.active,
       direction: event.direction,
     });
+    const newDataSource = new MatTableDataSource(this.data.slice());
+    newDataSource.paginator = this.paginator;
+    newDataSource.sort = this.sort;
+    newDataSource.filterPredicate = this.dataSource.filterPredicate;
+    newDataSource.filter = this._filterValue.trim().toLowerCase();
+    this.dataSource = newDataSource;
+
     if (this.paginator) {
+      this.paginator.length = this.dataSource.filteredData.length;
       this.paginator.firstPage();
     }
-    this.updateDataSource();
+    this.cdr.detectChanges();
   }
 
   onAction(action: TableAction<T>, row: T) {

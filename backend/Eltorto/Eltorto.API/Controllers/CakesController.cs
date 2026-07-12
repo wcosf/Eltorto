@@ -187,4 +187,26 @@ public class CakesController : BaseApiController
             return StatusCode(500, new { error = "Internal server error" });
         }
     }
+
+    /// <summary>
+    /// Delete image for cake
+    /// </summary>
+    [HttpDelete("{id:int}/image")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteImage(int id, CancellationToken cancellationToken)
+    {
+        var cake = await _cakeService.GetByIdAsync(id, cancellationToken);
+        if (cake == null)
+            return NotFound();
+
+        if (!string.IsNullOrEmpty(cake.ImageUrl))
+        {
+            await _fileStorage.DeleteFileAsync(cake.ImageUrl, "cakes", cancellationToken);
+            await _cakeService.UpdateImageUrlAsync(id, string.Empty, cancellationToken);
+        }
+
+        return NoContent();
+    }
 }

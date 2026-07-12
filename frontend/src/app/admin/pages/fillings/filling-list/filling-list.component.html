@@ -24,7 +24,7 @@
 
   <div class="search-wrapper">
     <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Поиск по названию или описанию</mat-label>
+      <mat-label>Поиск по названию или id</mat-label>
       <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
       <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
         <mat-icon>close</mat-icon>
@@ -39,7 +39,7 @@
     [pageSize]="pageSize"
     [config]="tableConfig"
     [loading]="loading"
-    [filterableColumns]="['name', 'description']"
+    [filterableColumns]="['name', 'id']"
     [filterValue]="searchTerm"
     [columnTemplates]="columnTemplates"
     (pageChange)="onPageChange($event)"

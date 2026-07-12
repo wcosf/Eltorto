@@ -12,5 +12,6 @@ public interface ICakeService
     Task<PagedResultDto<CakeListDto>> GetPagedAsync(int page, int pageSize, string? category = null, CancellationToken cancellationToken = default);
     Task<CakeDetailDto> CreateAsync(CreateCakeDto createDto, CancellationToken cancellationToken = default);
     Task<CakeDetailDto> UpdateAsync(UpdateCakeDto updateDto, CancellationToken cancellationToken = default);
+    Task UpdateImageUrlAsync(int id, string imageUrl, CancellationToken cancellationToken);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

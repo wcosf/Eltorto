@@ -108,6 +108,16 @@ public class CakeService : ICakeService
         return _mapper.Map<CakeDetailDto>(existingCake);
     }
 
+    public async Task UpdateImageUrlAsync(int id, string imageUrl, CancellationToken cancellationToken)
+    {
+        var cake = await _unitOfWork.Cakes.GetByIdAsync(id, cancellationToken);
+        if (cake == null)
+            throw new KeyNotFoundException($"Cake with id {id} not found");
+
+        cake.ImageUrl = imageUrl;
+        await _unitOfWork.Cakes.UpdateAsync(cake, cancellationToken);
+    }
+
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var cake = await _unitOfWork.Cakes.GetByIdAsync(id, cancellationToken);
