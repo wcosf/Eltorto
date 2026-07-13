@@ -60,7 +60,7 @@ services:
       - ./nginx/logs:/var/log/nginx
       - ./nginx/scripts:/scripts:ro
       - ./ssl:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/www:/var/www/certbot:rw
       - ./nginx/ban.conf:/etc/nginx/ban.conf:ro
     depends_on:
       - api
