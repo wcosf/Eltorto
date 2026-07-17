@@ -51,12 +51,10 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     const newValue = value || '';
     if (this._filterValue !== newValue) {
       this._filterValue = newValue;
-      console.log('filterValue changed to:', this._filterValue);
-      this.applyFilterAndUpdate();
+      this.updateDisplayData();
       if (this.paginator) {
         this.paginator.firstPage();
       }
-      this.cdr.detectChanges();
     }
   }
   get filterValue(): string {
@@ -66,28 +64,40 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   constructor(private cdr: ChangeDetectorRef) {}
 
   displayedColumns: string[] = [];
-  dataSource!: MatTableDataSource<T>;
+  dataSource = new MatTableDataSource<T>([]);
+
+  private allData: T[] = [];
+  private filteredData: T[] = [];
+  private currentPageData: T[] = [];
 
   ngOnInit() {
     this.initTable();
     this.setupFilter();
+    this.allData = this.data;
+    this.updateDisplayData();
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     if (this.defaultSort && this.sort) {
       this.sort.active = this.defaultSort.active;
       this.sort.direction = this.defaultSort.direction;
       this.sort.sortChange.emit({ active: this.defaultSort.active, direction: this.defaultSort.direction });
     }
-    this.updateDataSource();
+    this.updateDisplayData();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('DataTable ngOnChanges:', Object.keys(changes));
-    if (changes['data'] || changes['totalCount'] || changes['pageSize'] || changes['pageIndex']) {
-      this.updateDataSource();
+    if (changes['data']) {
+      this.allData = this.data;
+      this.updateDisplayData();
+    }
+    if (changes['pageSize'] || changes['pageIndex']) {
+      this.updateDisplayData();
+    }
+    if (changes['totalCount']) {
+      this.updatePaginatorLength();
     }
   }
 
@@ -96,7 +106,7 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     if (this.config.actions?.length) {
       this.displayedColumns.push('actions');
     }
-    this.dataSource = new MatTableDataSource(this.data);
+    this.dataSource = new MatTableDataSource<T>([]);
   }
 
   private setupFilter() {
@@ -116,24 +126,46 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  private updateDataSource() {
-    console.log('updateDataSource: data length =', this.data.length);
-    this.dataSource.data = this.data;
-    this.applyFilterAndUpdate();
-    if (this.paginator) {
-      this.paginator.length = this.dataSource.filteredData.length;
-      console.log('Paginator length set to:', this.paginator.length);
+  private updateDisplayData() {
+    const filterValue = this._filterValue.trim().toLowerCase();
+    if (filterValue) {
+      this.filteredData = this.allData.filter(item =>
+        this.dataSource.filterPredicate(item, filterValue)
+      );
+    } else {
+      this.filteredData = this.allData.slice();
     }
+
+    if (this.sort && this.sort.active) {
+      const isAsc = this.sort.direction === 'asc';
+      this.filteredData = this.filteredData.sort((a, b) => {
+        const aValue = (a as any)[this.sort.active];
+        const bValue = (b as any)[this.sort.active];
+        if (aValue == null) return isAsc ? -1 : 1;
+        if (bValue == null) return isAsc ? 1 : -1;
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return isAsc ? aValue - bValue : bValue - aValue;
+        }
+        const comparison = String(aValue).localeCompare(String(bValue));
+        return isAsc ? comparison : -comparison;
+      });
+    }
+
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    this.currentPageData = this.filteredData.slice(start, end);
+
+    this.dataSource.data = this.currentPageData;
+
+    this.updatePaginatorLength();
     this.cdr.detectChanges();
   }
 
-  private applyFilterAndUpdate() {
-    const filterValue = this._filterValue.trim().toLowerCase();
-    console.log('Applying filter:', filterValue);
-    this.dataSource.filter = filterValue;
+  private updatePaginatorLength() {
     if (this.paginator) {
-      this.paginator.length = this.dataSource.filteredData.length;
-      console.log('Filtered data length:', this.dataSource.filteredData.length);
+      this.paginator.length = this.filteredData.length;
+      this.paginator.pageIndex = this.pageIndex;
+      this.paginator.pageSize = this.pageSize;
     }
   }
 
@@ -151,18 +183,10 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       active: event.active,
       direction: event.direction,
     });
-    const newDataSource = new MatTableDataSource(this.data.slice());
-    newDataSource.paginator = this.paginator;
-    newDataSource.sort = this.sort;
-    newDataSource.filterPredicate = this.dataSource.filterPredicate;
-    newDataSource.filter = this._filterValue.trim().toLowerCase();
-    this.dataSource = newDataSource;
-
+    this.updateDisplayData();
     if (this.paginator) {
-      this.paginator.length = this.dataSource.filteredData.length;
       this.paginator.firstPage();
     }
-    this.cdr.detectChanges();
   }
 
   onAction(action: TableAction<T>, row: T) {

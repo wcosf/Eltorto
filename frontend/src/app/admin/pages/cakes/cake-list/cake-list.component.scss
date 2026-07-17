@@ -80,3 +80,22 @@
     }
   }
 }
+
+@keyframes highlightFade {
+  0% {
+    background-color: #fff8e1;
+  }
+  70% {
+    background-color: #fff8e1;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+::ng-deep .highlight-row {
+  animation: highlightFade 2.5s ease forwards !important;
+  td {
+    animation: highlightFade 2.5s ease forwards !important;
+  }
+}

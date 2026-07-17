@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,7 +12,10 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { FormModalComponent } from '../../../shared/components/form-modal/form-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
+import { RecentActionsComponent } from '../../../shared/components/recent-actions/recent-actions.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { RecentActionsService } from '../../../../core/recent-actions.service';
+import { RecentAction } from '../../../../core/recent-actions.service';
 import { ApiService, Cake, Category, Filling } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
 import { FormConfig, FormField } from '../../../shared/models/form-config.model';
@@ -24,6 +27,7 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
     CommonModule,
     FormsModule,
     DataTableComponent,
+    RecentActionsComponent,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
@@ -51,7 +55,10 @@ export class CakeListComponent implements OnInit {
   constructor(
     public apiService: ApiService,
     private dialog: MatDialog,
-    private notification: AdminNotificationService
+    private notification: AdminNotificationService,
+    private recentActions: RecentActionsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +67,6 @@ export class CakeListComponent implements OnInit {
     this.loadReferences();
     this.loadCakes();
   }
-
 
   private initTableConfig(): void {
     const actions: TableAction<Cake>[] = [
@@ -334,8 +340,15 @@ export class CakeListComponent implements OnInit {
     this.apiService.createCake(payload)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
-        next: () => {
+        next: (created) => {
           this.notification.success('Торт создан');
+          this.recentActions.addAction({
+            type: 'create',
+            entityType: 'торт',
+            entityId: created.id,
+            entityName: created.name,
+            link: '/admin/cakes'
+          });
           this.loadCakes();
         },
         error: (err) => {
@@ -420,8 +433,15 @@ export class CakeListComponent implements OnInit {
     this.apiService.updateCake(id, updatePayload)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
-        next: () => {
+        next: (updated) => {
           this.notification.success('Торт обновлён');
+          this.recentActions.addAction({
+            type: 'update',
+            entityType: 'торт',
+            entityId: updated.id,
+            entityName: updated.name,
+            link: '/admin/cakes'
+          });
           this.loadCakes();
         },
         error: (err) => {
@@ -444,18 +464,25 @@ export class CakeListComponent implements OnInit {
       }
     }).afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.performDelete(cake.id);
+        this.performDelete(cake.id, cake.name);
       }
     });
   }
 
-  private performDelete(id: number): void {
+  private performDelete(id: number, name: string): void {
     this.loading = true;
     this.apiService.deleteCake(id)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: () => {
           this.notification.success('Торт удалён');
+          this.recentActions.addAction({
+            type: 'delete',
+            entityType: 'торт',
+            entityId: id,
+            entityName: name,
+            link: null
+          });
           this.loadCakes();
         },
         error: (err) => {
@@ -477,5 +504,51 @@ export class CakeListComponent implements OnInit {
       data: { imageUrl: fullUrl, alt: name },
       panelClass: 'image-preview-dialog'
     });
+  }
+
+  onRecentActionClick(action: RecentAction): void {
+    if (action.type === 'create' || action.type === 'update') {
+      const index = this.cakes.findIndex(c => c.id === action.entityId);
+      if (index !== -1) {
+        const page = Math.floor(index / this.pageSize);
+        this.pageIndex = page;
+        setTimeout(() => {
+          this.highlightRow(action.entityId);
+          const tableElement = document.querySelector('.data-table-container');
+          if (tableElement) {
+            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else {
+        this.notification.warning('Торт не найден, возможно, данные не загружены');
+      }
+    }
+  }
+
+  goToCake(id: number): void {
+    this.searchTerm = '';
+    const index = this.cakes.findIndex(c => c.id === id);
+    if (index === -1) {
+      this.notification.warning('Торт не найден');
+      return;
+    }
+    const pageIndex = Math.floor(index / this.pageSize);
+    this.pageIndex = pageIndex;
+    setTimeout(() => {
+      this.highlightRow(id);
+    }, 300);
+  }
+
+  highlightRow(id: number): void {
+    document.querySelectorAll('tr.highlight-row').forEach(row => {
+      row.classList.remove('highlight-row');
+    });
+
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (row) {
+      setTimeout(() => {
+        row.classList.add('highlight-row');
+      }, 10);
+    }
   }
 }

@@ -15,6 +15,8 @@
     <h2>Торты</h2>
   </div>
 
+  <app-recent-actions (actionClick)="onRecentActionClick($event)"></app-recent-actions>
+
   <div class="action-wrapper">
     <button mat-raised-button color="primary" class="admin-action-button" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
@@ -24,7 +26,7 @@
 
   <div class="search-wrapper">
     <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Поиск по названию или id</mat-label>
+      <mat-label>Поиск по названию или ID</mat-label>
       <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
       <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
         <mat-icon>close</mat-icon>
