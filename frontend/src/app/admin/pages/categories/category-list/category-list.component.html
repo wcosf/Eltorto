@@ -28,11 +28,13 @@
     [data]="categories"
     [totalCount]="totalCount"
     [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
     [config]="tableConfig"
     [loading]="loading"
     [filterableColumns]="['name', 'slug', 'id']"
     [filterValue]="searchTerm"
     [defaultSort]="{ active: 'id', direction: 'desc' }"
-    (actionClick)="onTableAction($event)">
+    (actionClick)="onTableAction($event)"
+     (pageChange)="onPageChange($event)">
   </app-data-table>
 </div>

@@ -1,7 +1,7 @@
 <div class="data-table-container">
   <div class="paginator-top">
     <mat-paginator
-      [length]="dataSource.filteredData.length"
+      [length]="serverSide ? totalCount : filteredLength"
       [pageSize]="pageSize"
       [pageIndex]="pageIndex"
       [pageSizeOptions]="config.pageSizeOptions || [5, 10, 25, 50]"

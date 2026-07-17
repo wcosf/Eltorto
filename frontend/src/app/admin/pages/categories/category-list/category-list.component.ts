@@ -107,6 +107,11 @@ export class CategoryListComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.pageIndex = 0;
+  }
+
+  onSortChange(event: { active: string; direction: 'asc' | 'desc' }): void {
+    this.pageIndex = 0;
   }
 
   clearSearch(): void {
@@ -295,5 +300,10 @@ export class CategoryListComponent implements OnInit {
 
   onTableAction(event: { action: TableAction<Category>; row: Category }) {
     event.action.action(event.row);
+  }
+
+  onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 }

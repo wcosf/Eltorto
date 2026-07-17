@@ -3,7 +3,7 @@ import {
   OnChanges, SimpleChanges, ViewChild, TemplateRef, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,6 +38,7 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() filterableColumns: string[] = [];
   @Input() columnTemplates: { [key: string]: TemplateRef<any> } = {};
   @Input() defaultSort?: { active: string; direction: 'asc' | 'desc' };
+  @Input() serverSide = false;
 
   @Output() pageChange = new EventEmitter<{ pageIndex: number; pageSize: number }>();
   @Output() sortChange = new EventEmitter<{ active: string; direction: 'asc' | 'desc' }>();
@@ -45,15 +46,21 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<T>;
 
   private _filterValue = '';
   @Input() set filterValue(value: string) {
     const newValue = value || '';
     if (this._filterValue !== newValue) {
       this._filterValue = newValue;
-      this.updateDisplayData();
-      if (this.paginator) {
-        this.paginator.firstPage();
+      if (!this.serverSide) {
+        this.pageIndex = 0;
+        if (this.paginator) {
+          this.paginator.firstPage();
+        }
+        this.updateDisplayData();
+      } else {
+        this.pageChange.emit({ pageIndex: 0, pageSize: this.pageSize });
       }
     }
   }
@@ -65,39 +72,51 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<T>([]);
+  filteredLength = 0;
 
   private allData: T[] = [];
   private filteredData: T[] = [];
-  private currentPageData: T[] = [];
 
   ngOnInit() {
     this.initTable();
-    this.setupFilter();
-    this.allData = this.data;
+    if (!this.serverSide) {
+      this.setupFilter();
+      this.allData = this.data;
+    }
     this.updateDisplayData();
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    if (this.defaultSort && this.sort) {
-      this.sort.active = this.defaultSort.active;
-      this.sort.direction = this.defaultSort.direction;
-      this.sort.sortChange.emit({ active: this.defaultSort.active, direction: this.defaultSort.direction });
+    if (!this.serverSide) {
+      this.dataSource.sort = this.sort;
+      if (this.defaultSort && this.sort) {
+        this.sort.active = this.defaultSort.active;
+        this.sort.direction = this.defaultSort.direction;
+        this.sort.sortChange.emit({ active: this.defaultSort.active, direction: this.defaultSort.direction });
+      }
     }
     this.updateDisplayData();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('DataTable ngOnChanges:', Object.keys(changes));
     if (changes['data']) {
-      this.allData = this.data;
-      this.updateDisplayData();
+      if (this.serverSide) {
+        this.dataSource.data = this.data;
+        if (this.table) {
+          this.table.renderRows();
+        }
+      } else {
+        this.allData = this.data;
+        this.updateDisplayData();
+      }
+    }
+    if (changes['totalCount'] && this.serverSide) {
+      this.filteredLength = this.totalCount;
     }
     if (changes['pageSize'] || changes['pageIndex']) {
-      this.updateDisplayData();
-    }
-    if (changes['totalCount']) {
-      this.updatePaginatorLength();
+      if (!this.serverSide) {
+        this.updateDisplayData();
+      }
     }
   }
 
@@ -127,6 +146,20 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   private updateDisplayData() {
+    if (this.serverSide) {
+      this.filteredLength = this.totalCount;
+      this.dataSource.data = this.data;
+      if (this.table) {
+        this.table.renderRows();
+      }
+      if (this.paginator) {
+        this.paginator.pageIndex = this.pageIndex;
+        this.paginator.pageSize = this.pageSize;
+      }
+      this.cdr.detectChanges();
+      return;
+    }
+
     const filterValue = this._filterValue.trim().toLowerCase();
     if (filterValue) {
       this.filteredData = this.allData.filter(item =>
@@ -135,6 +168,8 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     } else {
       this.filteredData = this.allData.slice();
     }
+
+    this.filteredLength = this.filteredData.length;
 
     if (this.sort && this.sort.active) {
       const isAsc = this.sort.direction === 'asc';
@@ -153,39 +188,44 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
     const start = this.pageIndex * this.pageSize;
     const end = start + this.pageSize;
-    this.currentPageData = this.filteredData.slice(start, end);
+    const pagedData = this.filteredData.slice(start, end);
 
-    this.dataSource.data = this.currentPageData;
-
-    this.updatePaginatorLength();
-    this.cdr.detectChanges();
-  }
-
-  private updatePaginatorLength() {
+    this.dataSource.data = pagedData;
+    if (this.table) {
+      this.table.renderRows();
+    }
     if (this.paginator) {
-      this.paginator.length = this.filteredData.length;
       this.paginator.pageIndex = this.pageIndex;
       this.paginator.pageSize = this.pageSize;
     }
+    this.cdr.detectChanges();
   }
 
   onPageChange(event: any) {
-    console.log('DataTable onPageChange:', event);
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
     this.pageChange.emit({
       pageIndex: event.pageIndex,
       pageSize: event.pageSize,
     });
+    if (!this.serverSide) {
+      this.updateDisplayData();
+    }
   }
 
   onSortChange(event: any) {
-    console.log('onSortChange:', event);
     this.sortChange.emit({
       active: event.active,
       direction: event.direction,
     });
-    this.updateDisplayData();
-    if (this.paginator) {
-      this.paginator.firstPage();
+    if (!this.serverSide) {
+      this.pageIndex = 0;
+      if (this.paginator) {
+        this.paginator.firstPage();
+      }
+      this.updateDisplayData();
+    } else {
+      this.pageChange.emit({ pageIndex: 0, pageSize: this.pageSize });
     }
   }
 
