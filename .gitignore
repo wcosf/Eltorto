@@ -18,6 +18,9 @@ infra/backups/
 *.backup.sql
 *_backup.sql
 backup_*.sql
+infra/nginx/htpasswd/
+infra/uptime-kuma/data/
+infra/uptime-kuma/config/
 
 .env
 *.log

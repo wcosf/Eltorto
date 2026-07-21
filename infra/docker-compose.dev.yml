@@ -69,6 +69,20 @@ services:
       - eltorto_network
     restart: unless-stopped
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: eltorto_uptime_kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uptime-kuma/data:/app/data
+      - ./uptime-kuma/config:/app/config
+    environment:
+      - UPTIME_KUMA_PORT=3001
+    networks:
+      - eltorto_network
+    restart: unless-stopped
+
 networks:
   eltorto_network:
     driver: bridge
