@@ -17,6 +17,8 @@ export interface TableAction<T = any> {
   color?: 'primary' | 'accent' | 'warn';
   action: (row: T) => void;
   condition?: (row: T) => boolean;
+  group?: string;
+  cssClass?: string;
 }
 
 export interface TableConfig<T = any> {

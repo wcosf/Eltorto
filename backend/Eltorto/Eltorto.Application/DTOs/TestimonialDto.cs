@@ -29,6 +29,13 @@ public class CreateTestimonialDto
 public class UpdateTestimonialDto
 {
     public int Id { get; set; }
+    public string Author { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
     public string? Response { get; set; }
+    public bool IsApproved { get; set; }
+}
+
+public class ApproveTestimonialDto
+{
     public bool IsApproved { get; set; }
 }

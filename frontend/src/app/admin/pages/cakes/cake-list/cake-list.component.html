@@ -15,7 +15,7 @@
     <h2>Торты</h2>
   </div>
 
-  <app-recent-actions (actionClick)="onRecentActionClick($event)"></app-recent-actions>
+  <app-recent-actions entityType="торт" (actionClick)="onRecentActionClick($event)"></app-recent-actions>
 
   <div class="action-wrapper">
     <button mat-raised-button color="primary" class="admin-action-button" (click)="openCreateDialog()">

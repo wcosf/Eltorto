@@ -229,6 +229,14 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
+  showDivider(index: number): boolean {
+    const actions = this.config.actions;
+    if (!actions || index >= actions.length - 1) return false;
+    const current = actions[index];
+    const next = actions[index + 1];
+    return !!current.group && !!next.group && current.group !== next.group;
+  }
+
   onAction(action: TableAction<T>, row: T) {
     this.actionClick.emit({ action, row });
   }

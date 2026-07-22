@@ -109,11 +109,11 @@ public class TestimonialsController : BaseApiController
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Approve(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Approve(int id, [FromBody] ApproveTestimonialDto approveDto, CancellationToken cancellationToken)
     {
         try
         {
-            var testimonial = await _testimonialService.ApproveAsync(id, cancellationToken);
+            var testimonial = await _testimonialService.ApproveAsync(id, approveDto, cancellationToken);
             return Ok(testimonial);
         }
         catch (KeyNotFoundException)

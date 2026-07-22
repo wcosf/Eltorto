@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface Cake {
   id: number;
@@ -103,9 +103,9 @@ export class ApiService {
 
   // Cakes by category with pagination
   getCakesByCategory(categorySlug: string, page: number = 1, pageSize: number = 12): Observable<Cake[]> {
-  let params = new HttpParams()
-    .set('page', page.toString())
-    .set('pageSize', pageSize.toString());
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
 
     return this.http.get<Cake[]>(`${this.apiUrl}/cakes/by-category/${categorySlug}`, { params });
   }
@@ -280,4 +280,40 @@ export class ApiService {
   deleteCakeImage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/cakes/${id}/image`);
   }
+
+  // ===== TESTIMONIALS CRUD =====
+
+  getTestimonialsAdmin(page: number = 1, pageSize: number = 10): Observable<PaginatedResponse<Testimonial>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<PaginatedResponse<any>>(`${this.apiUrl}/testimonials/paged/all`, { params })
+      .pipe(
+        map(response => ({
+          ...response,
+          items: response.items.map((item: any) => ({
+            id: item.id ?? item.Id,
+            author: item.author ?? item.Author,
+            text: item.text ?? item.Text,
+            response: item.response ?? item.Response,
+            isApproved: item.isApproved ?? item.IsApproved,
+            date: item.date ?? item.Date,
+            email: item.email ?? item.Email,
+          }))
+        }))
+      );
+  }
+
+  updateTestimonial(id: number, data: Partial<Testimonial>): Observable<Testimonial> {
+    return this.http.put<Testimonial>(`${this.apiUrl}/testimonials/${id}`, data);
+  }
+
+  approveTestimonial(id: number, isApproved: boolean): Observable<Testimonial> {
+    return this.http.patch<Testimonial>(`${this.apiUrl}/testimonials/${id}/approve`, { isApproved });
+  }
+
+  deleteTestimonial(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/testimonials/${id}`);
+  }
+
 }

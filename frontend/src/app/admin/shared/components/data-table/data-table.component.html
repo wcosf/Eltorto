@@ -32,13 +32,17 @@
       <ng-container matColumnDef="actions" *ngIf="config.actions?.length">
         <th mat-header-cell *matHeaderCellDef>Действия</th>
         <td mat-cell *matCellDef="let row">
-          <button mat-icon-button *ngFor="let action of config.actions"
-                  [color]="action.color || 'primary'"
-                  (click)="onAction(action, row)"
-                  [disabled]="action.condition && !action.condition(row)"
-                  matTooltip="{{ action.label }}">
-            <mat-icon>{{ action.icon || 'more_vert' }}</mat-icon>
-          </button>
+          <ng-container *ngFor="let action of config.actions; let i = index">
+            <button mat-icon-button
+                    [color]="action.color || 'primary'"
+                    (click)="onAction(action, row)"
+                    [disabled]="action.condition && !action.condition(row)"
+                    [ngClass]="action.cssClass"
+                    matTooltip="{{ action.label }}">
+              <mat-icon>{{ action.icon || 'more_vert' }}</mat-icon>
+            </button>
+            <span class="actions-divider" *ngIf="showDivider(i)"></span>
+          </ng-container>
         </td>
       </ng-container>
 

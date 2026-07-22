@@ -1,1 +1,67 @@
-<p>testimonial-list works!</p>
+<ng-template #statusTemplate let-row>
+  <app-status-badge [status]="row.isApproved ? 'approved' : 'pending'"
+                    [label]="row.isApproved ? 'Одобрен' : 'Не одобрен'">
+  </app-status-badge>
+</ng-template>
+
+<ng-template #responseTemplate let-row>
+  <span *ngIf="row.response; else noResponse">
+    {{ row.response.length > 50 ? (row.response | slice:0:50) + '...' : row.response }}
+  </span>
+  <ng-template #noResponse>
+    <span style="color: #999;">—</span>
+  </ng-template>
+</ng-template>
+
+<div class="testimonial-list-page">
+  <div class="page-header">
+    <h2>Отзывы</h2>
+  </div>
+
+  <app-recent-actions entityType="отзыв" (actionClick)="onRecentActionClick($event)"></app-recent-actions>
+
+  <div class="action-wrapper">
+    <button mat-raised-button color="primary" class="admin-action-button" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Добавить отзыв
+    </button>
+  </div>
+
+  <div class="filters-row">
+    <div class="search-wrapper">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Поиск по автору или тексту</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
+        <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="status-filter">
+      <mat-form-field appearance="outline">
+        <mat-label>Статус</mat-label>
+        <mat-select [(value)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+          <mat-option value="all">Все</mat-option>
+          <mat-option value="approved">Одобренные</mat-option>
+          <mat-option value="pending">Не одобренные</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <app-data-table
+    [data]="filteredTestimonials"
+    [totalCount]="totalCount"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [config]="tableConfig"
+    [loading]="loading"
+    [columnTemplates]="columnTemplates"
+    [serverSide]="false"
+    (pageChange)="onPageChange($event)"
+    (sortChange)="onSortChange($event)"
+    (actionClick)="onTableAction($event)">
+  </app-data-table>
+</div>

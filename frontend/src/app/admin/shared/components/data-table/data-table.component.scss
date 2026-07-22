@@ -81,4 +81,14 @@
   ::ng-deep .mat-sort-header-arrow {
     opacity: 1 !important;
   }
+
+  .actions-divider {
+    width: 1px;
+    height: 24px;
+    background: #e0e0e0;
+    margin: 0 6px;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
 }

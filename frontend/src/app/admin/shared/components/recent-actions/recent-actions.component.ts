@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RecentActionsService, RecentAction } from '../../../../core/recent-actions.service';
 
@@ -10,6 +10,7 @@ import { RecentActionsService, RecentAction } from '../../../../core/recent-acti
   styleUrls: ['./recent-actions.component.scss']
 })
 export class RecentActionsComponent implements OnInit {
+  @Input() entityType: string = '';
   @Output() actionClick = new EventEmitter<RecentAction>();
   actions: RecentAction[] = [];
 
@@ -17,7 +18,9 @@ export class RecentActionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.recentActions.actions$.subscribe(actions => {
-      this.actions = actions;
+      this.actions = this.entityType
+        ? actions.filter(a => a.entityType === this.entityType)
+        : actions;
     });
   }
 
