@@ -105,6 +105,50 @@ Eltorto/
 - Автоматическая очистка логов старше 7 дней
 - Разделение логов по уровням: access, error, notice
 - Health check эндпоинт для мониторинга API
+### Мониторинг и логи
+
+#### 📋 Логирование
+- Ежедневная ротация логов с цветовой подсветкой
+- Автоматическая очистка логов старше 7 дней
+- Разделение логов по уровням: access, error, notice
+- Health check эндпоинт для мониторинга API
+
+#### 📡 Мониторинг доступности (Uptime Kuma)
+
+Для контроля доступности всех сервисов развернут **Uptime Kuma** на отдельном поддомене `status.eltorto.ru`.
+
+**🔗 Публичная страница статуса:**  
+[https://status.eltorto.ru/status/status](https://status.eltorto.ru/status/status)
+
+**🖥️ Админ-панель:**  
+[https://status.eltorto.ru](https://status.eltorto.ru) (защищена паролем)
+
+**Что мониторится:**
+| ![Мониторинг](docs/screenshots/monitoring.png) |
+
+| Сервис | Тип | Описание |
+|--------|-----|----------|
+| 🌐 **Eltorto - Сайт** | HTTP(s) | Проверка главной страницы `https://eltorto.ru` |
+| 🔌 **API - Internal** | HTTP(s) | Проверка внутреннего API `http://api:8080/api/contacts` |
+| 🔗 **Frontend - Internal** | HTTP(s) | Проверка фронтенд-контейнера `http://frontend:80` |
+| 🟩 **Nginx - Internal** | HTTP(s) | Проверка веб-сервера `http://nginx:80` |
+| 💾 **PostgreSQL** | TCP Port | Проверка БД на порту `5432` |
+| 🔒 **SSL - status.eltorto.ru** | HTTP(s) | Мониторинг срока действия SSL (уведомление за 14 дней) |
+| 📡 **Ping - Сервер** | Ping | Проверка сервера `85.117.235.146` |
+| 🔢 **TCP порт API** | TCP Port | Проверка порта `8080` |
+| 🌍 **DNS - eltorto.ru** | DNS | Проверка резолвинга домена |
+| 🟢 **Uptime Kuma** | HTTP(s) | Самомониторинг панели |
+
+**Автоматизация:**
+- Автообновление SSL-сертификатов через Certbot (ежедневно в 3:00)
+- Автоматическое копирование сертификатов в контейнер Nginx
+- Перезагрузка Nginx после обновления
+
+**Стек мониторинга:**
+- **Платформа:** [Uptime Kuma](https://github.com/louislam/uptime-kuma) (Docker)
+- **Доступ:** `https://status.eltorto.ru`
+- **Публичный статус:** `https://status.eltorto.ru/status/status`
+- **Уведомления:** Telegram (в планах)
 
 ### Безопасность
 - Все пароли и секреты в `.env` (не в git)
