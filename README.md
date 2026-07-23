@@ -125,7 +125,7 @@ Eltorto/
 
 **Что мониторится:**
 
-| ![Мониторинг](docs/screenshots/monitoring.png) |
+![Мониторинг](docs/screenshots/monitoring.png) 
 
 | Сервис | Тип | Описание |
 |--------|-----|----------|
