@@ -124,6 +124,7 @@ Eltorto/
 [https://status.eltorto.ru](https://status.eltorto.ru) (защищена паролем)
 
 **Что мониторится:**
+
 | ![Мониторинг](docs/screenshots/monitoring.png) |
 
 | Сервис | Тип | Описание |
