@@ -66,6 +66,7 @@ services:
     depends_on:
       - api
       - frontend
+      - uptime-kuma
     networks:
       - eltorto_network
     restart: unless-stopped
@@ -89,8 +90,6 @@ services:
     volumes:
       - ./uptime-kuma/data:/app/data
       - ./uptime-kuma/config:/app/config
-    environment:
-      - UPTIME_KUMA_PORT=3001
     networks:
       - eltorto_network
     restart: unless-stopped
