@@ -197,11 +197,6 @@ export class ApiService {
     return this.http.get<OrderDto>(`${this.apiUrl}/orders/${id}`);
   }
 
-  // Slider
-  getSliderItems(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/slider`);
-  }
-
   // Contacts
   getContacts(): Observable<ContactSettings> {
     return this.http.get<ContactSettings>(`${this.apiUrl}/contacts`);
@@ -273,7 +268,7 @@ export class ApiService {
   }
 
   // ===== FILE STORAGE HELPERS =====
-  uploadFile(file: File, category: 'fillings' | 'cakes' | 'slider' | 'pages', entityId?: number): Observable<{ imageUrl: string }> {
+  uploadFile(file: File, category: 'fillings' | 'cakes', entityId?: number): Observable<{ imageUrl: string }> {
     const formData = new FormData();
     formData.append('file', file);
     let url = `${this.apiUrl}/${category}/upload`;
@@ -283,7 +278,7 @@ export class ApiService {
     return this.http.post<{ imageUrl: string }>(url, formData);
   }
 
-  private getFileUrl(fileName: string | null | undefined, category: 'fillings' | 'cakes' | 'slider' | 'pages'): string {
+  private getFileUrl(fileName: string | null | undefined, category: 'fillings' | 'cakes'): string {
     if (!fileName) return '';
 
     if (fileName.startsWith('http://') || fileName.startsWith('https://') || fileName.startsWith('/')) {
@@ -299,14 +294,6 @@ export class ApiService {
 
   getCakeImageUrl(fileName: string | null | undefined): string {
     return this.getFileUrl(fileName, 'cakes');
-  }
-
-  getSliderImageUrl(fileName: string | null | undefined): string {
-    return this.getFileUrl(fileName, 'slider');
-  }
-
-  getPageImageUrl(fileName: string | null | undefined): string {
-    return this.getFileUrl(fileName, 'pages');
   }
 
   // ===== CAKES CRUD =====
