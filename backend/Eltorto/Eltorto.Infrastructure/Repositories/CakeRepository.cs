@@ -37,13 +37,18 @@ public class CakeRepository : Repository<Cake>, ICakeRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Cake>> GetPagedAsync(int page, int pageSize, string? category = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Cake>> GetPagedAsync(int page, int pageSize, string? category = null, string? search = null, CancellationToken cancellationToken = default)
     {
         var query = _dbSet.Include(c => c.Filling).AsQueryable();
 
         if (!string.IsNullOrEmpty(category))
         {
             query = query.Where(c => c.CategorySlug == category);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(c => EF.Functions.ILike(c.Name, $"%{search}%"));
         }
 
         return await query
@@ -53,13 +58,18 @@ public class CakeRepository : Repository<Cake>, ICakeRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> GetCountAsync(string? category = null, CancellationToken cancellationToken = default)
+    public async Task<int> GetCountAsync(string? category = null, string? search = null, CancellationToken cancellationToken = default)
     {
         var query = _dbSet.AsQueryable();
 
         if (!string.IsNullOrEmpty(category))
         {
             query = query.Where(c => c.CategorySlug == category);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(c => EF.Functions.ILike(c.Name, $"%{search}%"));
         }
 
         return await query.CountAsync(cancellationToken);

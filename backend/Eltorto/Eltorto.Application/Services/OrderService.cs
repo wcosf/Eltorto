@@ -107,6 +107,49 @@ public class OrderService : IOrderService
         return _mapper.Map<OrderDto>(order);
     }
 
+    public async Task<OrderDto> UpdateAsync(int id, CreateOrderDto updateDto, CancellationToken cancellationToken = default)
+    {
+        var order = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
+        if (order == null)
+        {
+            throw new KeyNotFoundException($"Order with id {id} not found");
+        }
+
+        if (updateDto.CakeId.HasValue)
+        {
+            var cakeExists = await _unitOfWork.Cakes.ExistsAsync(c => c.Id == updateDto.CakeId.Value, cancellationToken);
+            if (!cakeExists)
+            {
+                throw new InvalidOperationException($"Cake with id {updateDto.CakeId} does not exist");
+            }
+        }
+
+        if (updateDto.FillingId.HasValue)
+        {
+            var fillingExists = await _unitOfWork.Fillings.ExistsAsync(f => f.Id == updateDto.FillingId.Value, cancellationToken);
+            if (!fillingExists)
+            {
+                throw new InvalidOperationException($"Filling with id {updateDto.FillingId} does not exist");
+            }
+        }
+
+        order.CustomerName = updateDto.CustomerName;
+        order.CustomerPhone = updateDto.CustomerPhone;
+        order.CustomerEmail = updateDto.CustomerEmail;
+        order.CakeId = updateDto.CakeId;
+        order.CustomCakeDescription = updateDto.CustomCakeDescription;
+        order.FillingId = updateDto.FillingId;
+        order.Weight = updateDto.Weight;
+        order.DeliveryDate = updateDto.DeliveryDate;
+        order.DeliveryAddress = updateDto.DeliveryAddress;
+        order.Comment = updateDto.Comment;
+
+        await _unitOfWork.Orders.UpdateAsync(order, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return _mapper.Map<OrderDto>(order);
+    }
+
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var order = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);

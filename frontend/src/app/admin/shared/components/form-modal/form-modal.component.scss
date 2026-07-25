@@ -4,6 +4,16 @@
   width: 100%;
 }
 
+.required-legend {
+  font-size: 0.8rem;
+  color: #757575;
+  margin-bottom: 1rem;
+}
+
+.required-star {
+  color: #e53935;
+}
+
 .form-field {
   width: 100%;
 }
@@ -51,6 +61,54 @@
   font-size: 0.75rem;
   color: #757575;
   margin-top: 0.25rem;
+}
+
+.option-thumb {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+::ng-deep .mat-mdc-option {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.image-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  .preview-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  .preview-label {
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+.async-loading-spinner {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 mat-hint {

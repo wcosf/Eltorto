@@ -40,6 +40,27 @@ export interface Testimonial {
   isApproved: boolean;
 }
 
+export type OrderStatus = 'New' | 'Processing' | 'Completed' | 'Cancelled';
+
+export interface OrderDto {
+  id: number;
+  createdAt: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  cakeId?: number;
+  cakeName?: string;
+  cakeImageUrl?: string;
+  customCakeDescription?: string;
+  fillingId?: number;
+  fillingName?: string;
+  weight?: number;
+  deliveryDate?: string;
+  deliveryAddress?: string;
+  status: OrderStatus;
+  comment?: string;
+}
+
 export interface OrderRequest {
   customerName: string;
   customerPhone: string;
@@ -84,13 +105,16 @@ export class ApiService {
   }
 
   // Cakes with pagination
-  getCakesPaged(page: number = 1, pageSize: number = 12, category?: string): Observable<PaginatedResponse<Cake>> {
+  getCakesPaged(page: number = 1, pageSize: number = 12, category?: string, search?: string): Observable<PaginatedResponse<Cake>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
 
     if (category && category !== 'all') {
       params = params.set('category', category);
+    }
+    if (search) {
+      params = params.set('search', search);
     }
 
     return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/paged`, { params });
@@ -141,9 +165,36 @@ export class ApiService {
     return this.http.get<Testimonial>(`${this.apiUrl}/testimonials/${id}`);
   }
 
-  // Orders
+  // ===== ORDER CRUD =====
+
   createOrder(order: OrderRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/orders`, order);
+  }
+
+  getOrdersPaged(page: number = 1, pageSize: number = 20, status?: string): Observable<PaginatedResponse<OrderDto>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http.get<PaginatedResponse<OrderDto>>(`${this.apiUrl}/orders/admin/paged`, { params });
+  }
+
+  updateOrderStatus(id: number, status: OrderStatus): Observable<OrderDto> {
+    return this.http.patch<OrderDto>(`${this.apiUrl}/orders/${id}/status`, { status });
+  }
+
+  deleteOrder(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/orders/${id}`);
+  }
+
+  updateOrder(id: number, order: Partial<OrderRequest>): Observable<OrderDto> {
+    return this.http.put<OrderDto>(`${this.apiUrl}/orders/${id}`, order);
+  }
+
+  getOrderById(id: number): Observable<OrderDto> {
+    return this.http.get<OrderDto>(`${this.apiUrl}/orders/${id}`);
   }
 
   // Slider

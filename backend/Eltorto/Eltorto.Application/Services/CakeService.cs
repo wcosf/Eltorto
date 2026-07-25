@@ -47,10 +47,10 @@ public class CakeService : ICakeService
         return _mapper.Map<IReadOnlyList<CakeListDto>>(cakes);
     }
 
-    public async Task<PagedResultDto<CakeListDto>> GetPagedAsync(int page, int pageSize, string? category = null, CancellationToken cancellationToken = default)
+    public async Task<PagedResultDto<CakeListDto>> GetPagedAsync(int page, int pageSize, string? category = null, string? search = null, CancellationToken cancellationToken = default)
     {
-        var cakes = await _unitOfWork.Cakes.GetPagedAsync(page, pageSize, category, cancellationToken);
-        var totalCount = await _unitOfWork.Cakes.GetCountAsync(category, cancellationToken);
+        var cakes = await _unitOfWork.Cakes.GetPagedAsync(page, pageSize, category, search, cancellationToken);
+        var totalCount = await _unitOfWork.Cakes.GetCountAsync(category, search, cancellationToken);
 
         return new PagedResultDto<CakeListDto>
         {

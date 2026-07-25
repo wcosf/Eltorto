@@ -46,7 +46,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CakeName,
                 opt => opt.MapFrom(src => src.Cake != null ? src.Cake.Name : null))
             .ForMember(dest => dest.FillingName,
-                opt => opt.MapFrom(src => src.Filling != null ? src.Filling.Name : null));
+                opt => opt.MapFrom(src => src.Filling != null ? src.Filling.Name : null))
+            .ForMember(dest => dest.CakeImageUrl,
+                opt => opt.MapFrom(src => src.Cake != null ? src.Cake.ImageUrl : null));
 
         CreateMap<CreateOrderDto, Order>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))

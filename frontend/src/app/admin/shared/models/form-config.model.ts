@@ -1,4 +1,5 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 export type FormFieldType =
   | 'text'
@@ -8,11 +9,13 @@ export type FormFieldType =
   | 'checkbox'
   | 'file'
   | 'date'
-  | 'email';
+  | 'email'
+  | 'autocomplete';
 
 export interface FormFieldOption {
   value: any;
   label: string;
+  thumbUrl?: string;
 }
 
 export interface FormField {
@@ -30,6 +33,9 @@ export interface FormField {
   fileAccept?: string;
   rows?: number;
   hint?: string;
+  displayFn?: (value: any) => string;
+  showImagePreview?: boolean;
+  asyncOptionsFn?: (query: string) => Observable<FormFieldOption[]>;
 }
 
 export interface FormConfig {

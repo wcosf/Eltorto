@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Изменить статус заказа</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Статус</mat-label>
+    <mat-select [(ngModel)]="selectedStatus">
+      <mat-option value="New">Новый</mat-option>
+      <mat-option value="Processing">В обработке</mat-option>
+      <mat-option value="Completed">Завершён</mat-option>
+      <mat-option value="Cancelled">Отменён</mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Отмена</button>
+  <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="!selectedStatus">Сохранить</button>
+</mat-dialog-actions>

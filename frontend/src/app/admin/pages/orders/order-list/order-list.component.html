@@ -1,1 +1,67 @@
-<p>order-list works!</p>
+<ng-template #statusTemplate let-row>
+  <app-status-badge
+    [status]="statusBadgeMap[row.status] || 'pending'"
+    [label]="statusLabels[row.status] || row.status">
+  </app-status-badge>
+</ng-template>
+
+<ng-template #cakeTemplate let-row>
+    <div class="cake-cell" (click)="openCakePreview(row)" title="Увеличить фото">
+        <img *ngIf="row.cakeImageUrl" [src]="getCakeImageUrl(row.cakeImageUrl)" class="cake-thumb" alt="">
+        <img *ngIf="!row.cakeImageUrl && getCakeImageFromList(row.cakeId)" [src]="getCakeImageFromList(row.cakeId)" class="cake-thumb" alt="">
+        <span>{{ row.cakeName || 'Свой дизайн' }}</span>
+    </div>
+</ng-template>
+
+<div class="order-list-page">
+  <div class="page-header">
+    <h2>Заказы</h2>
+  </div>
+
+  <div class="action-wrapper">
+    <button mat-raised-button color="primary" class="admin-action-button" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Создать заказ
+    </button>
+  </div>
+
+  <div class="status-filters">
+    <mat-chip-listbox
+      [value]="selectedStatusSignal()"
+      (change)="onStatusFilterChange($event.value)"
+      class="status-chip-list">
+      <mat-chip-option
+        *ngFor="let option of statusFilterOptions"
+        [value]="option.value"
+        [selected]="selectedStatusSignal() === option.value">
+        {{ option.label }}
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
+
+  <div class="search-wrapper">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Поиск по ID или имени</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" />
+      <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <app-data-table
+    [data]="orders"
+    [totalCount]="totalCount"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [config]="tableConfig"
+    [loading]="loading"
+    [columnTemplates]="columnTemplates"
+    [filterableColumns]="['id', 'customerName']"
+    [filterValue]="searchTerm"
+    (pageChange)="onPageChange($event)"
+    (sortChange)="onSortChange($event)"
+    (actionClick)="onTableAction($event)">
+  </app-data-table>
+</div>

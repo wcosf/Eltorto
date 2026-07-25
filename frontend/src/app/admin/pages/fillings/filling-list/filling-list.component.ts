@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,6 +28,8 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
+    FormModalComponent,
   ],
   templateUrl: './filling-list.component.html',
   styleUrls: ['./filling-list.component.scss']
@@ -48,7 +50,7 @@ export class FillingListComponent implements OnInit {
     public apiService: ApiService,
     private dialog: MatDialog,
     private notification: AdminNotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initTableConfig();

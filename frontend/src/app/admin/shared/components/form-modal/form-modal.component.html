@@ -1,6 +1,7 @@
 <h2 mat-dialog-title>{{ config.title }}</h2>
 
 <mat-dialog-content>
+  <div class="required-legend"><span class="required-star">*</span> — обязательные поля</div>
   <form [formGroup]="form" class="form-grid">
     <div *ngFor="let field of fields" class="form-field" [class.hidden]="field.hidden">
       <!-- Текстовое поле -->
@@ -62,6 +63,31 @@
         </mat-error>
       </mat-form-field>
 
+      <!-- Автодополнение -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'autocomplete'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [formControlName]="field.key"
+               [matAutocomplete]="auto"
+               [placeholder]="field.placeholder || ''"
+               [required]="isRequired(field)">
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="getDisplayFn(field)">
+          <mat-option *ngFor="let opt of getFilteredOptions(field)" [value]="opt.value">
+            <img *ngIf="opt.thumbUrl" [src]="opt.thumbUrl" class="option-thumb" alt="">
+            {{ opt.label }}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-spinner *ngIf="asyncLoadingMap.get(field.key)" diameter="20" class="async-loading-spinner"></mat-spinner>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
+          {{ field.label }} обязательно
+        </mat-error>
+      </mat-form-field>
+
+      <div *ngIf="field.type === 'autocomplete' && field.showImagePreview && getSelectedOption(field)" class="image-preview">
+        <img *ngIf="getSelectedOption(field)?.thumbUrl" [src]="getSelectedOption(field)?.thumbUrl" class="preview-image" alt="">
+        <span class="preview-label">{{ getSelectedOption(field)?.label }}</span>
+      </div>
+
       <!-- Загрузка файла -->
       <div *ngIf="field.type === 'file'" class="file-upload-wrapper">
         <label>{{ field.label }}</label>
@@ -76,7 +102,7 @@
   <button mat-button (click)="onCancel()" [disabled]="loading">
     {{ config.cancelLabel || 'Отмена' }}
   </button>
-  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.invalid || loading">
+   <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading">
     <mat-icon *ngIf="loading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
     {{ config.submitLabel || 'Сохранить' }}
   </button>

@@ -41,9 +41,10 @@ public class CakesController : BaseApiController
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 12,
         [FromQuery] string? category = null,
+        [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await _cakeService.GetPagedAsync(page, pageSize, category, cancellationToken);
+        var result = await _cakeService.GetPagedAsync(page, pageSize, category, search, cancellationToken);
         return Ok(result);
     }
 
