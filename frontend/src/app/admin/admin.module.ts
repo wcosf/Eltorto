@@ -13,6 +13,7 @@ import { OrderListComponent } from './pages/orders/order-list/order-list.compone
 import { PageListComponent } from './pages/pages/page-list/page-list.component';
 import { SliderListComponent } from './pages/slider/slider-list/slider-list.component';
 import { ContactsEditComponent } from './pages/contacts/contacts-edit/contacts-edit.component';
+import { SecuritySettingsComponent } from './pages/security/security-settings/security-settings.component';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -53,6 +54,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     PageListComponent,
     SliderListComponent,
     ContactsEditComponent,
+    SecuritySettingsComponent,
 
     MatSidenavModule,
     MatToolbarModule,

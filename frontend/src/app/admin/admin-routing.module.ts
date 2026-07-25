@@ -10,6 +10,7 @@ import { OrderListComponent } from './pages/orders/order-list/order-list.compone
 import { PageListComponent } from './pages/pages/page-list/page-list.component';
 import { SliderListComponent } from './pages/slider/slider-list/slider-list.component';
 import { ContactsEditComponent } from './pages/contacts/contacts-edit/contacts-edit.component';
+import { SecuritySettingsComponent } from './pages/security/security-settings/security-settings.component';
 import { AdminAuthGuard } from './guards/admin-auth.guard';
 
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
       { path: 'pages', component: PageListComponent },
       { path: 'slider', component: SliderListComponent },
       { path: 'contacts', component: ContactsEditComponent },
+      { path: 'security', component: SecuritySettingsComponent },
     ]
   }
 ];

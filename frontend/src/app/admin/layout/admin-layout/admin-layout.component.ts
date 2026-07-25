@@ -34,7 +34,8 @@ export class AdminLayoutComponent {
     { path: '/admin/orders', icon: 'shopping_cart', label: 'Заказы' },
     { path: '/admin/pages', icon: 'description', label: 'Страницы' },
     { path: '/admin/slider', icon: 'slideshow', label: 'Слайдер' },
-    { path: '/admin/contacts', icon: 'contact_phone', label: 'Контакты' }
+    { path: '/admin/contacts', icon: 'contact_phone', label: 'Контакты' },
+    { path: '/admin/security', icon: 'lock', label: 'Безопасность' }
   ];
 
   isMobile = window.innerWidth < 992;

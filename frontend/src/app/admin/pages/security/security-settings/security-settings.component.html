@@ -1,0 +1,102 @@
+<div class="security-settings-page">
+  <div class="page-header">
+    <h2>Безопасность</h2>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <h3 class="section-title">Смена логина</h3>
+      <form [formGroup]="loginForm" #loginFormDirective="ngForm" (ngSubmit)="onChangeLogin()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Новый логин</mat-label>
+          <input matInput formControlName="newUserName">
+          <mat-error *ngIf="lf['newUserName'].hasError('required') && lf['newUserName'].touched">
+            Введите новый логин
+          </mat-error>
+          <mat-error *ngIf="lf['newUserName'].hasError('minlength') && lf['newUserName'].touched">
+            Минимум 3 символа
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Пароль</mat-label>
+          <input matInput [type]="hidePasswordLogin ? 'password' : 'text'" formControlName="password">
+          <button mat-icon-button matSuffix type="button" (click)="hidePasswordLogin = !hidePasswordLogin"
+                  [attr.aria-label]="'Показать/скрыть пароль'">
+            <mat-icon>{{ hidePasswordLogin ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-hint>Введите пароль для подтверждения смены логина</mat-hint>
+          <mat-error *ngIf="lf['password'].hasError('required') && lf['password'].touched">
+            Введите пароль
+          </mat-error>
+        </mat-form-field>
+
+        <div class="action-wrapper">
+          <button mat-raised-button color="primary" type="submit" [disabled]="savingLogin || loginForm.invalid || loginForm.pristine">
+            <mat-icon>person</mat-icon> Сменить логин
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <h3 class="section-title">Смена пароля</h3>
+      <form [formGroup]="passwordForm" #passwordFormDirective="ngForm" (ngSubmit)="onChangePassword()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Текущий пароль</mat-label>
+          <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="currentPassword">
+          <button mat-icon-button matSuffix type="button" (click)="hideCurrentPassword = !hideCurrentPassword"
+                  [attr.aria-label]="'Показать/скрыть пароль'">
+            <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="pf['currentPassword'].hasError('required') && pf['currentPassword'].touched">
+            Введите текущий пароль
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Новый пароль</mat-label>
+          <input matInput [type]="hideNewPassword ? 'password' : 'text'" formControlName="newPassword">
+          <button mat-icon-button matSuffix type="button" (click)="hideNewPassword = !hideNewPassword"
+                  [attr.aria-label]="'Показать/скрыть пароль'">
+            <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-hint>Пароль должен содержать минимум 6 символов, заглавную и строчную букву, цифру и спецсимвол</mat-hint>
+          <mat-error *ngIf="pf['newPassword'].hasError('required') && pf['newPassword'].touched">
+            Введите новый пароль
+          </mat-error>
+          <mat-error *ngIf="pf['newPassword'].hasError('minlength') && pf['newPassword'].touched">
+            Минимум 6 символов
+          </mat-error>
+          <mat-error *ngIf="pf['newPassword'].hasError('pattern') && pf['newPassword'].touched">
+            Пароль не соответствует требованиям: минимум 6 символов, заглавная и строчная букву, цифру и спецсимвол
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Подтвердите новый пароль</mat-label>
+          <input matInput [type]="hideConfirmNewPassword ? 'password' : 'text'" formControlName="confirmNewPassword">
+          <button mat-icon-button matSuffix type="button" (click)="hideConfirmNewPassword = !hideConfirmNewPassword"
+                  [attr.aria-label]="'Показать/скрыть пароль'">
+            <mat-icon>{{ hideConfirmNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="pf['confirmNewPassword'].hasError('required') && pf['confirmNewPassword'].touched">
+            Подтвердите новый пароль
+          </mat-error>
+        </mat-form-field>
+
+        <mat-error *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmNewPassword')?.touched" class="form-error">
+          Пароли не совпадают
+        </mat-error>
+
+        <div class="action-wrapper">
+          <button mat-raised-button color="primary" type="submit" [disabled]="savingPassword || passwordForm.invalid || passwordForm.pristine">
+            <mat-icon>lock_reset</mat-icon> Сменить пароль
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,6 +1,6 @@
 @use '../../../../../styles.scss' as *;
 
-.contacts-edit-page {
+.security-settings-page {
   .page-header {
     margin-bottom: 1.5rem;
 
@@ -16,7 +16,8 @@
   }
 
   mat-card {
-    max-width: 800px;
+    max-width: 600px;
+    margin-bottom: 1.5rem;
 
     form {
       width: 100%;
@@ -44,7 +45,26 @@
 
       .mat-mdc-form-field-subscript-wrapper {
         overflow: visible !important;
+        min-height: 40px !important;
       }
+    }
+
+    mat-hint {
+      white-space: normal;
+      line-height: 1.4;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: $brown-dark;
+      margin: 0 0 16px 0;
+    }
+
+    .form-error {
+      font-size: 12px;
+      margin: -4px 0 8px 0;
+      display: block;
     }
 
     .action-wrapper {
@@ -58,7 +78,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        min-width: 160px;
+        min-width: 180px;
       }
     }
   }

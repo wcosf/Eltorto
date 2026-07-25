@@ -203,8 +203,12 @@ export class ApiService {
   }
 
   // Contacts
-  getContacts(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/contacts`);
+  getContacts(): Observable<ContactSettings> {
+    return this.http.get<ContactSettings>(`${this.apiUrl}/contacts`);
+  }
+
+  updateContacts(data: Partial<ContactSettings>): Observable<ContactSettings> {
+    return this.http.put<ContactSettings>(`${this.apiUrl}/contacts`, data);
   }
 
   // ===== CATEGORIES CRUD =====

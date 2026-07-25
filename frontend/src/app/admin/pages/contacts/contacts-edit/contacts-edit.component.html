@@ -1,1 +1,58 @@
-<p>contacts-edit works!</p>
+<div class="contacts-edit-page">
+  <div class="page-header">
+    <h2>Контакты</h2>
+  </div>
+
+  @if (loading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Телефон</mat-label>
+          <input matInput formControlName="phone" placeholder="+7 (999) 123-45-67">
+          @if (f['phone'].errors?.['required'] && f['phone'].touched) {
+            <mat-error>Телефон обязателен</mat-error>
+          }
+          @if (f['phone'].errors?.['pattern'] && f['phone'].touched) {
+            <mat-error>Некорректный формат телефона</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="info@example.com" type="email">
+          @if (f['email'].errors?.['required'] && f['email'].touched) {
+            <mat-error>Email обязателен</mat-error>
+          }
+          @if (f['email'].errors?.['email'] && f['email'].touched) {
+            <mat-error>Некорректный email</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Адрес</mat-label>
+          <input matInput formControlName="address" placeholder="г. Москва, ул. Тверская, д. 1">
+        </mat-form-field>
+
+        <div class="action-wrapper">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="saving || form.invalid || form.pristine"
+          >
+            @if (saving) {
+              <mat-icon>hourglass_top</mat-icon>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            Сохранить
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

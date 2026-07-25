@@ -169,6 +169,18 @@ export class AuthService {
     }
   }
 
+  changePassword(data: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, data);
+  }
+
+  changeUserName(data: { newUserName: string; password: string }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/change-username`, data).pipe(
+      tap(response => {
+        this.setSession(response);
+      })
+    );
+  }
+
   isTokenExpiringSoon(minutes: number = 5): boolean {
     const exp = this.getTokenExpiration();
     if (!exp) return true;

@@ -6,7 +6,8 @@ public interface IAuthService
 {
     Task<LoginResponse> LoginAsync(LoginRequest request);
     Task<bool> RegisterAsync(RegisterRequest request, string role = "Admin");
-    Task<bool> ChangePasswordAsync(string userName, ChangePasswordRequest request);
+    Task<(bool Succeeded, string[] Errors)> ChangePasswordAsync(string userName, ChangePasswordRequest request);
+    Task<LoginResponse> ChangeUserNameAsync(string userName, ChangeUserNameRequest request);
     Task<bool> CreateAdminIfNotExistsAsync();
     Task<bool> CreateRoleIfNotExistsAsync(string roleName);
 

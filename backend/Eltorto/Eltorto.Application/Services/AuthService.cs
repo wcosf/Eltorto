@@ -113,13 +113,50 @@ public class AuthService : IAuthService
         return true;
     }
 
-    public async Task<bool> ChangePasswordAsync(string userName, ChangePasswordRequest request)
+    public async Task<(bool Succeeded, string[] Errors)> ChangePasswordAsync(string userName, ChangePasswordRequest request)
     {
         var user = await _userManager.FindByNameAsync(userName);
-        if (user == null) return false;
+        if (user == null)
+            return (false, ["Пользователь не найден"]);
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-        return result.Succeeded;
+        if (!result.Succeeded)
+            return (false, result.Errors.Select(e => e.Description).ToArray());
+
+        return (true, []);
+    }
+
+    public async Task<LoginResponse> ChangeUserNameAsync(string userName, ChangeUserNameRequest request)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+            throw new KeyNotFoundException("Пользователь не найден");
+
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+            throw new UnauthorizedAccessException("Неверный пароль");
+
+        var existingUser = await _userManager.FindByNameAsync(request.NewUserName);
+        if (existingUser != null && existingUser.Id != user.Id)
+            throw new InvalidOperationException("Логин уже занят");
+
+        var result = await _userManager.SetUserNameAsync(user, request.NewUserName);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        await _userManager.UpdateNormalizedUserNameAsync(user);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var accessToken = GenerateJwtToken(user, roles);
+        var refreshToken = await GenerateAndStoreRefreshTokenAsync(user);
+
+        return new LoginResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken.Token,
+            Expiration = DateTime.UtcNow.AddHours(1),
+            UserName = user.UserName!,
+            Roles = roles.ToArray()
+        };
     }
 
     public async Task<bool> CreateAdminIfNotExistsAsync()
@@ -127,8 +164,8 @@ public class AuthService : IAuthService
         await CreateRoleIfNotExistsAsync("Admin");
         await CreateRoleIfNotExistsAsync("Customer");
 
-        var adminUser = await _userManager.FindByNameAsync("admin");
-        if (adminUser != null) return false;
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        if (admins.Count != 0) return false;
 
         var registerRequest = new RegisterRequest
         {

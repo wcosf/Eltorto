@@ -100,10 +100,31 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(userName))
             return Unauthorized();
 
-        var result = await _authService.ChangePasswordAsync(userName, request);
-        if (!result)
-            return BadRequest(new { error = "Failed to change password" });
+        var (succeeded, errors) = await _authService.ChangePasswordAsync(userName, request);
+        if (!succeeded)
+            return BadRequest(new { error = string.Join("; ", errors) });
 
         return Ok(new { message = "Password changed successfully" });
+    }
+
+    [HttpPost("change-username")]
+    [Authorize]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangeUserName([FromBody] ChangeUserNameRequest request)
+    {
+        var userName = User.Identity?.Name;
+        if (string.IsNullOrEmpty(userName))
+            return Unauthorized();
+
+        try
+        {
+            var response = await _authService.ChangeUserNameAsync(userName, request);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

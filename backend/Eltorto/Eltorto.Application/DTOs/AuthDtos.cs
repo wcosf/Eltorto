@@ -43,7 +43,19 @@ public class ChangePasswordRequest
 
     [Required]
     [MinLength(6)]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,}$",
+        ErrorMessage = "Пароль должен содержать минимум 6 символов, заглавную и строчную буквы, цифру и спецсимвол")]
     public string NewPassword { get; set; } = string.Empty;
+}
+
+public class ChangeUserNameRequest
+{
+    [Required]
+    [MinLength(3)]
+    public string NewUserName { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
 }
 
 public class RefreshTokenRequest
