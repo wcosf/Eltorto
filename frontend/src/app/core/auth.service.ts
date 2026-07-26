@@ -3,188 +3,158 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
 
-interface LoginResponse {
+interface UserSession {
   accessToken: string;
-  refreshToken: string;
   expiration: string;
   userName: string;
   roles: string[];
-}
-
-interface DecodedToken {
-  exp: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly TOKEN_KEY = 'access_token';
-  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
-  private readonly ROLES_KEY = 'user_roles';
-  private readonly USERNAME_KEY = 'user_name';
-
   private apiUrl = '/api/auth';
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private _accessToken: string | null = null;
+  private _userName: string | null = null;
+  private _roles: string[] = [];
   private logoutTimer: any = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  login(credentials: { userName: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        this.setSession(response);
-      })
+  constructor(private http: HttpClient, private router: Router) { }
+
+  login(credentials: { userName: string; password: string }): Observable<UserSession> {
+    return this.http.post<UserSession>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => this.setSession(response))
     );
   }
 
   logout(): void {
     this.stopLogoutTimer();
-    const refreshToken = this.getRefreshToken();
-
-    if (refreshToken) {
-      this.http.post(`${this.apiUrl}/logout`, { refreshToken })
-        .subscribe({
-          next: () => {
-            this.clearLocalData();
-            this.router.navigate(['/login'], { replaceUrl: true });
-          },
-          error: () => {
-            this.clearLocalData();
-            this.router.navigate(['/login'], { replaceUrl: true });
-          }
-        });
-    } else {
-      this.clearLocalData();
-      this.router.navigate(['/login'], { replaceUrl: true });
-    }
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+      next: () => {
+        this.clearAuthState();
+        this.router.navigate(['/login'], { replaceUrl: true });
+      },
+      error: () => {
+        this.clearAuthState();
+        this.router.navigate(['/login'], { replaceUrl: true });
+      }
+    });
   }
 
-  setSession(authResult: any): void {
-    localStorage.setItem(this.TOKEN_KEY, authResult.accessToken);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, authResult.refreshToken);
-    localStorage.setItem(this.ROLES_KEY, JSON.stringify(authResult.roles));
-    localStorage.setItem(this.USERNAME_KEY, authResult.userName);
+  refreshToken(): Observable<UserSession> {
+    return this.http.post<UserSession>(`${this.apiUrl}/refresh`, {}).pipe(
+      tap(response => this.setSession(response))
+    );
+  }
+
+  private setSession(session: UserSession): void {
+    this._accessToken = session.accessToken;
+    this._userName = session.userName;
+    this._roles = session.roles;
     this.isAuthenticatedSubject.next(true);
     this.startLogoutTimer();
   }
 
-  private clearLocalData(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(this.ROLES_KEY);
-    localStorage.removeItem(this.USERNAME_KEY);
+  private clearAuthState(): void {
+    this._accessToken = null;
+    this._userName = null;
+    this._roles = [];
     this.isAuthenticatedSubject.next(false);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  getRefreshToken(): string | null {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return this._accessToken;
   }
 
   getRoles(): string[] {
-    const roles = localStorage.getItem(this.ROLES_KEY);
-    return roles ? JSON.parse(roles) : [];
-  }
-
-  isAuthenticated(): boolean {
-    return this.hasToken() && !this.isTokenExpired();
-  }
-
-  isAdmin(): boolean {
-    return this.getRoles().includes('Admin');
+    return this._roles;
   }
 
   getUsername(): string | null {
-    return localStorage.getItem(this.USERNAME_KEY);
+    return this._userName;
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+  isAuthenticated(): boolean {
+    return this.isAuthenticatedSubject.value;
   }
 
-  refreshToken(): Observable<LoginResponse> {
-    const refreshToken = this.getRefreshToken();
-    return this.http.post<LoginResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
-      tap(response => {
-        this.setSession(response);
-      })
-    );
+  isAdmin(): boolean {
+    return this._roles.includes('Admin');
+  }
+
+  getCsrfToken(): string | null {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
   }
 
   validateToken(): Observable<boolean> {
-    const token = this.getToken();
-    if (!token || this.isTokenExpired()) {
-      return of(false);
+    if (!this._accessToken) {
+      return this.refreshToken().pipe(
+        map(() => true),
+        catchError(() => {
+          this.clearAuthState();
+          return of(false);
+        })
+      );
     }
-    return this.http.get<boolean>(`${this.apiUrl}/auth/validate`).pipe(
+
+    return this.http.get<{ userName: string; roles: string[] }>(`${this.apiUrl}/me`).pipe(
       map(() => true),
       catchError(() => {
-        this.clearLocalData();
-        return of(false);
+        return this.refreshToken().pipe(
+          map(() => true),
+          catchError(() => {
+            this.clearAuthState();
+            return of(false);
+          })
+        );
       })
     );
   }
 
-  getTokenExpiration(): Date | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const decoded: DecodedToken = jwtDecode(token);
-      return new Date(decoded.exp * 1000);
-    } catch {
-      return null;
-    }
-  }
-
-  isTokenExpired(): boolean {
-    const exp = this.getTokenExpiration();
-    if (!exp) return true;
-    return exp.getTime() < Date.now();
-  }
-
-  startLogoutTimer(): void {
-    this.stopLogoutTimer();
-    const exp = this.getTokenExpiration();
-    if (!exp) return;
-    const timeUntilExpiry = exp.getTime() - Date.now();
-    const timeout = Math.max(timeUntilExpiry, 0);
-    this.logoutTimer = setTimeout(() => {
-      if (this.isAuthenticated() && this.isTokenExpired()) {
-        this.logout();
-      }
-    }, timeout);
-  }
-
-  stopLogoutTimer(): void {
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
-      this.logoutTimer = null;
-    }
+  initializeAuthState(): void {
+    this.refreshToken().subscribe({
+      next: () => { },
+      error: () => this.clearAuthState()
+    });
   }
 
   changePassword(data: { currentPassword: string; newPassword: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/change-password`, data);
   }
 
-  changeUserName(data: { newUserName: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/change-username`, data).pipe(
-      tap(response => {
-        this.setSession(response);
-      })
+  changeUserName(data: { newUserName: string; password: string }): Observable<UserSession> {
+    return this.http.post<UserSession>(`${this.apiUrl}/change-username`, data).pipe(
+      tap(response => this.setSession(response))
     );
   }
 
-  isTokenExpiringSoon(minutes: number = 5): boolean {
-    const exp = this.getTokenExpiration();
-    if (!exp) return true;
-    const timeLeft = exp.getTime() - Date.now();
-    return timeLeft < minutes * 60 * 1000;
+  private startLogoutTimer(): void {
+    this.stopLogoutTimer();
+    const token = this._accessToken;
+    if (!token) return;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp * 1000;
+      const timeUntilExpiry = Math.max(exp - Date.now(), 0);
+      this.logoutTimer = setTimeout(() => {
+        this.logout();
+      }, timeUntilExpiry);
+    } catch {
+      // ignore invalid tokens
+    }
+  }
+
+  private stopLogoutTimer(): void {
+    if (this.logoutTimer) {
+      clearTimeout(this.logoutTimer);
+      this.logoutTimer = null;
+    }
   }
 }

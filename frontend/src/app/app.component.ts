@@ -4,6 +4,7 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { filter } from 'rxjs/operators';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -16,14 +17,19 @@ import { filter } from 'rxjs/operators';
 export class AppComponent implements OnInit {
   title = 'Eltorto';
 
-  constructor(public router: Router) {}
+  constructor(
+    public router: Router,
+    private authService: AuthService
+  ) { }
 
   get showFooter(): boolean {
     return !this.router.url.startsWith('/admin') &&
-           this.router.url !== '/login';
+      this.router.url !== '/login';
   }
 
   ngOnInit() {
+    this.authService.initializeAuthState();
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {

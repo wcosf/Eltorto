@@ -31,6 +31,7 @@ services:
       - JwtSettings__SecretKey=${JWT_SECRET}
       - JwtSettings__Issuer=EltortoAPI
       - JwtSettings__Audience=EltortoClient
+      - AdminSettings__Password=${ADMIN_PASSWORD}
     volumes:
       - ../storage:/app/storage
     depends_on:

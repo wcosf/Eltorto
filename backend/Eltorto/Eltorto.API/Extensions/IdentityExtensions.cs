@@ -16,6 +16,9 @@ public static class IdentityExtensions
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequiredLength = 6;
             options.Password.RequiredUniqueChars = 1;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
         })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();

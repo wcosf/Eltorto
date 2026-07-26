@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
@@ -8,6 +9,7 @@ namespace Eltorto.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
+[EnableRateLimiting("GlobalPolicy")]
 public abstract class BaseApiController : ControllerBase
 {
 }

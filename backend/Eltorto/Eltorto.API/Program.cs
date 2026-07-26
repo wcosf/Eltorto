@@ -1,10 +1,13 @@
 using Eltorto.API.Extensions;
+using Eltorto.API.Middleware;
+using Eltorto.API.Exceptions;
 using Eltorto.Application;
 using Eltorto.Application.Interfaces.Services;
 using Eltorto.Infrastructure;
 using Eltorto.Infrastructure.Data;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,30 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<Eltorto.Application.Validators.RegisterRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
+// CORS
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["https://eltorto.ru", "https://www.eltorto.ru"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+        policy.WithOrigins(corsOrigins)
+              .AllowCredentials()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// Global exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// Add rate limited policies
+builder.Services.AddRateLimitingPolicies();
 
 var app = builder.Build();
 
@@ -70,7 +97,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRateLimiter();
+app.UseCors("Frontend");
+app.UseExceptionHandler();
 app.UseAuthentication();
+app.UseMiddleware<CsrfMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

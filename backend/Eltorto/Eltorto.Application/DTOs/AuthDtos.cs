@@ -14,7 +14,6 @@ public class LoginRequest
 public class LoginResponse
 {
     public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
     public DateTime Expiration { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string[] Roles { get; set; } = Array.Empty<string>();
@@ -58,8 +57,3 @@ public class ChangeUserNameRequest
     public string Password { get; set; } = string.Empty;
 }
 
-public class RefreshTokenRequest
-{
-    [Required]
-    public string RefreshToken { get; set; } = string.Empty;
-}

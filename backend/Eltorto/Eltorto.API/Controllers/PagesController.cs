@@ -2,9 +2,11 @@
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
+[EnableRateLimiting("CatalogPolicy")]
 public class PagesController : BaseApiController
 {
     private readonly IPageService _pageService;

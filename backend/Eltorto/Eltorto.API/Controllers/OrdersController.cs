@@ -2,6 +2,7 @@
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
@@ -20,6 +21,7 @@ public class OrdersController : BaseApiController
     /// Create new order
     /// </summary>
     [HttpPost]
+    [EnableRateLimiting("StrictPolicy")]
     [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
