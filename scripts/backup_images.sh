@@ -71,6 +71,15 @@ if [ -n "$DELETED" ]; then
     log "   Deleted $COUNT old backup(s)"
 fi
 
+# минус старые логов 
+log "Cleaning old logs (>$LOG_KEEP_DAYS days)..."
+
+OLD_LOGS=$(find "$(dirname "$LOG_FILE")" -name "backup_images.log.*" -mtime +$LOG_KEEP_DAYS -type f -delete -print 2>/dev/null)
+if [ -n "$OLD_LOGS" ]; then
+    COUNT=$(echo "$OLD_LOGS" | wc -l)
+    log "   Deleted $COUNT old log file(s)"
+fi
+
 # статистика тестовое
 COUNT=$(ls -1 "$BACKUP_DIR"/images_*.tar.gz 2>/dev/null | wc -l)
 TOTAL_SIZE=$(du -sh "$BACKUP_DIR" 2>/dev/null | cut -f1)

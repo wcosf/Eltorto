@@ -56,6 +56,14 @@ if [ -n "$DELETED" ]; then
     COUNT=$(echo "$DELETED" | wc -l)
     log "   Deleted $COUNT old backup(s)"
 fi
+# минус старые логи
+log "Cleaning old logs (>$LOG_KEEP_DAYS days)..."
+
+OLD_LOGS=$(find "$(dirname "$LOG_FILE")" -name "backup_db.log.*" -mtime +$LOG_KEEP_DAYS -type f -delete -print 2>/dev/null)
+if [ -n "$OLD_LOGS" ]; then
+    COUNT=$(echo "$OLD_LOGS" | wc -l)
+    log "   Deleted $COUNT old log file(s)"
+fi
 
 # статистика
 COUNT=$(ls -1 "$BACKUP_DIR"/*.sql 2>/dev/null | wc -l)
