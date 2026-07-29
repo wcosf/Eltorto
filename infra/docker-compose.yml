@@ -87,6 +87,7 @@ services:
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.16
     container_name: eltorto_uptime_kuma
+    user: "1000:1000"
     volumes:
       - ./uptime-kuma/data:/app/data
       - ./uptime-kuma/config:/app/config
