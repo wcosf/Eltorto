@@ -48,7 +48,7 @@ public class AuthService : IAuthService
         var response = new LoginResponse
         {
             AccessToken = accessToken,
-            Expiration = DateTime.UtcNow.AddHours(1),
+            Expiration = DateTime.UtcNow.AddMinutes(15),
             UserName = user.UserName!,
             Roles = roles.ToArray()
         };
@@ -87,7 +87,7 @@ public class AuthService : IAuthService
         var response = new LoginResponse
         {
             AccessToken = newAccessToken,
-            Expiration = DateTime.UtcNow.AddHours(1),
+            Expiration = DateTime.UtcNow.AddMinutes(15),
             UserName = user.UserName!,
             Roles = roles.ToArray()
         };
@@ -170,7 +170,7 @@ public class AuthService : IAuthService
         var response = new LoginResponse
         {
             AccessToken = accessToken,
-            Expiration = DateTime.UtcNow.AddHours(1),
+            Expiration = DateTime.UtcNow.AddMinutes(15),
             UserName = user.UserName!,
             Roles = roles.ToArray()
         };
@@ -231,7 +231,7 @@ public class AuthService : IAuthService
             issuer: jwtSettings["Issuer"],
             audience: jwtSettings["Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddMinutes(15),
             signingCredentials: signingCredentials
         );
 

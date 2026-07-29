@@ -20,7 +20,6 @@ export class AuthService {
   private _accessToken: string | null = null;
   private _userName: string | null = null;
   private _roles: string[] = [];
-  private logoutTimer: any = null;
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -34,7 +33,6 @@ export class AuthService {
   }
 
   logout(): void {
-    this.stopLogoutTimer();
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
       next: () => {
         this.clearAuthState();
@@ -58,10 +56,9 @@ export class AuthService {
     this._userName = session.userName;
     this._roles = session.roles;
     this.isAuthenticatedSubject.next(true);
-    this.startLogoutTimer();
   }
 
-  private clearAuthState(): void {
+  clearAuthState(): void {
     this._accessToken = null;
     this._userName = null;
     this._roles = [];
@@ -133,28 +130,5 @@ export class AuthService {
     return this.http.post<UserSession>(`${this.apiUrl}/change-username`, data).pipe(
       tap(response => this.setSession(response))
     );
-  }
-
-  private startLogoutTimer(): void {
-    this.stopLogoutTimer();
-    const token = this._accessToken;
-    if (!token) return;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const exp = payload.exp * 1000;
-      const timeUntilExpiry = Math.max(exp - Date.now(), 0);
-      this.logoutTimer = setTimeout(() => {
-        this.logout();
-      }, timeUntilExpiry);
-    } catch {
-      // ignore invalid tokens
-    }
-  }
-
-  private stopLogoutTimer(): void {
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
-      this.logoutTimer = null;
-    }
   }
 }

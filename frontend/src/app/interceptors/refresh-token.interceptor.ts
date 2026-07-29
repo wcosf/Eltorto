@@ -51,7 +51,7 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
         catchError((err) => {
           this.isRefreshing = false;
           this.refreshSubject.next(false);
-          this.authService.logout();
+          this.authService.clearAuthState();
           return throwError(() => err);
         })
       );

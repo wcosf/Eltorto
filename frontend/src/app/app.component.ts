@@ -28,8 +28,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.authService.initializeAuthState();
-
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
