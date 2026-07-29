@@ -120,9 +120,6 @@ Eltorto/
 **🔗 Публичная страница статуса:**  
 [https://status.eltorto.ru/status/status](https://status.eltorto.ru/status/status)
 
-**🖥️ Админ-панель:**  
-[https://status.eltorto.ru](https://status.eltorto.ru) (защищена паролем)
-
 **Что мониторится:**
 
 ![Мониторинг](docs/screenshots/monitoring.png) 
