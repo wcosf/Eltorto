@@ -48,6 +48,7 @@ jobs:
             --exclude='infra/nginx/ban.conf' \
             --exclude='scripts/spam_patterns.txt' \
             --exclude='infra/postgres/init.sql' \
+            --exclude='infra/uptime-kuma/data/'
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
 
@@ -68,6 +69,10 @@ jobs:
             git reset --hard origin/main
             
             cd infra
+
+            echo "Ensuring Uptime Kuma data directory exists and has correct permissions..."
+            mkdir -p uptime-kuma/data
+            chown -R 1000:1000 uptime-kuma/data
             
             echo "Creating .env file if not exists..."
             if [ ! -f .env ]; then
@@ -117,6 +122,7 @@ jobs:
             cd ${{ env.PROJECT_PATH }}/infra
             echo " Rolling back to previous version "
             git reset --hard HEAD~1
-            docker compose down
-            docker compose up -d
+            # docker compose down
+            # docker compose up -d
+            docker compose up -d --force-recreate
             echo " Rollback completed "
