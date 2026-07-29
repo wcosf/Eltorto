@@ -165,7 +165,7 @@ public class FillingsController : BaseApiController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error uploading filling image");
+            _logger.LogError(ex, "[FILEOPS] Error uploading filling image");
             return StatusCode(500, new { error = "Internal server error" });
         }
     }

@@ -124,7 +124,7 @@ public class SliderController : BaseApiController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error uploading slider image");
+            _logger.LogError(ex, "[FILEOPS] Error uploading slider image");
             return StatusCode(500, new { error = "Internal server error" });
         }
     }

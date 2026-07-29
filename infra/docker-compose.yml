@@ -24,6 +24,11 @@ services:
       context: ../backend/Eltorto
       dockerfile: Eltorto.API/Dockerfile
     container_name: eltorto_api
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
@@ -34,6 +39,7 @@ services:
       - AdminSettings__Password=${ADMIN_PASSWORD}
     volumes:
       - ../storage:/app/storage
+      - ../logs/api:/app/logs
     depends_on:
       postgres:
         condition: service_healthy

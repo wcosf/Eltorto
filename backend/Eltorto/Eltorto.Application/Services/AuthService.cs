@@ -67,7 +67,7 @@ public class AuthService : IAuthService
         {
             var status = storedToken.IsRevoked ? "revoked" : "already used";
             _logger.LogWarning(
-                "Possible refresh token theft detected for user {UserId}. Token {TokenId} was {Status}. Revoking all sessions.",
+                "[AUTH] Possible refresh token theft detected for user {UserId}. Token {TokenId} was {Status}. Revoking all sessions.",
                 storedToken.UserId, storedToken.Id, status);
 
             await RevokeAllUserTokensAsync(storedToken.UserId);
@@ -110,6 +110,7 @@ public class AuthService : IAuthService
     {
         await _unitOfWork.RefreshTokens.RevokeAllUserTokensAsync(userId);
         await _unitOfWork.SaveChangesAsync();
+        _logger.LogWarning("[AUTH] All sessions revoked for user {UserId}", userId);
     }
     public async Task<(bool Succeeded, string[] Errors)> RegisterAsync(RegisterRequest request, string role = "Customer")
     {
@@ -135,12 +136,20 @@ public class AuthService : IAuthService
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user == null)
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed: user {UserName} not found", userName);
             return (false, ["Пользователь не найден"]);
+        }
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (!result.Succeeded)
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed for user {UserName}: {Errors}",
+                userName, string.Join("; ", result.Errors.Select(e => e.Description)));
             return (false, result.Errors.Select(e => e.Description).ToArray());
+        }
 
+        _logger.LogInformation("[AUTH] Password changed for user {UserName}", userName);
         return (true, []);
     }
 
@@ -148,20 +157,36 @@ public class AuthService : IAuthService
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user == null)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user {UserName} not found", userName);
             throw new KeyNotFoundException("Пользователь не найден");
+        }
 
         if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: incorrect password", userName);
             throw new UnauthorizedAccessException("Неверный пароль");
+        }
 
         var existingUser = await _userManager.FindByNameAsync(request.NewUserName);
         if (existingUser != null && existingUser.Id != user.Id)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: new username {NewUserName} already taken",
+                userName, request.NewUserName);
             throw new InvalidOperationException("Логин уже занят");
+        }
 
         var result = await _userManager.SetUserNameAsync(user, request.NewUserName);
         if (!result.Succeeded)
-            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: {Errors}", userName, errors);
+            throw new InvalidOperationException(errors);
+        }
 
         await _userManager.UpdateNormalizedUserNameAsync(user);
+
+        _logger.LogInformation("[AUTH] User {OldUserName} changed username to {NewUserName}", userName, request.NewUserName);
 
         var roles = await _userManager.GetRolesAsync(user);
         var accessToken = GenerateJwtToken(user, roles);

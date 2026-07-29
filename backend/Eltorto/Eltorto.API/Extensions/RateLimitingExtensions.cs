@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Eltorto.API.Extensions;
 
@@ -11,6 +12,23 @@ public static class RateLimitingExtensions
         services.AddRateLimiter(rateLimiterOptions =>
         {
             rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            rateLimiterOptions.OnRejected = async (context, cancellationToken) =>
+            {
+                var logger = context.HttpContext.RequestServices
+                    .GetRequiredService<ILogger<Program>>();
+                var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                var path = context.HttpContext.Request.Path;
+
+                logger.LogWarning(
+                    "[SECURITY] Rate limit exceeded: IP {IP}, Path {Path}",
+                    ip, path);
+
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                await context.HttpContext.Response.WriteAsJsonAsync(
+                    new { error = "Too many requests. Please try again later." },
+                    cancellationToken: cancellationToken);
+            };
 
             rateLimiterOptions.AddPolicy("LoginPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(

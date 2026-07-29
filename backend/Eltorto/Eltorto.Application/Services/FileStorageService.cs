@@ -50,7 +50,7 @@ public class FileStorageService : IFileStorageService
             await file.CopyToAsync(stream, cancellationToken);
         }
 
-        _logger.LogInformation("File saved: {FilePath}", filePath);
+        _logger.LogInformation("[FILEOPS] File saved: {FilePath}", filePath);
         return finalFileName;
     }
 
@@ -74,7 +74,7 @@ public class FileStorageService : IFileStorageService
         if (File.Exists(fullPath))
         {
             await Task.Run(() => File.Delete(fullPath), cancellationToken);
-            _logger.LogInformation("File deleted: {FilePath}", fullPath);
+            _logger.LogInformation("[FILEOPS] File deleted: {FilePath}", fullPath);
         }
     }
 

@@ -219,7 +219,7 @@ public class PagesController : BaseApiController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error uploading page image");
+            _logger.LogError(ex, "[FILEOPS] Error uploading page image");
             return StatusCode(500, new { error = "Internal server error" });
         }
     }

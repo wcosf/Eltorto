@@ -37,6 +37,11 @@ public class AuthController : ControllerBase
             SetRefreshTokenCookie(refreshToken, response.Expiration);
             SetCsrfTokenCookie();
 
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogInformation(
+                "[AUTH] User {UserName} logged in successfully from IP {IP}",
+                request.UserName, ip);
+
             return Ok(new
             {
                 accessToken = response.AccessToken,
@@ -48,7 +53,7 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException)
         {
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            _logger.LogWarning("Failed login attempt for user {UserName} from IP {IP}", request.UserName, ip);
+            _logger.LogWarning("[AUTH] Failed login attempt for user {UserName} from IP {IP}", request.UserName, ip);
 
             return Unauthorized(new { error = "Invalid credentials" });
         }
@@ -69,18 +74,23 @@ public class AuthController : ControllerBase
             if (!succeeded)
             {
                 var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-                _logger.LogWarning("Registration failed for user {UserName} (Email: {Email}) from IP {IP}: {Errors}",
+                _logger.LogWarning("[AUTH] Registration failed for user {UserName} (Email: {Email}) from IP {IP}: {Errors}",
                     request.UserName, request.Email, ip, string.Join("; ", errors));
 
                 return BadRequest(new { error = "Registration failed. Please check your input." });
             }
+
+            var regIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogInformation(
+                "[AUTH] User {UserName} (Email: {Email}) registered successfully from IP {IP}",
+                request.UserName, request.Email, regIp);
 
             return StatusCode(StatusCodes.Status201Created, new { message = "Customer registered successfully" });
         }
         catch (Exception ex)
         {
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            _logger.LogError(ex, "Unexpected error during registration for user {UserName} from IP {IP}",
+            _logger.LogError(ex, "[AUTH] Unexpected error during registration for user {UserName} from IP {IP}",
                 request.UserName, ip);
 
             return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error." });
@@ -98,7 +108,11 @@ public class AuthController : ControllerBase
     {
         var refreshToken = Request.Cookies["refresh_token"];
         if (string.IsNullOrEmpty(refreshToken))
+        {
+            var noCookieIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogWarning("[AUTH] Refresh attempt without cookie from IP {IP}", noCookieIp);
             return Unauthorized(new { error = "No refresh token" });
+        }
 
         try
         {
@@ -120,9 +134,9 @@ public class AuthController : ControllerBase
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
             if (ex.Message.Contains("reuse"))
-                _logger.LogWarning("Possible token theft detected from IP {IP}. All user sessions have been revoked.", ip);
+                _logger.LogWarning("[AUTH] Possible token theft detected from IP {IP}. All user sessions have been revoked.", ip);
             else
-                _logger.LogWarning("Invalid refresh token attempt from IP {IP}", ip);
+                _logger.LogWarning("[AUTH] Invalid refresh token attempt from IP {IP}", ip);
 
             return Unauthorized(new { error = "Invalid or expired refresh token" });
         }
@@ -143,10 +157,15 @@ public class AuthController : ControllerBase
         }
 
         ClearAuthCookies();
+
+        var logoutUser = User.Identity?.Name ?? "unknown";
+        var logoutIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        _logger.LogInformation("[AUTH] User {UserName} logged out from IP {IP}", logoutUser, logoutIp);
+
         return NoContent();
     }
 
-    /*/// <summary>
+    /// <summary>
     /// Changes the password for the currently authenticated user.
     /// </summary>
     [HttpPost("change-password")]
@@ -157,7 +176,10 @@ public class AuthController : ControllerBase
     {
         var userName = User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed: user not authenticated");
             return Unauthorized();
+        }
 
         var (succeeded, errors) = await _authService.ChangePasswordAsync(userName, request);
         if (!succeeded)
@@ -180,7 +202,10 @@ public class AuthController : ControllerBase
     {
         var userName = User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user not authenticated");
             return Unauthorized();
+        }
 
         try
         {
@@ -199,25 +224,25 @@ public class AuthController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
-            _logger.LogWarning("ChangeUserName failed: user not found (requested by {User})", userName);
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user not found (requested by {User})", userName);
             return NotFound(new { error = "User not found." });
         }
         catch (UnauthorizedAccessException)
         {
-            _logger.LogWarning("ChangeUserName failed: incorrect password for user {User}", userName);
+            _logger.LogWarning("[AUTH] ChangeUserName failed: incorrect password for user {User}", userName);
             return Unauthorized(new { error = "Invalid password." });
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("ChangeUserName failed for user {User}: {Error}", userName, ex.Message);
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {User}: {Error}", userName, ex.Message);
             return Conflict(new { error = "Could not change username." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during ChangeUserName for user {User}", userName);
+            _logger.LogError(ex, "[AUTH] Unexpected error during ChangeUserName for user {User}", userName);
             return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error." });
         }
-    }*/
+    }
 
     /// <summary>
     /// Returns the current user's info based on the access token.

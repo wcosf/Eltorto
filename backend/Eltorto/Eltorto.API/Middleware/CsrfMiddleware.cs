@@ -3,10 +3,12 @@ namespace Eltorto.API.Middleware;
 public class CsrfMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<CsrfMiddleware> _logger;
 
-    public CsrfMiddleware(RequestDelegate next)
+    public CsrfMiddleware(RequestDelegate next, ILogger<CsrfMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -23,6 +25,11 @@ public class CsrfMiddleware
                 string.IsNullOrEmpty(headerToken) ||
                 cookieToken != headerToken)
             {
+                var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                _logger.LogWarning(
+                    "[SECURITY] CSRF validation failed: IP {IP}, Method {Method}, Path {Path}",
+                    ip, method, path);
+
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(new { error = "CSRF token validation failed" });
                 return;
