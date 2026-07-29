@@ -66,7 +66,7 @@ services:
     depends_on:
       - api
       - frontend
-      - uptime-kuma
+      # - uptime-kuma
     networks:
       - eltorto_network
     restart: unless-stopped
