@@ -85,7 +85,7 @@ services:
     restart: unless-stopped
 
   uptime-kuma:
-    image: louislam/uptime-kuma:latest
+    image: louislam/uptime-kuma:1.23.16
     container_name: eltorto_uptime_kuma
     volumes:
       - ./uptime-kuma/data:/app/data
