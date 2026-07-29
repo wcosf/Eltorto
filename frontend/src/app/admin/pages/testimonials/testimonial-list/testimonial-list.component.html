@@ -4,14 +4,6 @@
   </app-status-badge>
 </ng-template>
 
-<ng-template #responseTemplate let-row>
-  <span *ngIf="row.response; else noResponse">
-    {{ row.response.length > 50 ? (row.response | slice:0:50) + '...' : row.response }}
-  </span>
-  <ng-template #noResponse>
-    <span style="color: #999;">—</span>
-  </ng-template>
-</ng-template>
 
 <div class="testimonial-list-page">
   <div class="page-header">

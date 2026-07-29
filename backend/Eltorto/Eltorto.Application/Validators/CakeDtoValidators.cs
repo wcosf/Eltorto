@@ -13,14 +13,10 @@ public class CreateCakeDtoValidator : AbstractValidator<CreateCakeDto>
 
         RuleFor(x => x.ImageUrl)
             .NotEmpty().WithMessage("URL изображения обязателен")
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
-            .Must(BeValidUrl).WithMessage("Некорректный URL изображения")
-            .When(x => !string.IsNullOrEmpty(x.ImageUrl));
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
 
         RuleFor(x => x.ThumbnailUrl)
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
-            .Must(BeValidUrl).WithMessage("Некорректный URL превью")
-            .When(x => !string.IsNullOrEmpty(x.ThumbnailUrl));
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
 
         RuleFor(x => x.CategorySlug)
             .NotEmpty().WithMessage("Slug категории обязателен")
@@ -38,12 +34,6 @@ public class CreateCakeDtoValidator : AbstractValidator<CreateCakeDto>
         RuleFor(x => x.FillingId)
             .GreaterThan(0).WithMessage("Некорректный ID начинки")
             .When(x => x.FillingId.HasValue);
-    }
-
-    private static bool BeValidUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 }
 
@@ -60,14 +50,10 @@ public class UpdateCakeDtoValidator : AbstractValidator<UpdateCakeDto>
 
         RuleFor(x => x.ImageUrl)
             .NotEmpty().WithMessage("URL изображения обязателен")
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
-            .Must(BeValidUrl).WithMessage("Некорректный URL изображения")
-            .When(x => !string.IsNullOrEmpty(x.ImageUrl));
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
 
         RuleFor(x => x.ThumbnailUrl)
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
-            .Must(BeValidUrl).WithMessage("Некорректный URL превью")
-            .When(x => !string.IsNullOrEmpty(x.ThumbnailUrl));
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
 
         RuleFor(x => x.CategorySlug)
             .NotEmpty().WithMessage("Slug категории обязателен")
@@ -85,11 +71,5 @@ public class UpdateCakeDtoValidator : AbstractValidator<UpdateCakeDto>
         RuleFor(x => x.FillingId)
             .GreaterThan(0).WithMessage("Некорректный ID начинки")
             .When(x => x.FillingId.HasValue);
-    }
-
-    private static bool BeValidUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
 }

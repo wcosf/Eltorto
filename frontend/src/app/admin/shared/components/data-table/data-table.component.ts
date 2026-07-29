@@ -31,7 +31,7 @@ import { TableConfig, TableAction, TableColumn } from '../../models/table-config
 export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() data: T[] = [];
   @Input() totalCount = 0;
-  @Input() pageSize = 10;
+  @Input() pageSize = 25;
   @Input() pageIndex = 0;
   @Input() config!: TableConfig<T>;
   @Input() loading = false;
@@ -73,6 +73,7 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<T>([]);
   filteredLength = 0;
+  _highlightId: number | null = null;
 
   private allData: T[] = [];
   private filteredData: T[] = [];
@@ -247,5 +248,21 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       return column.format(value, row);
     }
     return value as string;
+  }
+
+  navigateToRow(id: number, allData: T[]): boolean {
+    const index = allData.findIndex(item => (item as any).id === id);
+    if (index === -1) return false;
+
+    const page = Math.floor(index / this.pageSize);
+    this.pageIndex = page;
+    this.updateDisplayData();
+    this._highlightId = id;
+
+    setTimeout(() => {
+      this._highlightId = null;
+    }, 3000);
+
+    return true;
   }
 }

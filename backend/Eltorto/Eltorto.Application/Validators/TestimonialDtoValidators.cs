@@ -41,9 +41,4 @@ public class UpdateTestimonialDtoValidator : AbstractValidator<UpdateTestimonial
     }
 }
 
-public class ApproveTestimonialDtoValidator : AbstractValidator<ApproveTestimonialDto>
-{
-    public ApproveTestimonialDtoValidator()
-    {
-    }
-}
+

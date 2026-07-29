@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CakeListComponent } from './pages/cakes/cake-list/cake-list.component';
 import { CategoryListComponent } from './pages/categories/category-list/category-list.component';
 import { FillingListComponent } from './pages/fillings/filling-list/filling-list.component';
@@ -10,6 +9,7 @@ import { OrderListComponent } from './pages/orders/order-list/order-list.compone
 import { ContactsEditComponent } from './pages/contacts/contacts-edit/contacts-edit.component';
 import { SecuritySettingsComponent } from './pages/security/security-settings/security-settings.component';
 import { AdminAuthGuard } from './guards/admin-auth.guard';
+import { AdminRedirectGuard } from './guards/admin-redirect.guard';
 
 const routes: Routes = [
   {
@@ -19,8 +19,7 @@ const routes: Routes = [
     canActivate: [AdminAuthGuard],
     canActivateChild: [AdminAuthGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', component: DashboardComponent },
+      { path: '', pathMatch: 'full', canActivate: [AdminRedirectGuard], children: [] },
       { path: 'cakes', component: CakeListComponent },
       { path: 'categories', component: CategoryListComponent },
       { path: 'fillings', component: FillingListComponent },

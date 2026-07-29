@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +15,7 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { RecentActionsComponent } from '../../../shared/components/recent-actions/recent-actions.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { RecentActionsService, RecentAction } from '../../../../core/recent-actions.service';
 import { ApiService, Testimonial, PaginatedResponse } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
@@ -38,19 +39,20 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
   templateUrl: './testimonial-list.component.html',
   styleUrls: ['./testimonial-list.component.scss']
 })
-export class TestimonialListComponent implements OnInit {
+export class TestimonialListComponent implements OnInit, OnDestroy {
   @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<any>;
-  @ViewChild('responseTemplate', { static: true }) responseTemplate!: TemplateRef<any>;
 
   allTestimonials: Testimonial[] = [];
   filteredTestimonials: Testimonial[] = [];
   totalCount = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageIndex = 0;
   loading = false;
 
   searchTerm = '';
+  @ViewChild(DataTableComponent) dataTable!: DataTableComponent<any>;
   statusFilter: 'all' | 'approved' | 'pending' = 'all';
+  private _initialPageRestored: number | null = null;
 
   tableConfig!: TableConfig<Testimonial>;
   columnTemplates: { [key: string]: TemplateRef<any> } = {};
@@ -59,16 +61,33 @@ export class TestimonialListComponent implements OnInit {
     private apiService: ApiService,
     private dialog: MatDialog,
     private notification: AdminNotificationService,
+    private stateService: AdminStateService,
     private recentActions: RecentActionsService
   ) { }
 
   ngOnInit(): void {
+    this.restoreTableState();
     this.initTableConfig();
     this.columnTemplates = {
       status: this.statusTemplate,
-      response: this.responseTemplate,
     };
     this.loadTestimonials();
+  }
+
+  ngOnDestroy(): void {
+    this.stateService.saveTableState('testimonials', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize
+    });
+  }
+
+  private restoreTableState(): void {
+    const saved = this.stateService.getTableState('testimonials');
+    if (saved) {
+      this.pageIndex = saved.pageIndex;
+      this.pageSize = saved.pageSize;
+      this._initialPageRestored = saved.pageIndex;
+    }
   }
 
   private initTableConfig(): void {
@@ -124,12 +143,11 @@ export class TestimonialListComponent implements OnInit {
           sortable: true,
           format: (value) => value ? new Date(value).toLocaleDateString('ru-RU') : ''
         },
-        { key: 'status', label: 'Статус', sortable: false },
-        { key: 'response', label: 'Ответ кондитера', sortable: false }
+        { key: 'status', label: 'Статус', sortable: false }
       ],
       actions,
-      pageSizeOptions: [5, 10, 25, 50],
-      defaultPageSize: 10,
+      pageSizeOptions: [25],
+      defaultPageSize: 25,
       enableSort: true
     };
   }
@@ -142,6 +160,10 @@ export class TestimonialListComponent implements OnInit {
         next: (response: PaginatedResponse<Testimonial>) => {
           this.allTestimonials = response.items;
           this.applyFilters();
+          if (this._initialPageRestored !== null) {
+            this.pageIndex = this._initialPageRestored;
+            this._initialPageRestored = null;
+          }
         },
         error: (err) => {
           const msg = this.extractErrorMessage(err);
@@ -186,6 +208,8 @@ export class TestimonialListComponent implements OnInit {
   }
 
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 
   onSortChange(event: { active: string; direction: 'asc' | 'desc' }): void {
@@ -240,7 +264,13 @@ export class TestimonialListComponent implements OnInit {
         label: 'Имя автора',
         type: 'text',
         required: true,
-        placeholder: 'Введите имя'
+        placeholder: 'Введите имя',
+        validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+        validationMessages: {
+          required: 'Имя автора обязательно',
+          minlength: 'Минимальная длина имени: 2 симв.',
+          maxlength: 'Максимальная длина имени: 100 симв.'
+        }
       },
       {
         key: 'text',
@@ -248,15 +278,13 @@ export class TestimonialListComponent implements OnInit {
         type: 'textarea',
         required: true,
         rows: 5,
-        placeholder: 'Введите текст отзыва'
-      },
-      {
-        key: 'response',
-        label: 'Ответ кондитера',
-        type: 'textarea',
-        required: false,
-        rows: 3,
-        placeholder: 'Ваш ответ на отзыв (необязательно)'
+        placeholder: 'Введите текст отзыва',
+        validators: [Validators.required, Validators.minLength(10), Validators.maxLength(2000)],
+        validationMessages: {
+          required: 'Текст отзыва обязателен',
+          minlength: 'Минимальная длина текста: 10 симв.',
+          maxlength: 'Максимальная длина текста: 2000 симв.'
+        }
       },
       {
         key: 'isApproved',
@@ -279,7 +307,6 @@ export class TestimonialListComponent implements OnInit {
     const payload = {
       Author: data.author,
       Text: data.text,
-      Response: data.response || '',
       IsApproved: data.isApproved ?? false
     };
 
@@ -299,7 +326,6 @@ export class TestimonialListComponent implements OnInit {
       Id: id,
       Author: data.author,
       Text: data.text,
-      Response: data.response || '',
       IsApproved: data.isApproved ?? false
     };
 
@@ -361,32 +387,13 @@ export class TestimonialListComponent implements OnInit {
 
   onRecentActionClick(action: RecentAction): void {
     if (action.type === 'create' || action.type === 'update') {
-      const index = this.filteredTestimonials.findIndex(t => t.id === action.entityId);
-      if (index !== -1) {
-        const page = Math.floor(index / this.pageSize);
-        this.pageIndex = page;
-        setTimeout(() => {
-          this.highlightRow(action.entityId);
-          const tableElement = document.querySelector('.data-table-container');
-          if (tableElement) {
-            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 300);
+      const found = this.dataTable?.navigateToRow(action.entityId, this.filteredTestimonials);
+      if (found) {
+        document.querySelector('.data-table-container')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        this.notification.warning('Отзыв не найден, возможно, данные не загружены');
+        this.notification.warning('Отзыв не найден');
       }
-    }
-  }
-
-  private highlightRow(id: number): void {
-    document.querySelectorAll('tr.highlight-row').forEach(row => {
-      row.classList.remove('highlight-row');
-    });
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (row) {
-      setTimeout(() => {
-        row.classList.add('highlight-row');
-      }, 10);
     }
   }
 

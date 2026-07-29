@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import { FormModalComponent } from '../../../shared/components/form-modal/form-m
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { ApiService, Filling } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
 import { FormConfig, FormField } from '../../../shared/models/form-config.model';
@@ -34,12 +35,12 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
   templateUrl: './filling-list.component.html',
   styleUrls: ['./filling-list.component.scss']
 })
-export class FillingListComponent implements OnInit {
+export class FillingListComponent implements OnInit, OnDestroy {
   @ViewChild('imageTemplate', { static: true }) imageTemplate!: TemplateRef<any>;
 
   fillings: Filling[] = [];
   totalCount = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageIndex = 0;
   loading = false;
   searchTerm = '';
@@ -49,13 +50,30 @@ export class FillingListComponent implements OnInit {
   constructor(
     public apiService: ApiService,
     private dialog: MatDialog,
-    private notification: AdminNotificationService
+    private notification: AdminNotificationService,
+    private stateService: AdminStateService
   ) { }
 
   ngOnInit(): void {
+    this.restoreTableState();
     this.initTableConfig();
     this.columnTemplates = { imageUrl: this.imageTemplate };
     this.loadFillings();
+  }
+
+  ngOnDestroy(): void {
+    this.stateService.saveTableState('fillings', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize
+    });
+  }
+
+  private restoreTableState(): void {
+    const saved = this.stateService.getTableState('fillings');
+    if (saved) {
+      this.pageIndex = saved.pageIndex;
+      this.pageSize = saved.pageSize;
+    }
   }
 
   private initTableConfig(): void {
@@ -94,8 +112,8 @@ export class FillingListComponent implements OnInit {
         }
       ],
       actions,
-      pageSizeOptions: [5, 10, 25, 50],
-      defaultPageSize: 10,
+      pageSizeOptions: [25],
+      defaultPageSize: 25,
       enableSort: true
     };
   }
@@ -191,7 +209,13 @@ export class FillingListComponent implements OnInit {
         label: 'Название',
         type: 'text',
         required: true,
-        placeholder: 'Введите название начинки'
+        placeholder: 'Введите название начинки',
+        validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+        validationMessages: {
+          required: 'Название начинки обязательно',
+          minlength: 'Минимальная длина названия: 2 симв.',
+          maxlength: 'Максимальная длина названия: 100 симв.'
+        }
       },
       {
         key: 'description',

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +19,7 @@ import { OrderStatusDialogComponent } from '../order-status-dialog/order-status-
 import { OrderDetailDialogComponent } from '../order-detail-dialog/order-detail-dialog.component';
 import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { ApiService, Cake, Filling, OrderDto, OrderRequest, OrderStatus } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
 import { FormConfig, FormField, FormFieldOption } from '../../../shared/models/form-config.model';
@@ -44,13 +45,13 @@ import { futureDateValidator } from '../../../shared/validators/date.validators'
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
-export class OrderListComponent implements OnInit {
+export class OrderListComponent implements OnInit, OnDestroy {
   @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<any>;
   @ViewChild('cakeTemplate', { static: true }) cakeTemplate!: TemplateRef<any>;
 
   orders: OrderDto[] = [];
   totalCount = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageIndex = 0;
   loading = false;
   searchTerm: string = '';
@@ -87,15 +88,32 @@ export class OrderListComponent implements OnInit {
   constructor(
     public apiService: ApiService,
     private dialog: MatDialog,
-    private notification: AdminNotificationService
+    private notification: AdminNotificationService,
+    private stateService: AdminStateService
   ) { }
 
   ngOnInit(): void {
+    this.restoreTableState();
     this.initTableConfig();
     this.columnTemplates = { status: this.statusTemplate, cakeName: this.cakeTemplate };
     this.loadOrders();
     this.loadCakes();
     this.loadFillings();
+  }
+
+  ngOnDestroy(): void {
+    this.stateService.saveTableState('orders', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize
+    });
+  }
+
+  private restoreTableState(): void {
+    const saved = this.stateService.getTableState('orders');
+    if (saved) {
+      this.pageIndex = saved.pageIndex;
+      this.pageSize = saved.pageSize;
+    }
   }
 
   private initTableConfig(): void {
@@ -146,8 +164,8 @@ export class OrderListComponent implements OnInit {
         },
       ],
       actions,
-      pageSizeOptions: [5, 10, 25, 50],
-      defaultPageSize: 10,
+      pageSizeOptions: [25],
+      defaultPageSize: 25,
       enableSort: true,
     };
   }
@@ -264,6 +282,10 @@ export class OrderListComponent implements OnInit {
         required: true,
         placeholder: 'Введите имя',
         validators: [Validators.minLength(2)],
+        validationMessages: {
+          required: 'Имя обязательно',
+          minlength: 'Минимальная длина имени: 2 симв.'
+        }
       },
       {
         key: 'customerPhone',
@@ -272,6 +294,10 @@ export class OrderListComponent implements OnInit {
         required: true,
         placeholder: '+7 (999) 999-99-99',
         validators: [Validators.pattern(/^(\+7|8)\s?\(?\d{3}\)?\s?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/)],
+        validationMessages: {
+          required: 'Телефон обязателен',
+          pattern: 'Некорректный формат телефона'
+        }
       },
       {
         key: 'customerEmail',
@@ -279,6 +305,11 @@ export class OrderListComponent implements OnInit {
         type: 'email',
         required: true,
         placeholder: 'Введите email',
+        validators: [Validators.email],
+        validationMessages: {
+          required: 'Email обязателен',
+          email: 'Некорректный формат email'
+        }
       },
       {
         key: 'cakeId',
@@ -313,6 +344,9 @@ export class OrderListComponent implements OnInit {
         label: 'Дата доставки',
         type: 'date',
         validators: [futureDateValidator()],
+        validationMessages: {
+          pastDate: 'Дата доставки не может быть в прошлом'
+        }
       },
       {
         key: 'deliveryAddress',

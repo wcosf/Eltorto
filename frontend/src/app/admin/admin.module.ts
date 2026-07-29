@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CakeListComponent } from './pages/cakes/cake-list/cake-list.component';
 import { CategoryListComponent } from './pages/categories/category-list/category-list.component';
 import { FillingListComponent } from './pages/fillings/filling-list/filling-list.component';
@@ -43,7 +42,6 @@ import { MatNativeDateModule } from '@angular/material/core';
     AdminRoutingModule,
 
     AdminLayoutComponent,
-    DashboardComponent,
     CakeListComponent,
     CategoryListComponent,
     FillingListComponent,

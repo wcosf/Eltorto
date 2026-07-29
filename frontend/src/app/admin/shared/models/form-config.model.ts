@@ -24,6 +24,7 @@ export interface FormField {
   type: FormFieldType;
   required?: boolean;
   validators?: ValidatorFn[];
+  validationMessages?: Record<string, string>;
   asyncValidators?: AsyncValidatorFn[];
   options?: FormFieldOption[];
   placeholder?: string;

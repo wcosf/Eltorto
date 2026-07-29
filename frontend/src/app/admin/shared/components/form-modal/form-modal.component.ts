@@ -214,4 +214,26 @@ export class FormModalComponent implements OnInit, OnDestroy {
   isRequired(field: FormField): boolean {
     return !!field.required;
   }
+
+  getControlErrorMessage(field: FormField): string | null {
+    const control = this.form.get(field.key);
+    if (!control || !control.errors || !control.touched) return null;
+
+    const errors = control.errors;
+    const msg = field.validationMessages;
+
+    if (errors['required']) return `${field.label} обязательно`;
+    if (errors['minlength']) return `Минимальная длина: ${errors['minlength'].requiredLength} симв.`;
+    if (errors['maxlength']) return `Максимальная длина: ${errors['maxlength'].requiredLength} симв.`;
+    if (errors['email']) return msg?.['email'] || 'Некорректный формат email';
+    if (errors['pattern']) return msg?.['pattern'] || 'Неверный формат';
+    if (errors['min']) return `Минимальное значение: ${errors['min'].min}`;
+    if (errors['max']) return `Максимальное значение: ${errors['max'].max}`;
+    if (errors['pastDate']) return msg?.['pastDate'] || 'Дата не может быть в прошлом';
+
+    const firstKey = Object.keys(errors)[0];
+    if (firstKey && msg?.[firstKey]) return msg[firstKey];
+
+    return null;
+  }
 }

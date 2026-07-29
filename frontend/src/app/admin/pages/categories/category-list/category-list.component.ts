@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { FormModalComponent } from '../../../shared/components/form-modal/form-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { ApiService, Category } from '../../../../services/api.service';
 import { TableConfig, TableAction } from '../../../shared/models/table-config.model';
 import { FormConfig, FormField } from '../../../shared/models/form-config.model';
@@ -31,10 +32,10 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })
-export class CategoryListComponent implements OnInit {
+export class CategoryListComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   totalCount = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageIndex = 0;
   loading = false;
   searchTerm: string = '';
@@ -44,12 +45,29 @@ export class CategoryListComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private dialog: MatDialog,
-    private notification: AdminNotificationService
-  ) {}
+    private notification: AdminNotificationService,
+    private stateService: AdminStateService
+  ) { }
 
   ngOnInit(): void {
+    this.restoreTableState();
     this.initTableConfig();
     this.loadCategories();
+  }
+
+  ngOnDestroy(): void {
+    this.stateService.saveTableState('categories', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize
+    });
+  }
+
+  private restoreTableState(): void {
+    const saved = this.stateService.getTableState('categories');
+    if (saved) {
+      this.pageIndex = saved.pageIndex;
+      this.pageSize = saved.pageSize;
+    }
   }
 
   private initTableConfig(): void {
@@ -72,7 +90,7 @@ export class CategoryListComponent implements OnInit {
     this.tableConfig = {
       columns: [
         { key: 'id', label: 'ID', sortable: true, sticky: true },
-        { key: 'name', label: 'Название', sortable: true},
+        { key: 'name', label: 'Название', sortable: true },
         { key: 'slug', label: 'Slug', sortable: true },
         { key: 'sortOrder', label: 'Порядок', sortable: true },
         {
@@ -83,8 +101,8 @@ export class CategoryListComponent implements OnInit {
         }
       ],
       actions,
-      pageSizeOptions: [5, 10, 25, 50],
-      defaultPageSize: 10,
+      pageSizeOptions: [25],
+      defaultPageSize: 25,
       enableSort: true
     };
   }
@@ -171,7 +189,13 @@ export class CategoryListComponent implements OnInit {
         label: 'Название',
         type: 'text',
         required: true,
-        placeholder: 'Введите название категории'
+        placeholder: 'Введите название категории',
+        validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+        validationMessages: {
+          required: 'Название обязательно',
+          minlength: 'Минимальная длина названия: 2 симв.',
+          maxlength: 'Максимальная длина названия: 100 симв.'
+        }
       },
       {
         key: 'slug',
@@ -180,7 +204,12 @@ export class CategoryListComponent implements OnInit {
         required: true,
         placeholder: 'naprimer-torti',
         hint: 'Используется в URL. Только латиница, цифры и дефис. Рекомендуется задать один раз и не менять в дальнейшем.',
-        disabled: isEdit
+        disabled: isEdit,
+        validators: [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)],
+        validationMessages: {
+          required: 'Slug обязателен',
+          pattern: 'Только латиница, цифры и дефис'
+        }
       },
       {
         key: 'description',
@@ -197,7 +226,11 @@ export class CategoryListComponent implements OnInit {
         required: false,
         defaultValue: 0,
         placeholder: 'Чем меньше число, тем выше в списке',
-        hint: 'Чем меньше число, тем выше категория будет отображаться в списке.'
+        hint: 'Чем меньше число, тем выше категория будет отображаться в списке.',
+        validators: [Validators.min(0)],
+        validationMessages: {
+          min: 'Порядок сортировки не может быть отрицательным'
+        }
       }
     ];
 

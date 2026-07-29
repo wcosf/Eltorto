@@ -1,14 +1,4 @@
 <div class="data-table-container">
-  <div class="paginator-top">
-    <mat-paginator
-      [length]="serverSide ? totalCount : filteredLength"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [pageSizeOptions]="config.pageSizeOptions || [5, 10, 25, 50]"
-      (page)="onPageChange($event)"
-      showFirstLastButtons>
-    </mat-paginator>
-  </div>
 
   <!-- Таблица -->
   <div class="table-wrapper">
@@ -47,7 +37,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [attr.data-id]="row.id"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [attr.data-id]="row.id" [class.highlight-row]="row.id === _highlightId"></tr>
     </table>
 
     <!-- Загрузка -->
@@ -66,5 +56,16 @@
       <mat-icon>search_off</mat-icon>
       <p>Ничего не найдено по запросу "{{ filterValue }}"</p>
     </div>
+  </div>
+
+  <div class="paginator-bottom">
+    <mat-paginator
+      [length]="serverSide ? totalCount : filteredLength"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="config.pageSizeOptions || [25]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
   </div>
 </div>

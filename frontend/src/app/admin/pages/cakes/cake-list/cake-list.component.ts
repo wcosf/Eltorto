@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, TemplateRef, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
 import { RecentActionsComponent } from '../../../shared/components/recent-actions/recent-actions.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
+import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { RecentActionsService } from '../../../../core/recent-actions.service';
 import { RecentAction } from '../../../../core/recent-actions.service';
 import { ApiService, Cake, Category, Filling } from '../../../../services/api.service';
@@ -36,15 +37,16 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
   templateUrl: './cake-list.component.html',
   styleUrls: ['./cake-list.component.scss']
 })
-export class CakeListComponent implements OnInit {
+export class CakeListComponent implements OnInit, OnDestroy {
   @ViewChild('imageTemplate', { static: true }) imageTemplate!: TemplateRef<any>;
 
   cakes: Cake[] = [];
   totalCount = 0;
-  pageSize = 10;
+  pageSize = 25;
   pageIndex = 0;
   loading = false;
   searchTerm = '';
+  @ViewChild(DataTableComponent) dataTable!: DataTableComponent<any>;
 
   categories: Category[] = [];
   fillings: Filling[] = [];
@@ -56,16 +58,33 @@ export class CakeListComponent implements OnInit {
     public apiService: ApiService,
     private dialog: MatDialog,
     private notification: AdminNotificationService,
+    private stateService: AdminStateService,
     private recentActions: RecentActionsService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    this.restoreTableState();
     this.initTableConfig();
     this.columnTemplates = { imageUrl: this.imageTemplate };
     this.loadReferences();
     this.loadCakes();
+  }
+
+  ngOnDestroy(): void {
+    this.stateService.saveTableState('cakes', {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize
+    });
+  }
+
+  private restoreTableState(): void {
+    const saved = this.stateService.getTableState('cakes');
+    if (saved) {
+      this.pageIndex = saved.pageIndex;
+      this.pageSize = saved.pageSize;
+    }
   }
 
   private initTableConfig(): void {
@@ -110,8 +129,8 @@ export class CakeListComponent implements OnInit {
         }
       ],
       actions,
-      pageSizeOptions: [5, 10, 25, 50],
-      defaultPageSize: 10,
+      pageSizeOptions: [25],
+      defaultPageSize: 25,
       enableSort: true
     };
   }
@@ -241,7 +260,13 @@ export class CakeListComponent implements OnInit {
         label: 'Название',
         type: 'text',
         required: true,
-        placeholder: 'Введите название торта'
+        placeholder: 'Введите название торта',
+        validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+        validationMessages: {
+          required: 'Название торта обязательно',
+          minlength: 'Минимальная длина названия: 2 симв.',
+          maxlength: 'Максимальная длина названия: 100 симв.'
+        }
       },
       {
         key: 'categorySlug',
@@ -508,47 +533,22 @@ export class CakeListComponent implements OnInit {
 
   onRecentActionClick(action: RecentAction): void {
     if (action.type === 'create' || action.type === 'update') {
-      const index = this.cakes.findIndex(c => c.id === action.entityId);
-      if (index !== -1) {
-        const page = Math.floor(index / this.pageSize);
-        this.pageIndex = page;
-        setTimeout(() => {
-          this.highlightRow(action.entityId);
-          const tableElement = document.querySelector('.data-table-container');
-          if (tableElement) {
-            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
+      const found = this.dataTable?.navigateToRow(action.entityId, this.cakes);
+      if (found) {
+        document.querySelector('.data-table-container')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        this.notification.warning('Торт не найден, возможно, данные не загружены');
+        this.notification.warning('Торт не найден');
       }
     }
   }
 
   goToCake(id: number): void {
     this.searchTerm = '';
-    const index = this.cakes.findIndex(c => c.id === id);
-    if (index === -1) {
+    const found = this.dataTable?.navigateToRow(id, this.cakes);
+    if (!found) {
       this.notification.warning('Торт не найден');
-      return;
-    }
-    const pageIndex = Math.floor(index / this.pageSize);
-    this.pageIndex = pageIndex;
-    setTimeout(() => {
-      this.highlightRow(id);
-    }, 300);
-  }
-
-  highlightRow(id: number): void {
-    document.querySelectorAll('tr.highlight-row').forEach(row => {
-      row.classList.remove('highlight-row');
-    });
-
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (row) {
-      setTimeout(() => {
-        row.classList.add('highlight-row');
-      }, 10);
     }
   }
+
 }

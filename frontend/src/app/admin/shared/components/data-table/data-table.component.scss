@@ -5,10 +5,10 @@
   padding: 1rem;
   overflow: hidden;
 
-  .paginator-top {
+  .paginator-bottom {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 0.75rem;
+    margin-top: 0.75rem;
     padding: 0 4px;
 
     ::ng-deep .mat-mdc-paginator {
@@ -74,10 +74,6 @@
     }
   }
 
-  mat-paginator {
-    margin-top: 0.5rem;
-  }
-
   ::ng-deep .mat-sort-header-arrow {
     opacity: 1 !important;
   }
@@ -91,4 +87,14 @@
     vertical-align: middle;
     flex-shrink: 0;
   }
+}
+
+@keyframes highlightFade {
+  0% { background-color: #fff8e1; }
+  70% { background-color: #fff8e1; }
+  100% { background-color: transparent; }
+}
+
+.highlight-row {
+  animation: highlightFade 2.5s ease forwards;
 }

@@ -10,10 +10,7 @@
         <input matInput [type]="field.type" [formControlName]="field.key"
                [placeholder]="field.placeholder || ''"
                [required]="isRequired(field)">
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
-          {{ field.label }} обязательно
-        </mat-error>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
       </mat-form-field>
 
       <!-- Текстовая область -->
@@ -23,10 +20,7 @@
                   [rows]="field.rows || 4"
                   [placeholder]="field.placeholder || ''"
                   [required]="isRequired(field)"></textarea>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
-          {{ field.label }} обязательно
-        </mat-error>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
       </mat-form-field>
 
       <!-- Выпадающий список -->
@@ -37,10 +31,7 @@
             {{ option.label }}
           </mat-option>
         </mat-select>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
-          {{ field.label }} обязательно
-        </mat-error>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
       </mat-form-field>
 
       <!-- Чекбокс -->
@@ -48,7 +39,6 @@
         <mat-checkbox [formControlName]="field.key" [required]="isRequired(field)">
           {{ field.label }}
         </mat-checkbox>
-        <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
       </div>
 
       <!-- Дата -->
@@ -57,10 +47,7 @@
         <input matInput [matDatepicker]="picker" [formControlName]="field.key">
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
-          {{ field.label }} обязательно
-        </mat-error>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
       </mat-form-field>
 
       <!-- Автодополнение -->
@@ -77,10 +64,7 @@
           </mat-option>
         </mat-autocomplete>
         <mat-spinner *ngIf="asyncLoadingMap.get(field.key)" diameter="20" class="async-loading-spinner"></mat-spinner>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.key)?.hasError('required')">
-          {{ field.label }} обязательно
-        </mat-error>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
       </mat-form-field>
 
       <div *ngIf="field.type === 'autocomplete' && field.showImagePreview && getSelectedOption(field)" class="image-preview">
@@ -92,8 +76,9 @@
       <div *ngIf="field.type === 'file'" class="file-upload-wrapper">
         <label>{{ field.label }}</label>
         <input type="file" [accept]="field.fileAccept" (change)="onFileSelected($event, field.key)">
-        <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
       </div>
+
+      <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
     </div>
   </form>
 </mat-dialog-content>
