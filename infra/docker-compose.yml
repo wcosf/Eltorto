@@ -88,6 +88,8 @@ services:
     image: louislam/uptime-kuma:1.23.16
     container_name: eltorto_uptime_kuma
     user: "1000:1000"
+    environment:
+      - DISABLE_CHOWN=true
     volumes:
       - ./uptime-kuma/data:/app/data
       - ./uptime-kuma/config:/app/config
