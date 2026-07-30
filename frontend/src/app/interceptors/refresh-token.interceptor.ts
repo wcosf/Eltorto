@@ -46,6 +46,10 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
           }
+          const csrf = this.authService.getCsrfToken();
+          if (csrf) {
+            headers['X-CSRF-Token'] = csrf;
+          }
           return next.handle(request.clone({ setHeaders: headers }));
         }),
         catchError((err) => {
@@ -64,6 +68,10 @@ export class RefreshTokenInterceptor implements HttpInterceptor {
           const headers: Record<string, string> = {};
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
+          }
+          const csrf = this.authService.getCsrfToken();
+          if (csrf) {
+            headers['X-CSRF-Token'] = csrf;
           }
           return next.handle(request.clone({ setHeaders: headers }));
         })
