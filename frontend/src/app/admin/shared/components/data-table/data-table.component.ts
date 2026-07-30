@@ -4,7 +4,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTable, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +17,6 @@ import { TableConfig, TableAction, TableColumn } from '../../models/table-config
   imports: [
     CommonModule,
     MatTableModule,
-    MatPaginatorModule,
     MatSortModule,
     MatIconModule,
     MatButtonModule,
@@ -44,7 +42,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Output() sortChange = new EventEmitter<{ active: string; direction: 'asc' | 'desc' }>();
   @Output() actionClick = new EventEmitter<{ action: TableAction<T>; row: T }>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<T>;
 
@@ -55,9 +52,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       this._filterValue = newValue;
       if (!this.serverSide) {
         this.pageIndex = 0;
-        if (this.paginator) {
-          this.paginator.firstPage();
-        }
         this.updateDisplayData();
       } else {
         this.pageChange.emit({ pageIndex: 0, pageSize: this.pageSize });
@@ -67,6 +61,8 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
   get filterValue(): string {
     return this._filterValue;
   }
+
+  Math = Math;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -153,10 +149,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
       if (this.table) {
         this.table.renderRows();
       }
-      if (this.paginator) {
-        this.paginator.pageIndex = this.pageIndex;
-        this.paginator.pageSize = this.pageSize;
-      }
       this.cdr.detectChanges();
       return;
     }
@@ -195,10 +187,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     if (this.table) {
       this.table.renderRows();
     }
-    if (this.paginator) {
-      this.paginator.pageIndex = this.pageIndex;
-      this.paginator.pageSize = this.pageSize;
-    }
     this.cdr.detectChanges();
   }
 
@@ -221,9 +209,6 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     });
     if (!this.serverSide) {
       this.pageIndex = 0;
-      if (this.paginator) {
-        this.paginator.firstPage();
-      }
       this.updateDisplayData();
     } else {
       this.pageChange.emit({ pageIndex: 0, pageSize: this.pageSize });
@@ -250,6 +235,37 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     return value as string;
   }
 
+  get maxPageIndex(): number {
+    const total = this.serverSide ? this.totalCount : this.filteredLength;
+    return Math.ceil(total / this.pageSize) - 1;
+  }
+
+  goToPage(index: number): void {
+    if (index >= 0 && index <= this.maxPageIndex && index !== this.pageIndex) {
+      this.onPageChange({ pageIndex: index, pageSize: this.pageSize });
+    }
+  }
+
+  get pages(): { page: number }[] {
+    const total = this.maxPageIndex + 1;
+    const current = this.pageIndex;
+    const result: { page: number }[] = [];
+
+    if (total <= 9) {
+      for (let i = 0; i < total; i++) result.push({ page: i });
+    } else {
+      result.push({ page: 0 });
+      if (current > 3) result.push({ page: -1 });
+      const start = Math.max(1, current - 2);
+      const end = Math.min(total - 2, current + 2);
+      for (let i = start; i <= end; i++) result.push({ page: i });
+      if (current < total - 4) result.push({ page: -1 });
+      result.push({ page: total - 1 });
+    }
+
+    return result;
+  }
+
   navigateToRow(id: number, allData: T[]): boolean {
     const index = allData.findIndex(item => (item as any).id === id);
     if (index === -1) return false;
@@ -258,6 +274,21 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     this.pageIndex = page;
     this.updateDisplayData();
     this._highlightId = id;
+
+    setTimeout(() => {
+      const row = document.querySelector(`[data-id="${id}"]`);
+      const container = document.querySelector('mat-sidenav-content');
+      if (row) {
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const rowRect = row.getBoundingClientRect();
+          const top = container.scrollTop + rowRect.top - containerRect.top - 80;
+          container.scrollTo({ top, behavior: 'smooth' });
+        } else {
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100);
 
     setTimeout(() => {
       this._highlightId = null;

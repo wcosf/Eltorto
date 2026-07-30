@@ -59,13 +59,20 @@
   </div>
 
   <div class="paginator-bottom">
-    <mat-paginator
-      [length]="serverSide ? totalCount : filteredLength"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [pageSizeOptions]="config.pageSizeOptions || [25]"
-      (page)="onPageChange($event)"
-      showFirstLastButtons>
-    </mat-paginator>
+    <div class="page-numbers">
+      <ng-container *ngFor="let item of pages">
+        <button *ngIf="item.page === -1" class="page-ellipsis" disabled>...</button>
+        <button *ngIf="item.page !== -1"
+                class="page-btn"
+                [class.active]="item.page === pageIndex"
+                (click)="goToPage(item.page)">
+          {{ item.page + 1 }}
+        </button>
+      </ng-container>
+    </div>
+
+    <div class="page-info">
+      <span>{{ pageIndex * pageSize + 1 }}–{{ Math.min((pageIndex + 1) * pageSize, serverSide ? totalCount : filteredLength) }} из {{ serverSide ? totalCount : filteredLength }}</span>
+    </div>
   </div>
 </div>

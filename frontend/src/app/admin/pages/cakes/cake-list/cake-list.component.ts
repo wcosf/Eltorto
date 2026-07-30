@@ -534,10 +534,7 @@ export class CakeListComponent implements OnInit, OnDestroy {
   onRecentActionClick(action: RecentAction): void {
     if (action.type === 'create' || action.type === 'update') {
       const found = this.dataTable?.navigateToRow(action.entityId, this.cakes);
-      if (found) {
-        document.querySelector('.data-table-container')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
+      if (!found) {
         this.notification.warning('Торт не найден');
       }
     }

@@ -388,10 +388,7 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
   onRecentActionClick(action: RecentAction): void {
     if (action.type === 'create' || action.type === 'update') {
       const found = this.dataTable?.navigateToRow(action.entityId, this.filteredTestimonials);
-      if (found) {
-        document.querySelector('.data-table-container')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
+      if (!found) {
         this.notification.warning('Отзыв не найден');
       }
     }
