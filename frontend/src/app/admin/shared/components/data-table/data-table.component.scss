@@ -144,6 +144,21 @@
     }
   }
 
+  ::ng-deep {
+    .mat-mdc-cell,
+    .mat-mdc-header-cell {
+      text-align: center;
+    }
+
+    .mat-sort-header-container {
+      justify-content: center;
+    }
+
+    .mat-sort-header-content {
+      text-align: center;
+    }
+  }
+
   ::ng-deep .mat-sort-header-arrow {
     opacity: 1 !important;
   }

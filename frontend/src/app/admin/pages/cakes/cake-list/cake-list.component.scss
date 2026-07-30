@@ -40,7 +40,6 @@
   ::ng-deep .data-table-container {
     .mat-column-imageUrl {
       width: 90px;
-      text-align: center;
 
       .image-cell {
         cursor: pointer;
@@ -74,9 +73,15 @@
       text-align: right;
     }
 
+    .mat-column-description {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .mat-column-isFeatured {
       width: 100px;
-      text-align: center;
     }
   }
 }

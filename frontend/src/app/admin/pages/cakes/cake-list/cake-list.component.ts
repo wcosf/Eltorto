@@ -115,12 +115,7 @@ export class CakeListComponent implements OnInit, OnDestroy {
           sortable: false,
           format: (value, row) => this.getCategoryName(row.categorySlug)
         },
-        {
-          key: 'fillingId',
-          label: 'Начинка',
-          sortable: false,
-          format: (value, row) => this.getFillingName(row.fillingId)
-        },
+        { key: 'description', label: 'Описание', sortable: false },
         {
           key: 'isFeatured',
           label: 'Рекомендуемый',
