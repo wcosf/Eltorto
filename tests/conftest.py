@@ -17,6 +17,7 @@ def docker_setup():
     with open("infra/.env.test", "w") as f:
         f.write("DB_PASSWORD=test\n")
         f.write("JWT_SECRET=YourSecretKeyHereAtLeast32CharsLong!\n")
+        f.write("ADMIN_PASSWORD=test_admin_password\n")
     yield
     os.remove("infra/.env.test")
 
