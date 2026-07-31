@@ -2,17 +2,24 @@
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
+[EnableRateLimiting("CatalogPolicy")]
 public class CakesController : BaseApiController
 {
     private readonly ICakeService _cakeService;
+    private readonly IFileStorageService _fileStorage;
     private readonly ILogger<CakesController> _logger;
 
-    public CakesController(ICakeService cakeService, ILogger<CakesController> logger)
+    public CakesController(
+        ICakeService cakeService,
+        IFileStorageService fileStorage,
+        ILogger<CakesController> logger)
     {
         _cakeService = cakeService;
+        _fileStorage = fileStorage;
         _logger = logger;
     }
 
@@ -36,9 +43,10 @@ public class CakesController : BaseApiController
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 12,
         [FromQuery] string? category = null,
+        [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await _cakeService.GetPagedAsync(page, pageSize, category, cancellationToken);
+        var result = await _cakeService.GetPagedAsync(page, pageSize, category, search, cancellationToken);
         return Ok(result);
     }
 
@@ -156,5 +164,52 @@ public class CakesController : BaseApiController
         {
             return NotFound();
         }
+    }
+
+    /// <summary>
+    /// Upload image for cake
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(UploadResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        try
+        {
+            var fileName = await _fileStorage.SaveFileAsync(file, "cakes");
+            return Ok(new UploadResultDto { ImageUrl = fileName });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[FILEOPS] Error uploading cake image");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Delete image for cake
+    /// </summary>
+    [HttpDelete("{id:int}/image")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteImage(int id, CancellationToken cancellationToken)
+    {
+        var cake = await _cakeService.GetByIdAsync(id, cancellationToken);
+        if (cake == null)
+            return NotFound();
+
+        if (!string.IsNullOrEmpty(cake.ImageUrl))
+        {
+            await _fileStorage.DeleteFileAsync(cake.ImageUrl, "cakes", cancellationToken);
+            await _cakeService.UpdateImageUrlAsync(id, string.Empty, cancellationToken);
+        }
+
+        return NoContent();
     }
 }

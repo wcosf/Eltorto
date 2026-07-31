@@ -1,7 +1,10 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
 using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
@@ -22,17 +25,36 @@ public class AuthController : ControllerBase
     /// Authenticates a user and returns a JWT token.
     /// </summary>
     [HttpPost("login")]
+    [EnableRateLimiting("LoginPolicy")]
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         try
         {
-            var response = await _authService.LoginAsync(request);
-            return Ok(response);
+            var (response, refreshToken) = await _authService.LoginAsync(request);
+
+            SetRefreshTokenCookie(refreshToken, response.Expiration);
+            SetCsrfTokenCookie();
+
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogInformation(
+                "[AUTH] User {UserName} logged in successfully from IP {IP}",
+                request.UserName, ip);
+
+            return Ok(new
+            {
+                accessToken = response.AccessToken,
+                expiration = response.Expiration,
+                userName = response.UserName,
+                roles = response.Roles
+            });
         }
         catch (UnauthorizedAccessException)
         {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogWarning("[AUTH] Failed login attempt for user {UserName} from IP {IP}", request.UserName, ip);
+
             return Unauthorized(new { error = "Invalid credentials" });
         }
     }
@@ -41,49 +63,105 @@ public class AuthController : ControllerBase
     /// Registers a new user (customer) with role "Customer".
     /// </summary>
     [HttpPost("register")]
+    [EnableRateLimiting("RegisterPolicy")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
-            await _authService.RegisterAsync(request, "Customer");
+            var (succeeded, errors) = await _authService.RegisterAsync(request, "Customer");
+            if (!succeeded)
+            {
+                var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                _logger.LogWarning("[AUTH] Registration failed for user {UserName} (Email: {Email}) from IP {IP}: {Errors}",
+                    request.UserName, request.Email, ip, string.Join("; ", errors));
+
+                return BadRequest(new { error = "Registration failed. Please check your input." });
+            }
+
+            var regIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogInformation(
+                "[AUTH] User {UserName} (Email: {Email}) registered successfully from IP {IP}",
+                request.UserName, request.Email, regIp);
+
             return StatusCode(StatusCodes.Status201Created, new { message = "Customer registered successfully" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = ex.Message });
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogError(ex, "[AUTH] Unexpected error during registration for user {UserName} from IP {IP}",
+                request.UserName, ip);
+
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error." });
         }
     }
 
     /// <summary>
-    /// Refreshes the access token using a valid refresh token.
+    /// Refreshes the access token using a valid refresh token from cookie.
     /// </summary>
     [HttpPost("refresh")]
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [EnableRateLimiting("RefreshPolicy")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> Refresh()
     {
+        var refreshToken = Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            var noCookieIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogWarning("[AUTH] Refresh attempt without cookie from IP {IP}", noCookieIp);
+            return Unauthorized(new { error = "No refresh token" });
+        }
+
         try
         {
-            var response = await _authService.RefreshTokenAsync(request.RefreshToken);
-            return Ok(response);
+            var (response, newRefreshToken) = await _authService.RefreshTokenAsync(refreshToken);
+
+            SetRefreshTokenCookie(newRefreshToken, response.Expiration);
+            SetCsrfTokenCookie();
+
+            return Ok(new
+            {
+                accessToken = response.AccessToken,
+                expiration = response.Expiration,
+                userName = response.UserName,
+                roles = response.Roles
+            });
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            if (ex.Message.Contains("reuse"))
+                _logger.LogWarning("[AUTH] Possible token theft detected from IP {IP}. All user sessions have been revoked.", ip);
+            else
+                _logger.LogWarning("[AUTH] Invalid refresh token attempt from IP {IP}", ip);
+
             return Unauthorized(new { error = "Invalid or expired refresh token" });
         }
     }
 
     /// <summary>
-    ///  Logs out the user by revoking the provided refresh token.
+    /// Logs out the user by revoking the refresh token cookie.
     /// </summary>
     [HttpPost("logout")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> Logout()
     {
-        await _authService.RevokeRefreshTokenAsync(request.RefreshToken);
+        var refreshToken = Request.Cookies["refresh_token"];
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            await _authService.RevokeRefreshTokenAsync(refreshToken);
+        }
+
+        ClearAuthCookies();
+
+        var logoutUser = User.Identity?.Name ?? "unknown";
+        var logoutIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        _logger.LogInformation("[AUTH] User {UserName} logged out from IP {IP}", logoutUser, logoutIp);
+
         return NoContent();
     }
 
@@ -98,12 +176,126 @@ public class AuthController : ControllerBase
     {
         var userName = User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed: user not authenticated");
             return Unauthorized();
+        }
 
-        var result = await _authService.ChangePasswordAsync(userName, request);
-        if (!result)
-            return BadRequest(new { error = "Failed to change password" });
+        var (succeeded, errors) = await _authService.ChangePasswordAsync(userName, request);
+        if (!succeeded)
+            return BadRequest(new { error = string.Join("; ", errors) });
 
         return Ok(new { message = "Password changed successfully" });
+    }
+
+    /// <summary>
+    /// Changes the username for the currently authenticated user.
+    /// </summary>
+    [HttpPost("change-username")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ChangeUserName([FromBody] ChangeUserNameRequest request)
+    {
+        var userName = User.Identity?.Name;
+        if (string.IsNullOrEmpty(userName))
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user not authenticated");
+            return Unauthorized();
+        }
+
+        try
+        {
+            var (response, newRefreshToken) = await _authService.ChangeUserNameAsync(userName, request);
+
+            SetRefreshTokenCookie(newRefreshToken, response.Expiration);
+            SetCsrfTokenCookie();
+
+            return Ok(new
+            {
+                accessToken = response.AccessToken,
+                expiration = response.Expiration,
+                userName = response.UserName,
+                roles = response.Roles
+            });
+        }
+        catch (KeyNotFoundException)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user not found (requested by {User})", userName);
+            return NotFound(new { error = "User not found." });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: incorrect password for user {User}", userName);
+            return Unauthorized(new { error = "Invalid password." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {User}: {Error}", userName, ex.Message);
+            return Conflict(new { error = "Could not change username." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[AUTH] Unexpected error during ChangeUserName for user {User}", userName);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error." });
+        }
+    }
+
+    /// <summary>
+    /// Returns the current user's info based on the access token.
+    /// </summary>
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult GetCurrentUser()
+    {
+        var userName = User.Identity?.Name;
+        if (string.IsNullOrEmpty(userName))
+            return Unauthorized();
+
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
+
+        return Ok(new
+        {
+            userName,
+            roles
+        });
+    }
+
+    private void SetRefreshTokenCookie(string refreshToken, DateTime expiration)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Strict,
+            Path = "/",
+            Expires = expiration.AddDays(7)
+        };
+        Response.Cookies.Append("refresh_token", refreshToken, cookieOptions);
+    }
+
+    private void SetCsrfTokenCookie()
+    {
+        var csrfToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Strict,
+            Path = "/",
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
+        Response.Cookies.Append("XSRF-TOKEN", csrfToken, cookieOptions);
+    }
+
+    private void ClearAuthCookies()
+    {
+        Response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/" });
+        Response.Cookies.Delete("XSRF-TOKEN", new CookieOptions { Path = "/" });
     }
 }

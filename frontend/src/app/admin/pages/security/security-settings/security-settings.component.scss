@@ -1,0 +1,85 @@
+@use '../../../../../styles.scss' as *;
+
+.security-settings-page {
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-family: $font-serif;
+      color: $brown-dark;
+      margin: 0;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  mat-card {
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+
+    form {
+      width: 100%;
+      display: block;
+    }
+
+    .full-width {
+      width: 100%;
+
+      .mat-mdc-form-field {
+        width: 100% !important;
+      }
+
+      .mat-mdc-text-field-wrapper {
+        width: 100% !important;
+      }
+
+      .mat-mdc-form-field-flex {
+        width: 100% !important;
+      }
+
+      .mat-mdc-form-field-infix {
+        width: 100% !important;
+      }
+
+      .mat-mdc-form-field-subscript-wrapper {
+        overflow: visible !important;
+        min-height: 40px !important;
+      }
+    }
+
+    mat-hint {
+      white-space: normal;
+      line-height: 1.4;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: $brown-dark;
+      margin: 0 0 16px 0;
+    }
+
+    .form-error {
+      font-size: 12px;
+      margin: -4px 0 8px 0;
+      display: block;
+    }
+
+    .action-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 180px;
+      }
+    }
+  }
+}

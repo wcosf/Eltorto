@@ -26,3 +26,8 @@ public class UpdateFillingDto : CreateFillingDto
 {
     public int Id { get; set; }
 }
+
+public class UploadResultDto
+{
+    public string ImageUrl { get; set; } = string.Empty;
+}

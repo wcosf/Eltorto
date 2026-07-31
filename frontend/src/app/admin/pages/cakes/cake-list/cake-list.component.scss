@@ -1,0 +1,89 @@
+@use '../../../../../styles.scss' as *;
+
+.cake-list-page {
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-family: $font-serif;
+      color: $brown-dark;
+      margin: 0;
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .search-wrapper {
+    margin-bottom: 1rem;
+    max-width: 600px;
+
+    .search-field {
+      width: 100%;
+
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none !important;
+      }
+    }
+  }
+
+  .action-wrapper {
+    margin-bottom: 1.5rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  ::ng-deep .data-table-container {
+    .mat-column-imageUrl {
+      width: 90px;
+
+      .image-cell {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 120px;
+
+        img.thumbnail {
+          width: 100px;
+          height: 100px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 1px solid #eee;
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+
+        .no-image {
+          color: #bbb;
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .mat-column-actions {
+      width: 120px;
+      text-align: right;
+    }
+
+    .mat-column-description {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mat-column-isFeatured {
+      width: 100px;
+    }
+  }
+}
+
+

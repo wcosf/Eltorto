@@ -36,9 +36,9 @@ public class TestimonialsControllerTests
     [Fact]
     public async Task Approve_NotFound_404()
     {
-        _serviceMock.Setup(s => s.ApproveAsync(1, It.IsAny<CancellationToken>()))
+        _serviceMock.Setup(s => s.ApproveAsync(1, It.IsAny<ApproveTestimonialDto>(), It.IsAny<CancellationToken>()))
                    .ThrowsAsync(new KeyNotFoundException());
-        var result = await _controller.Approve(1, CancellationToken.None);
+        var result = await _controller.Approve(1, new ApproveTestimonialDto(), CancellationToken.None);
         Assert.IsType<NotFoundResult>(result);
     }
 

@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<ISliderService, SliderService>();
         services.AddScoped<IContactSettingsService, ContactSettingsService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IFileStorageService, FileStorageService>();
 
         return services;
     }

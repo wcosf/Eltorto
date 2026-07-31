@@ -8,8 +8,9 @@ public class PagesControllerTests
     public PagesControllerTests()
     {
         _serviceMock = new Mock<IPageService>();
+        var fileStorageMock = new Mock<IFileStorageService>();
         var loggerMock = new Mock<ILogger<PagesController>>();
-        _controller = new PagesController(_serviceMock.Object, loggerMock.Object);
+        _controller = new PagesController(_serviceMock.Object, fileStorageMock.Object, loggerMock.Object);
     }
 
     [Fact]

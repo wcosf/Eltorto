@@ -4,13 +4,14 @@ namespace Eltorto.Application.Interfaces.Services;
 
 public interface IAuthService
 {
-    Task<LoginResponse> LoginAsync(LoginRequest request);
-    Task<bool> RegisterAsync(RegisterRequest request, string role = "Admin");
-    Task<bool> ChangePasswordAsync(string userName, ChangePasswordRequest request);
+    Task<(LoginResponse Response, string RefreshToken)> LoginAsync(LoginRequest request);
+    Task<(bool Succeeded, string[] Errors)> RegisterAsync(RegisterRequest request, string role = "Admin");
+    Task<(bool Succeeded, string[] Errors)> ChangePasswordAsync(string userName, ChangePasswordRequest request);
+    Task<(LoginResponse Response, string RefreshToken)> ChangeUserNameAsync(string userName, ChangeUserNameRequest request);
     Task<bool> CreateAdminIfNotExistsAsync();
     Task<bool> CreateRoleIfNotExistsAsync(string roleName);
 
-    Task<LoginResponse> RefreshTokenAsync(string refreshToken);
+    Task<(LoginResponse Response, string RefreshToken)> RefreshTokenAsync(string refreshToken);
     Task<bool> RevokeRefreshTokenAsync(string refreshToken);
     Task RevokeAllUserTokensAsync(string userId);
 }

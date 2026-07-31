@@ -12,6 +12,6 @@ public interface ITestimonialService
     Task<TestimonialDto> CreateAsync(CreateTestimonialDto createDto, CancellationToken cancellationToken = default);
     Task<TestimonialDto> UpdateAsync(UpdateTestimonialDto updateDto, CancellationToken cancellationToken = default);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
-    Task<TestimonialDto> ApproveAsync(int id, CancellationToken cancellationToken = default);
+    Task<TestimonialDto> ApproveAsync(int id, ApproveTestimonialDto approveDto, CancellationToken cancellationToken = default);
     Task<TestimonialDto> AddResponseAsync(int id, string response, CancellationToken cancellationToken = default);
 }

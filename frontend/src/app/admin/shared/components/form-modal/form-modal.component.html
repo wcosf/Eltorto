@@ -1,0 +1,97 @@
+<h2 mat-dialog-title>{{ config.title }}</h2>
+
+<mat-dialog-content>
+  <div class="required-legend"><span class="required-star">*</span> — обязательные поля</div>
+  <form [formGroup]="form" class="form-grid">
+    <div *ngFor="let field of fields" class="form-field" [class.hidden]="field.hidden">
+      <!-- Текстовое поле -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [type]="field.type" [formControlName]="field.key"
+               [placeholder]="field.placeholder || ''"
+               [required]="isRequired(field)">
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
+      </mat-form-field>
+
+      <!-- Текстовая область -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'textarea'">
+        <mat-label>{{ field.label }}</mat-label>
+        <textarea matInput [formControlName]="field.key"
+                  [rows]="field.rows || 4"
+                  [placeholder]="field.placeholder || ''"
+                  [required]="isRequired(field)"></textarea>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
+      </mat-form-field>
+
+      <!-- Выпадающий список -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'select'">
+        <mat-label>{{ field.label }}</mat-label>
+        <mat-select [formControlName]="field.key" [required]="isRequired(field)">
+          <mat-option *ngFor="let option of field.options" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
+      </mat-form-field>
+
+      <!-- Чекбокс -->
+      <div class="checkbox-wrapper" *ngIf="field.type === 'checkbox'">
+        <mat-checkbox [formControlName]="field.key" [required]="isRequired(field)">
+          {{ field.label }}
+        </mat-checkbox>
+      </div>
+
+      <!-- Дата -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'date'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [matDatepicker]="picker" [formControlName]="field.key">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
+      </mat-form-field>
+
+      <!-- Автодополнение -->
+      <mat-form-field appearance="fill" *ngIf="field.type === 'autocomplete'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [formControlName]="field.key"
+               [matAutocomplete]="auto"
+               [placeholder]="field.placeholder || ''"
+               [required]="isRequired(field)">
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="getDisplayFn(field)">
+          <mat-option *ngFor="let opt of getFilteredOptions(field)" [value]="opt.value">
+            <img *ngIf="opt.thumbUrl" [src]="opt.thumbUrl" class="option-thumb" alt="">
+            {{ opt.label }}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-spinner *ngIf="asyncLoadingMap.get(field.key)" diameter="20" class="async-loading-spinner"></mat-spinner>
+        <mat-error *ngIf="getControlErrorMessage(field) as errorMsg">{{ errorMsg }}</mat-error>
+      </mat-form-field>
+
+      <div *ngIf="field.type === 'autocomplete' && field.showImagePreview && getSelectedOption(field)" class="image-preview">
+        <img *ngIf="getSelectedOption(field)?.thumbUrl" [src]="getSelectedOption(field)?.thumbUrl" class="preview-image" alt="">
+        <span class="preview-label">{{ getSelectedOption(field)?.label }}</span>
+      </div>
+
+      <!-- Загрузка файла -->
+      <div *ngIf="field.type === 'file'" class="file-upload-wrapper">
+        <label>{{ field.label }}</label>
+        <input type="file" [accept]="field.fileAccept" (change)="onFileSelected($event, field.key)">
+      </div>
+
+      <div *ngIf="field.hint" class="field-hint">{{ field.hint }}</div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="loading">
+    {{ config.cancelLabel || 'Отмена' }}
+  </button>
+   <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading">
+    <mat-icon *ngIf="loading"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+    {{ config.submitLabel || 'Сохранить' }}
+  </button>
+  <div *ngIf="error" class="form-error">
+    {{ error }}
+  </div>
+</mat-dialog-actions>

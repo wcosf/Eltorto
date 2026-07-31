@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
@@ -18,20 +19,23 @@ public class AuthService : IAuthService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthService(
        UserManager<AppUser> userManager,
        RoleManager<IdentityRole> roleManager,
        IConfiguration configuration,
-       IUnitOfWork unitOfWork)
+       IUnitOfWork unitOfWork,
+       ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request)
+    public async Task<(LoginResponse Response, string RefreshToken)> LoginAsync(LoginRequest request)
     {
         var user = await _userManager.FindByNameAsync(request.UserName);
         if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
@@ -41,21 +45,34 @@ public class AuthService : IAuthService
         var accessToken = GenerateJwtToken(user, roles);
         var refreshToken = await GenerateAndStoreRefreshTokenAsync(user);
 
-        return new LoginResponse
+        var response = new LoginResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken.Token,
-            Expiration = DateTime.UtcNow.AddHours(1),
+            Expiration = DateTime.UtcNow.AddMinutes(15),
             UserName = user.UserName!,
             Roles = roles.ToArray()
         };
+
+        return (response, refreshToken.Token);
     }
 
-    public async Task<LoginResponse> RefreshTokenAsync(string refreshToken)
+    public async Task<(LoginResponse Response, string RefreshToken)> RefreshTokenAsync(string refreshToken)
     {
         var storedToken = await _unitOfWork.RefreshTokens.GetByTokenAsync(refreshToken);
-        if (storedToken == null || storedToken.IsRevoked || storedToken.IsUsed || storedToken.ExpiresAt < DateTime.UtcNow)
+
+        if (storedToken == null || storedToken.ExpiresAt < DateTime.UtcNow)
             throw new UnauthorizedAccessException("Invalid or expired refresh token");
+
+        if (storedToken.IsRevoked || storedToken.IsUsed)
+        {
+            var status = storedToken.IsRevoked ? "revoked" : "already used";
+            _logger.LogWarning(
+                "[AUTH] Possible refresh token theft detected for user {UserId}. Token {TokenId} was {Status}. Revoking all sessions.",
+                storedToken.UserId, storedToken.Id, status);
+
+            await RevokeAllUserTokensAsync(storedToken.UserId);
+            throw new UnauthorizedAccessException("Refresh token reuse detected");
+        }
 
         var user = storedToken.User;
         var roles = await _userManager.GetRolesAsync(user);
@@ -67,14 +84,15 @@ public class AuthService : IAuthService
         var newAccessToken = GenerateJwtToken(user, roles);
         var newRefreshToken = await GenerateAndStoreRefreshTokenAsync(user, storedToken.DeviceInfo);
 
-        return new LoginResponse
+        var response = new LoginResponse
         {
             AccessToken = newAccessToken,
-            RefreshToken = newRefreshToken.Token,
-            Expiration = DateTime.UtcNow.AddHours(1),
+            Expiration = DateTime.UtcNow.AddMinutes(15),
             UserName = user.UserName!,
             Roles = roles.ToArray()
         };
+
+        return (response, newRefreshToken.Token);
     }
 
     public async Task<bool> RevokeRefreshTokenAsync(string refreshToken)
@@ -92,8 +110,9 @@ public class AuthService : IAuthService
     {
         await _unitOfWork.RefreshTokens.RevokeAllUserTokensAsync(userId);
         await _unitOfWork.SaveChangesAsync();
+        _logger.LogWarning("[AUTH] All sessions revoked for user {UserId}", userId);
     }
-    public async Task<bool> RegisterAsync(RegisterRequest request, string role = "Customer")
+    public async Task<(bool Succeeded, string[] Errors)> RegisterAsync(RegisterRequest request, string role = "Customer")
     {
         var user = new AppUser
         {
@@ -104,22 +123,84 @@ public class AuthService : IAuthService
 
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
-            throw new Exception($"Registration error: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            return (false, result.Errors.Select(e => e.Description).ToArray());
 
         if (!await _roleManager.RoleExistsAsync(role))
             await _roleManager.CreateAsync(new IdentityRole(role));
 
         await _userManager.AddToRoleAsync(user, role);
-        return true;
+        return (true, []);
     }
 
-    public async Task<bool> ChangePasswordAsync(string userName, ChangePasswordRequest request)
+    public async Task<(bool Succeeded, string[] Errors)> ChangePasswordAsync(string userName, ChangePasswordRequest request)
     {
         var user = await _userManager.FindByNameAsync(userName);
-        if (user == null) return false;
+        if (user == null)
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed: user {UserName} not found", userName);
+            return (false, ["Пользователь не найден"]);
+        }
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-        return result.Succeeded;
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning("[AUTH] ChangePassword failed for user {UserName}: {Errors}",
+                userName, string.Join("; ", result.Errors.Select(e => e.Description)));
+            return (false, result.Errors.Select(e => e.Description).ToArray());
+        }
+
+        _logger.LogInformation("[AUTH] Password changed for user {UserName}", userName);
+        return (true, []);
+    }
+
+    public async Task<(LoginResponse Response, string RefreshToken)> ChangeUserNameAsync(string userName, ChangeUserNameRequest request)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed: user {UserName} not found", userName);
+            throw new KeyNotFoundException("Пользователь не найден");
+        }
+
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: incorrect password", userName);
+            throw new UnauthorizedAccessException("Неверный пароль");
+        }
+
+        var existingUser = await _userManager.FindByNameAsync(request.NewUserName);
+        if (existingUser != null && existingUser.Id != user.Id)
+        {
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: new username {NewUserName} already taken",
+                userName, request.NewUserName);
+            throw new InvalidOperationException("Логин уже занят");
+        }
+
+        var result = await _userManager.SetUserNameAsync(user, request.NewUserName);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            _logger.LogWarning("[AUTH] ChangeUserName failed for user {UserName}: {Errors}", userName, errors);
+            throw new InvalidOperationException(errors);
+        }
+
+        await _userManager.UpdateNormalizedUserNameAsync(user);
+
+        _logger.LogInformation("[AUTH] User {OldUserName} changed username to {NewUserName}", userName, request.NewUserName);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var accessToken = GenerateJwtToken(user, roles);
+        var refreshToken = await GenerateAndStoreRefreshTokenAsync(user);
+
+        var response = new LoginResponse
+        {
+            AccessToken = accessToken,
+            Expiration = DateTime.UtcNow.AddMinutes(15),
+            UserName = user.UserName!,
+            Roles = roles.ToArray()
+        };
+
+        return (response, refreshToken.Token);
     }
 
     public async Task<bool> CreateAdminIfNotExistsAsync()
@@ -127,18 +208,20 @@ public class AuthService : IAuthService
         await CreateRoleIfNotExistsAsync("Admin");
         await CreateRoleIfNotExistsAsync("Customer");
 
-        var adminUser = await _userManager.FindByNameAsync("admin");
-        if (adminUser != null) return false;
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        if (admins.Count != 0) return false;
 
         var registerRequest = new RegisterRequest
         {
             UserName = "admin",
             Email = "admin@eltorto.ru",
-            Password = "Admin123!",
+            Password = _configuration["AdminSettings:Password"] ?? "Admin123!",
             FullName = "Administrator"
         };
 
-        await RegisterAsync(registerRequest, "Admin");
+        var (succeeded, errors) = await RegisterAsync(registerRequest, "Admin");
+        if (!succeeded)
+            throw new InvalidOperationException($"Failed to create admin: {string.Join("; ", errors)}");
         return true;
     }
 
@@ -173,7 +256,7 @@ public class AuthService : IAuthService
             issuer: jwtSettings["Issuer"],
             audience: jwtSettings["Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddMinutes(15),
             signingCredentials: signingCredentials
         );
 

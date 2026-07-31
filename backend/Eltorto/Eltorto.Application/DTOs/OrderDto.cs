@@ -9,6 +9,7 @@ public class OrderDto
     public string? CustomerEmail { get; set; }
     public int? CakeId { get; set; }
     public string? CakeName { get; set; }
+    public string? CakeImageUrl { get; set; }
     public string? CustomCakeDescription { get; set; }
     public int? FillingId { get; set; }
     public string? FillingName { get; set; }

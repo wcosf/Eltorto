@@ -2,6 +2,7 @@
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
@@ -74,6 +75,7 @@ public class TestimonialsController : BaseApiController
 
     /// <summary>Creates a new testimonial.</summary>
     [HttpPost]
+    [EnableRateLimiting("TestimonialPolicy")]
     [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -109,11 +111,11 @@ public class TestimonialsController : BaseApiController
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Approve(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Approve(int id, [FromBody] ApproveTestimonialDto approveDto, CancellationToken cancellationToken)
     {
         try
         {
-            var testimonial = await _testimonialService.ApproveAsync(id, cancellationToken);
+            var testimonial = await _testimonialService.ApproveAsync(id, approveDto, cancellationToken);
             return Ok(testimonial);
         }
         catch (KeyNotFoundException)

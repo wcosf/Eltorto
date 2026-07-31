@@ -2,17 +2,24 @@
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Eltorto.API.Controllers;
 
+[EnableRateLimiting("CatalogPolicy")]
 public class SliderController : BaseApiController
 {
     private readonly ISliderService _sliderService;
+    private readonly IFileStorageService _fileStorage;
     private readonly ILogger<SliderController> _logger;
 
-    public SliderController(ISliderService sliderService, ILogger<SliderController> logger)
+    public SliderController(
+        ISliderService sliderService,
+        IFileStorageService fileStorage,
+        ILogger<SliderController> logger)
     {
         _sliderService = sliderService;
+        _fileStorage = fileStorage;
         _logger = logger;
     }
 
@@ -95,5 +102,30 @@ public class SliderController : BaseApiController
     {
         await _sliderService.ReorderAsync(orderedIds, cancellationToken);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Upload image for slider
+    /// </summary>
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(UploadResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        try
+        {
+            var fileName = await _fileStorage.SaveFileAsync(file, "slider");
+            return Ok(new UploadResultDto { ImageUrl = fileName });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[FILEOPS] Error uploading slider image");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
     }
 }

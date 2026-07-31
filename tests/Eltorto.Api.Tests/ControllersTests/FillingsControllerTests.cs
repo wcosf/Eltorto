@@ -8,8 +8,9 @@ public class FillingsControllerTests
     public FillingsControllerTests()
     {
         _fillingServiceMock = new Mock<IFillingService>();
+        var fileStorageMock = new Mock<IFileStorageService>();
         Mock<ILogger<FillingsController>> loggerMock = new();
-        _controller = new FillingsController(_fillingServiceMock.Object, loggerMock.Object);
+        _controller = new FillingsController(_fillingServiceMock.Object, fileStorageMock.Object, loggerMock.Object);
     }
 
     [Fact]

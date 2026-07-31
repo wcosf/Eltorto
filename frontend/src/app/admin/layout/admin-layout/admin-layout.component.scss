@@ -1,0 +1,56 @@
+$primary: #b34766;        // основной цвет тулбара и акцентов
+$dark: #5d2442;           // для текста и тёмных элементов
+$light-bg: #feeeed;       // фон сайдбара и контента
+$border: #f4b7c9;         // цвет границ и разделителей
+
+.admin-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: $primary;
+  color: white;
+
+  .spacer {
+    flex: 1 1 auto;
+  }
+
+  .admin-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+}
+
+.admin-container {
+  height: calc(100vh - 64px);
+}
+
+.admin-sidenav {
+  width: 250px;
+  background: $light-bg;
+  border-right: 1px solid $border;
+
+  .active-link {
+    background: rgba($primary, 0.1);
+    border-left: 3px solid $primary;
+  }
+}
+
+.admin-content {
+  padding: 24px;
+  background: $light-bg;
+  min-height: 100%;
+}
+
+.admin-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: $primary;
+  color: white;
+
+  .admin-title {
+    margin: 0 auto;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+}

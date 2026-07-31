@@ -1,0 +1,94 @@
+@use '../../../../../styles.scss' as *;
+
+.order-list-page {
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-family: $font-serif;
+      color: $brown-dark;
+      margin: 0;
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .action-wrapper {
+    margin-bottom: 1.5rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .status-filters {
+    margin-bottom: 1.5rem;
+
+    .status-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+
+  .search-wrapper {
+    margin-bottom: 1rem;
+    max-width: 600px;
+
+    .search-field {
+      width: 100%;
+
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none !important;
+      }
+    }
+  }
+
+  ::ng-deep .data-table-container {
+    th.mat-header-cell,
+    td.mat-cell {
+      text-align: center;
+    }
+
+    .mat-column-id {
+      width: 80px;
+    }
+
+    .mat-column-status {
+      width: 140px;
+    }
+
+    .cake-cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+      gap: 0.5rem;
+      cursor: pointer;
+
+      .cake-thumb {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        flex-shrink: 0;
+        transition: transform 0.2s;
+
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+
+      span {
+        text-align: center;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+}

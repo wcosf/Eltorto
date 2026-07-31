@@ -8,8 +8,9 @@ public class CakesControllerTests
     public CakesControllerTests()
     {
         _cakeServiceMock = new Mock<ICakeService>();
+        var fileStorageMock = new Mock<IFileStorageService>();
         Mock<ILogger<CakesController>> loggerMock = new();
-        _controller = new CakesController(_cakeServiceMock.Object, loggerMock.Object);
+        _controller = new CakesController(_cakeServiceMock.Object, fileStorageMock.Object, loggerMock.Object);
     }
 
     [Fact]
@@ -35,10 +36,10 @@ public class CakesControllerTests
             PageSize = 12,
             TotalCount = 1
         };
-        _cakeServiceMock.Setup(s => s.GetPagedAsync(1, 12, null, It.IsAny<CancellationToken>()))
+        _cakeServiceMock.Setup(s => s.GetPagedAsync(1, 12, null, It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                        .ReturnsAsync(paged);
 
-        var result = await _controller.GetPaged(1, 12, null, CancellationToken.None);
+        var result = await _controller.GetPaged(1, 12, null, null, CancellationToken.None);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(paged, okResult.Value);

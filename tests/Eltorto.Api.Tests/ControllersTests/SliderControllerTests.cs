@@ -8,8 +8,9 @@ public class SliderControllerTests
     public SliderControllerTests()
     {
         _sliderServiceMock = new Mock<ISliderService>();
+        var fileStorageMock = new Mock<IFileStorageService>();
         Mock<ILogger<SliderController>> loggerMock = new();
-        _controller = new SliderController(_sliderServiceMock.Object, loggerMock.Object);
+        _controller = new SliderController(_sliderServiceMock.Object, fileStorageMock.Object, loggerMock.Object);
     }
 
     [Fact]

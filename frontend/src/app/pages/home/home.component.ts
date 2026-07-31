@@ -18,13 +18,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   isLoading = true;
   error: string | null = null;
 
-  imagePaths = {
-    portfolio: '/images/portfolio/',
-    fillings: '/images/fillings/',
-    placeholder: '/images/placeholder-cake.jpg'
-  };
+  placeholderImage = '/images/placeholder-cake.jpg';
 
-  constructor(private apiService: ApiService) { }
+  constructor(public apiService: ApiService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -79,29 +75,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   getCakeImageUrl(cake: Cake): string {
-    if (cake.imageUrl) {
-      if (cake.imageUrl.startsWith('http') || cake.imageUrl.startsWith('/')) {
-        return cake.imageUrl;
-      }
-      return `/images/portfolio/${cake.imageUrl}`;
-    }
-    if (cake.thumbnailUrl) {
-      if (cake.thumbnailUrl.startsWith('http') || cake.thumbnailUrl.startsWith('/')) {
-        return cake.thumbnailUrl;
-      }
-      return `/images/portfolio/${cake.thumbnailUrl}`;
-    }
-    return this.imagePaths.placeholder;
+    return this.apiService.getCakeImageUrl(cake.imageUrl);
   }
 
   getFillingImageUrl(imageName: string): string {
-    if (!imageName) {
-      return this.imagePaths.placeholder;
-    }
-    return `${this.imagePaths.fillings}${imageName}`;
+    return this.apiService.getFillingImageUrl(imageName);
   }
 
   handleImageError(event: any): void {
-    event.target.src = this.imagePaths.placeholder;
+    if (event.target.src !== this.placeholderImage) {
+      event.target.src = this.placeholderImage;
+      event.target.onerror = null;
+    }
   }
 }

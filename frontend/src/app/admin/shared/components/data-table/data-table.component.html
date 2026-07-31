@@ -1,0 +1,78 @@
+<div class="data-table-container">
+
+  <!-- Таблица -->
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)" *ngIf="!loading">
+      <!-- Динамические колонки -->
+      <ng-container *ngFor="let column of config.columns" [matColumnDef]="column.key" [sticky]="column.sticky">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!column.sortable">
+          {{ column.label }}
+        </th>
+        <td mat-cell *matCellDef="let row" [class]="column.cssClass">
+          <ng-container *ngIf="columnTemplates[column.key]; else defaultCell">
+            <ng-container *ngTemplateOutlet="columnTemplates[column.key]; context: { $implicit: row }"></ng-container>
+          </ng-container>
+          <ng-template #defaultCell>
+            {{ getColumnValue(row, column) }}
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Колонка действий -->
+      <ng-container matColumnDef="actions" *ngIf="config.actions?.length">
+        <th mat-header-cell *matHeaderCellDef>Действия</th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngFor="let action of config.actions; let i = index">
+            <button mat-icon-button
+                    [color]="action.color || 'primary'"
+                    (click)="onAction(action, row)"
+                    [disabled]="action.condition && !action.condition(row)"
+                    [ngClass]="action.cssClass"
+                    matTooltip="{{ action.label }}">
+              <mat-icon>{{ action.icon || 'more_vert' }}</mat-icon>
+            </button>
+            <span class="actions-divider" *ngIf="showDivider(i)"></span>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [attr.data-id]="row.id" [class.highlight-row]="row.id === _highlightId"></tr>
+    </table>
+
+    <!-- Загрузка -->
+    <div class="loading-shade" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div class="empty-state" *ngIf="!loading && dataSource.filteredData.length === 0 && dataSource.data.length === 0">
+      <mat-icon>inbox</mat-icon>
+      <p>Нет данных</p>
+    </div>
+
+    <!-- Пустой результат поиска -->
+    <div class="empty-state" *ngIf="!loading && dataSource.filteredData.length === 0 && dataSource.data.length > 0 && filterValue">
+      <mat-icon>search_off</mat-icon>
+      <p>Ничего не найдено по запросу "{{ filterValue }}"</p>
+    </div>
+  </div>
+
+  <div class="paginator-bottom">
+    <div class="page-numbers">
+      <ng-container *ngFor="let item of pages">
+        <button *ngIf="item.page === -1" class="page-ellipsis" disabled>...</button>
+        <button *ngIf="item.page !== -1"
+                class="page-btn"
+                [class.active]="item.page === pageIndex"
+                (click)="goToPage(item.page)">
+          {{ item.page + 1 }}
+        </button>
+      </ng-container>
+    </div>
+
+    <div class="page-info">
+      <span>{{ pageIndex * pageSize + 1 }}–{{ Math.min((pageIndex + 1) * pageSize, serverSide ? totalCount : filteredLength) }} из {{ serverSide ? totalCount : filteredLength }}</span>
+    </div>
+  </div>
+</div>

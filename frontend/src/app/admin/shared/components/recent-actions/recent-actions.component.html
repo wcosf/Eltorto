@@ -1,0 +1,16 @@
+<div class="recent-actions" *ngIf="actions.length > 0">
+  <h4 class="recent-title">Последние действия</h4>
+  <div class="action-list">
+    <div *ngFor="let action of actions" class="action-item" (click)="onActionClick(action)" [class.clickable]="action.link">
+      <span class="action-icon" [class]="action.type">
+        <i class="bi" [class.bi-plus-circle]="action.type === 'create'"
+                      [class.bi-pencil-square]="action.type === 'update'"
+                      [class.bi-trash]="action.type === 'delete'"></i>
+      </span>
+      <span class="action-message">
+        <span [innerHTML]="getActionMessage(action)"></span>
+      </span>
+      <span class="action-time">{{ action.timestamp | date:'HH:mm' }}</span>
+    </div>
+  </div>
+</div>

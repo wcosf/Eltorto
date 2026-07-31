@@ -1,7 +1,9 @@
-import { Component, HostListener, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,16 +12,23 @@ import { filter } from 'rxjs/operators';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   isScrolled = false;
   isMenuOpen = false;
+  isAdmin = false;
+  private authSubscription: Subscription | null = null;
 
   constructor(
     private router: Router,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(() => {
+      this.isAdmin = this.authService.isAuthenticated() && this.authService.isAdmin();
+    });
+
     if (isPlatformBrowser(this.platformId)) {
       window.addEventListener('scroll', this.onWindowScroll.bind(this));
 
@@ -60,9 +69,16 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
+    this.authSubscription?.unsubscribe();
     if (isPlatformBrowser(this.platformId)) {
       window.removeEventListener('scroll', this.onWindowScroll.bind(this));
       document.body.style.overflow = '';
     }
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.closeMenu();
+    this.router.navigate(['/']);
   }
 }

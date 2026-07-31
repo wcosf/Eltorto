@@ -100,7 +100,7 @@ public class TestimonialService : ITestimonialService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TestimonialDto> ApproveAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<TestimonialDto> ApproveAsync(int id, ApproveTestimonialDto approveDto, CancellationToken cancellationToken = default)
     {
         var testimonial = await _unitOfWork.Testimonials.GetByIdAsync(id, cancellationToken);
         if (testimonial == null)
@@ -108,7 +108,7 @@ public class TestimonialService : ITestimonialService
             throw new KeyNotFoundException($"Testimonial with id {id} not found");
         }
 
-        testimonial.IsApproved = true;
+        testimonial.IsApproved = approveDto.IsApproved;
         await _unitOfWork.Testimonials.UpdateAsync(testimonial, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

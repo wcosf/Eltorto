@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>Заказ #{{ order.id }}</h2>
+<mat-dialog-content>
+  <div class="detail-section">
+    <app-status-badge [status]="statusBadgeMap[order.status]" [label]="statusLabels[order.status]"></app-status-badge>
+  </div>
+
+  <div class="detail-section">
+    <h3>Информация о заказчике</h3>
+    <div class="detail-row"><span class="label">Имя:</span><span>{{ order.customerName }}</span></div>
+    <div class="detail-row"><span class="label">Телефон:</span><span>{{ order.customerPhone }}</span></div>
+    <div class="detail-row" *ngIf="order.customerEmail"><span class="label">Email:</span><span>{{ order.customerEmail }}</span></div>
+  </div>
+
+  <div class="detail-section">
+    <h3>Информация о заказе</h3>
+    <div class="detail-row"><span class="label">Дата создания:</span><span>{{ formatDate(order.createdAt) }}</span></div>
+    <div class="detail-row">
+      <span class="label">Торт/дизайн:</span>
+      <span class="cake-display">
+        <img *ngIf="order.cakeImageUrl" [src]="getCakeImageUrl(order.cakeImageUrl)"
+             class="cake-image" alt="" (click)="openCakePreview()" title="Увеличить">
+        <img *ngIf="!order.cakeImageUrl && getCakeImageFallback(order.cakeId)"
+             [src]="getCakeImageFallback(order.cakeId)"
+             class="cake-image" alt="" (click)="openCakePreview()" title="Увеличить">
+        {{ order.cakeName || 'Свой дизайн' }}
+      </span>
+    </div>
+    <div class="detail-row" *ngIf="order.customCakeDescription">
+      <span class="label">Описание дизайна:</span>
+      <span class="multiline">{{ order.customCakeDescription }}</span>
+    </div>
+    <div class="detail-row" *ngIf="order.fillingName"><span class="label">Начинка:</span><span>{{ order.fillingName }}</span></div>
+    <div class="detail-row" *ngIf="order.weight"><span class="label">Вес:</span><span>{{ order.weight }} кг</span></div>
+  </div>
+
+  <div class="detail-section" *ngIf="order.deliveryDate || order.deliveryAddress">
+    <h3>Доставка</h3>
+    <div class="detail-row" *ngIf="order.deliveryDate"><span class="label">Дата доставки:</span><span>{{ formatDate(order.deliveryDate) }}</span></div>
+    <div class="detail-row" *ngIf="order.deliveryAddress"><span class="label">Адрес:</span><span>{{ order.deliveryAddress }}</span></div>
+  </div>
+
+  <div class="detail-section" *ngIf="order.comment">
+    <h3>Комментарий</h3>
+    <p class="multiline">{{ order.comment }}</p>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">Закрыть</button>
+</mat-dialog-actions>
