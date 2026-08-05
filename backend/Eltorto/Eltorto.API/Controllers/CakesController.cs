@@ -84,6 +84,18 @@ public class CakesController : BaseApiController
     }
 
     /// <summary>
+    /// Get next cake name suggestion (for admins)
+    /// </summary>
+    [HttpGet("next-name")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNextName(CancellationToken cancellationToken)
+    {
+        var name = await _cakeService.GetNextCakeNameAsync(cancellationToken);
+        return Ok(new { name });
+    }
+
+    /// <summary>
     /// Get cake by id
     /// </summary>
     [HttpGet("{id:int}")]

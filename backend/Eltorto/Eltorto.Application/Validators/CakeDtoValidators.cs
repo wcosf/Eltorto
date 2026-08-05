@@ -12,8 +12,8 @@ public class CreateCakeDtoValidator : AbstractValidator<CreateCakeDto>
             .MaximumLength(100).WithMessage("Название не должно превышать 100 символов");
 
         RuleFor(x => x.ImageUrl)
-            .NotEmpty().WithMessage("URL изображения обязателен")
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
+            .When(x => !string.IsNullOrEmpty(x.ImageUrl));
 
         RuleFor(x => x.ThumbnailUrl)
             .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
@@ -49,8 +49,8 @@ public class UpdateCakeDtoValidator : AbstractValidator<UpdateCakeDto>
             .MaximumLength(100).WithMessage("Название не должно превышать 100 символов");
 
         RuleFor(x => x.ImageUrl)
-            .NotEmpty().WithMessage("URL изображения обязателен")
-            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");
+            .MaximumLength(500).WithMessage("URL не должен превышать 500 символов")
+            .When(x => !string.IsNullOrEmpty(x.ImageUrl));
 
         RuleFor(x => x.ThumbnailUrl)
             .MaximumLength(500).WithMessage("URL не должен превышать 500 символов");

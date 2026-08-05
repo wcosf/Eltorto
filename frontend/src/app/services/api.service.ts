@@ -298,6 +298,10 @@ export class ApiService {
 
   // ===== CAKES CRUD =====
 
+  getNextCakeName(): Observable<{ name: string }> {
+    return this.http.get<{ name: string }>(`${this.apiUrl}/cakes/next-name`);
+  }
+
   // create
   createCake(cake: Partial<Cake>): Observable<Cake> {
     return this.http.post<Cake>(`${this.apiUrl}/cakes`, cake);

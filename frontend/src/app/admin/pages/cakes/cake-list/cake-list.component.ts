@@ -209,13 +209,28 @@ export class CakeListComponent implements OnInit, OnDestroy {
 
   openCreateDialog(): void {
     const formConfig = this.getFormConfig();
-    this.dialog.open(FormModalComponent, {
-      width: '600px',
-      data: { config: formConfig }
-    }).afterClosed().subscribe((result) => {
-      if (result) {
-        const imageFile = result._file;
-        this.createCake({ ...result, imageFile });
+    this.apiService.getNextCakeName().subscribe({
+      next: (res) => {
+        this.dialog.open(FormModalComponent, {
+          width: '600px',
+          data: { config: formConfig, initialValue: { name: res.name } }
+        }).afterClosed().subscribe((result) => {
+          if (result) {
+            const imageFile = result._file;
+            this.createCake({ ...result, imageFile });
+          }
+        });
+      },
+      error: () => {
+        this.dialog.open(FormModalComponent, {
+          width: '600px',
+          data: { config: formConfig }
+        }).afterClosed().subscribe((result) => {
+          if (result) {
+            const imageFile = result._file;
+            this.createCake({ ...result, imageFile });
+          }
+        });
       }
     });
   }

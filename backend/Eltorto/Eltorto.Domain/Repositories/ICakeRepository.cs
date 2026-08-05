@@ -9,4 +9,5 @@ public interface ICakeRepository : IRepository<Cake>
     Task<IReadOnlyList<Cake>> GetByFillingAsync(int fillingId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Cake>> GetPagedAsync(int page, int pageSize, string? category = null, string? search = null, CancellationToken cancellationToken = default);
     Task<int> GetCountAsync(string? category = null, string? search = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetAllNamesAsync(CancellationToken cancellationToken = default);
 }

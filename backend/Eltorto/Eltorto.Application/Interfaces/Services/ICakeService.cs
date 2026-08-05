@@ -14,4 +14,5 @@ public interface ICakeService
     Task<CakeDetailDto> UpdateAsync(UpdateCakeDto updateDto, CancellationToken cancellationToken = default);
     Task UpdateImageUrlAsync(int id, string imageUrl, CancellationToken cancellationToken);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
+    Task<string> GetNextCakeNameAsync(CancellationToken cancellationToken = default);
 }

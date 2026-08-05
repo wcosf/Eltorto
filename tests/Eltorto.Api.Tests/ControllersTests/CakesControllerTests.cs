@@ -183,4 +183,17 @@ public class CakesControllerTests
         var result = await _controller.Delete(99, CancellationToken.None);
         Assert.IsType<NotFoundResult>(result);
     }
+
+    [Fact]
+    public async Task GetNextName_ReturnsOkWithName()
+    {
+        _cakeServiceMock.Setup(s => s.GetNextCakeNameAsync(It.IsAny<CancellationToken>()))
+                       .ReturnsAsync("Торт № 351");
+
+        var result = await _controller.GetNextName(CancellationToken.None);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        dynamic value = okResult.Value!;
+        Assert.Equal("Торт № 351", (string)value.name);
+    }
 }

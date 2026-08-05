@@ -3,10 +3,11 @@ using Eltorto.Application.DTOs;
 using Eltorto.Domain.Abstractions;
 using Eltorto.Application.Interfaces.Services;
 using Eltorto.Domain.Entities;
+using System.Text.RegularExpressions;
 
 namespace Eltorto.Application.Services;
 
-public class CakeService : ICakeService
+public partial class CakeService : ICakeService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
@@ -129,4 +130,24 @@ public class CakeService : ICakeService
         await _unitOfWork.Cakes.DeleteAsync(cake, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<string> GetNextCakeNameAsync(CancellationToken cancellationToken = default)
+    {
+        var names = await _unitOfWork.Cakes.GetAllNamesAsync(cancellationToken);
+
+        var maxNumber = 0;
+        foreach (var name in names)
+        {
+            var match = CakeNameNumberRegex().Match(name);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var number) && number > maxNumber)
+            {
+                maxNumber = number;
+            }
+        }
+
+        return $"Торт № {maxNumber + 1}";
+    }
+
+    [GeneratedRegex(@"^(?:Торт[а]?|Фото|Пирожные)\s*[№N#]?\s*(\d+)")]
+    private static partial Regex CakeNameNumberRegex();
 }
