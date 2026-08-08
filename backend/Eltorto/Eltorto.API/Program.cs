@@ -3,6 +3,7 @@ using Eltorto.API.Middleware;
 using Eltorto.API.Exceptions;
 using Eltorto.Application;
 using Eltorto.Application.Interfaces.Services;
+using Eltorto.Application.Services;
 using Eltorto.Infrastructure;
 using Serilog;
 using Serilog.Events;
@@ -127,6 +128,9 @@ using (var scope = app.Services.CreateScope())
 
         var authService = services.GetRequiredService<IAuthService>();
         await authService.CreateAdminIfNotExistsAsync();
+
+        var backfillService = services.GetRequiredService<CakePriceBackfillService>();
+        await backfillService.BackfillAsync();
     }
     catch (Exception ex)
     {

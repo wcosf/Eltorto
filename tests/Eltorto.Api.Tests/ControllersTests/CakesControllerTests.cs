@@ -193,7 +193,46 @@ public class CakesControllerTests
         var result = await _controller.GetNextName(CancellationToken.None);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        dynamic value = okResult.Value!;
-        Assert.Equal("Торт № 351", (string)value.name);
+        var name = (string)okResult.Value!.GetType().GetProperty("name")!.GetValue(okResult.Value)!;
+        Assert.Equal("Торт № 351", name);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_Success_ReturnsOkWithUpdatedCount()
+    {
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 10 };
+        _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(3);
+
+        var result = await _controller.BulkPriceIncrease(dto, CancellationToken.None);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var updatedCount = (int)okResult.Value!.GetType().GetProperty("updatedCount")!.GetValue(okResult.Value)!;
+        Assert.Equal(3, updatedCount);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_CategoryNotFound_Returns404()
+    {
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "missing", PercentIncrease = 10 };
+        _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
+                       .ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.BulkPriceIncrease(dto, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_InvalidPercent_ReturnsBadRequest()
+    {
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 0 };
+        _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
+                       .ThrowsAsync(new InvalidOperationException("Error"));
+
+        var result = await _controller.BulkPriceIncrease(dto, CancellationToken.None);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Contains("Error", badRequest.Value?.ToString());
     }
 }

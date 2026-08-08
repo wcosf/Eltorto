@@ -1,4 +1,4 @@
-﻿using Eltorto.Application.DTOs;
+using Eltorto.Application.DTOs;
 
 namespace Eltorto.Application.Interfaces.Services;
 
@@ -15,4 +15,7 @@ public interface ICakeService
     Task UpdateImageUrlAsync(int id, string imageUrl, CancellationToken cancellationToken);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
     Task<string> GetNextCakeNameAsync(CancellationToken cancellationToken = default);
+    Task<int> BulkIncreasePriceAsync(BulkPriceIncreaseDto dto, CancellationToken cancellationToken = default);
+    Task<int> UndoLastBulkPriceChangeAsync(CancellationToken cancellationToken = default);
+    Task<bool> CanUndoBulkPriceChangeAsync(CancellationToken cancellationToken = default);
 }

@@ -13,6 +13,7 @@ import { FormModalComponent } from '../../../shared/components/form-modal/form-m
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
 import { RecentActionsComponent } from '../../../shared/components/recent-actions/recent-actions.component';
+import { BulkPriceDialogComponent, BulkPriceDialogResult } from '../bulk-price-dialog/bulk-price-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
 import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { RecentActionsService } from '../../../../core/recent-actions.service';
@@ -29,6 +30,7 @@ import { FormConfig, FormField } from '../../../shared/models/form-config.model'
     FormsModule,
     DataTableComponent,
     RecentActionsComponent,
+    BulkPriceDialogComponent,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
@@ -50,6 +52,7 @@ export class CakeListComponent implements OnInit, OnDestroy {
 
   categories: Category[] = [];
   fillings: Filling[] = [];
+  canUndo = false;
 
   tableConfig!: TableConfig<Cake>;
   columnTemplates: { [key: string]: TemplateRef<any> } = {};
@@ -70,6 +73,7 @@ export class CakeListComponent implements OnInit, OnDestroy {
     this.columnTemplates = { imageUrl: this.imageTemplate };
     this.loadReferences();
     this.loadCakes();
+    this.loadCanUndo();
   }
 
   ngOnDestroy(): void {
@@ -116,6 +120,18 @@ export class CakeListComponent implements OnInit, OnDestroy {
           format: (value, row) => this.getCategoryName(row.categorySlug)
         },
         { key: 'description', label: 'Описание', sortable: false },
+        {
+          key: 'minWeightKg',
+          label: 'от, кг',
+          sortable: false,
+          format: (value) => value ? value.toLocaleString('ru-RU') : '—'
+        },
+        {
+          key: 'price',
+          label: 'Цена, руб',
+          sortable: false,
+          format: (value) => value ? `${value} ₽` : '—'
+        },
         {
           key: 'isFeatured',
           label: 'Рекомендуемый',
@@ -251,6 +267,69 @@ export class CakeListComponent implements OnInit, OnDestroy {
     });
   }
 
+  openBulkPriceDialog(): void {
+    this.dialog.open(BulkPriceDialogComponent, {
+      width: '400px',
+      minHeight: '320px'
+    }).afterClosed().subscribe((result: BulkPriceDialogResult | undefined) => {
+      if (result) {
+        this.performBulkPriceChange(result.categorySlug, result.percentChange);
+      }
+    });
+  }
+
+  private performBulkPriceChange(categorySlug: string | null, percentChange: number): void {
+    this.loading = true;
+    this.apiService.bulkIncreasePrice(categorySlug, percentChange)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (result) => {
+          const message = percentChange > 0
+            ? `Цена повышена у ${result.updatedCount} тортов`
+            : `Цена понижена у ${result.updatedCount} тортов`;
+          this.notification.success(message);
+          this.canUndo = result.updatedCount > 0;
+          this.loadCakes();
+        },
+        error: (err) => {
+          const msg = this.extractErrorMessage(err);
+          this.notification.error(msg);
+          console.error('Bulk price change error:', err);
+        }
+      });
+  }
+
+  private loadCanUndo(): void {
+    this.apiService.canUndoBulkPriceChange().subscribe({
+      next: (result) => this.canUndo = result.canUndo,
+      error: () => this.canUndo = false
+    });
+  }
+
+  undoBulkPriceChange(): void {
+    this.loading = true;
+    this.apiService.undoBulkPriceChange()
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (result) => {
+          this.notification.success(`Цена отменена у ${result.restoredCount} тортов`);
+          this.canUndo = false;
+          this.loadCakes();
+        },
+        error: (err) => {
+          const msg = this.extractErrorMessage(err);
+          this.notification.error(msg);
+          console.error('Undo bulk price change error:', err);
+        }
+      });
+  }
+
+  private toDecimal(value: any): number | undefined {
+    if (value === null || value === undefined || value === '') return undefined;
+    const num = Number(value);
+    return isNaN(num) ? undefined : num;
+  }
+
   private getFormConfig(existing?: Cake): FormConfig {
     const isEdit = !!existing;
 
@@ -305,6 +384,22 @@ export class CakeListComponent implements OnInit, OnDestroy {
         hint: 'На главной странице отображаются первые 6 рекомендованых тортов'
       },
       {
+        key: 'minWeightKg',
+        label: 'Минимальный вес, кг',
+        type: 'number',
+        required: false,
+        placeholder: 'Например, 1.5',
+        hint: 'Минимальный вес заказа торта'
+      },
+      {
+        key: 'price',
+        label: 'Цена, руб',
+        type: 'number',
+        required: false,
+        placeholder: 'Например, 2500',
+        hint: 'Цена торта в рублях'
+      },
+      {
         key: 'description',
         label: 'Описание',
         type: 'textarea',
@@ -348,7 +443,9 @@ export class CakeListComponent implements OnInit, OnDestroy {
       fillingId: data.fillingId || undefined,
       isFeatured: data.isFeatured || false,
       description: data.description || '',
-      imageUrl: data.imageUrl || ''
+      imageUrl: data.imageUrl || '',
+      minWeightKg: this.toDecimal(data.minWeightKg),
+      price: this.toDecimal(data.price)
     };
 
     if (data.imageFile && data.imageFile instanceof File) {
@@ -413,7 +510,9 @@ export class CakeListComponent implements OnInit, OnDestroy {
             fillingId: data.fillingId !== undefined ? data.fillingId : original.fillingId,
             isFeatured: data.isFeatured !== undefined ? data.isFeatured : original.isFeatured,
             description: data.description !== undefined ? data.description : original.description,
-            imageUrl: ''
+            imageUrl: '',
+            minWeightKg: this.toDecimal(data.minWeightKg) ?? original.minWeightKg,
+            price: this.toDecimal(data.price) ?? original.price
           };
           this.sendUpdateRequest(id, payload);
         },
@@ -437,7 +536,9 @@ export class CakeListComponent implements OnInit, OnDestroy {
             fillingId: data.fillingId !== undefined ? data.fillingId : original.fillingId,
             isFeatured: data.isFeatured !== undefined ? data.isFeatured : original.isFeatured,
             description: data.description !== undefined ? data.description : original.description,
-            imageUrl: uploadRes.imageUrl
+            imageUrl: uploadRes.imageUrl,
+            minWeightKg: this.toDecimal(data.minWeightKg) ?? original.minWeightKg,
+            price: this.toDecimal(data.price) ?? original.price
           };
           this.sendUpdateRequest(id, payload);
         },
@@ -457,7 +558,9 @@ export class CakeListComponent implements OnInit, OnDestroy {
       fillingId: data.fillingId !== undefined ? data.fillingId : original.fillingId,
       isFeatured: data.isFeatured !== undefined ? data.isFeatured : original.isFeatured,
       description: data.description !== undefined ? data.description : original.description,
-      imageUrl: imageUrl
+      imageUrl: imageUrl,
+      minWeightKg: this.toDecimal(data.minWeightKg) ?? original.minWeightKg,
+      price: this.toDecimal(data.price) ?? original.price
     };
     this.sendUpdateRequest(id, payload);
   }

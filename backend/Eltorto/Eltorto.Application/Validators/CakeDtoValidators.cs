@@ -73,3 +73,19 @@ public class UpdateCakeDtoValidator : AbstractValidator<UpdateCakeDto>
             .When(x => x.FillingId.HasValue);
     }
 }
+
+public class BulkPriceIncreaseDtoValidator : AbstractValidator<BulkPriceIncreaseDto>
+{
+    public BulkPriceIncreaseDtoValidator()
+    {
+        RuleFor(x => x.CategorySlug)
+            .MaximumLength(50).WithMessage("Slug не должен превышать 50 символов")
+            .Matches(@"^[a-z0-9-]+$").WithMessage("Slug может содержать только строчные буквы, цифры и дефис")
+            .When(x => !string.IsNullOrEmpty(x.CategorySlug));
+
+        RuleFor(x => x.PercentChange)
+            .GreaterThan(-100).WithMessage("Процент изменения должен быть больше -100")
+            .NotEqual(0).WithMessage("Процент изменения не должен быть равен 0")
+            .LessThanOrEqualTo(500).WithMessage("Процент изменения не должен превышать 500");
+    }
+}
