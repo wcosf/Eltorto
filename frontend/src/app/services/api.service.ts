@@ -11,6 +11,8 @@ export interface Cake {
   subCategory?: string;
   isFeatured: boolean;
   description?: string;
+  minWeightKg?: number;
+  price?: number;
   fillingId?: number;
 }
 
@@ -298,6 +300,10 @@ export class ApiService {
 
   // ===== CAKES CRUD =====
 
+  getNextCakeName(): Observable<{ name: string }> {
+    return this.http.get<{ name: string }>(`${this.apiUrl}/cakes/next-name`);
+  }
+
   // create
   createCake(cake: Partial<Cake>): Observable<Cake> {
     return this.http.post<Cake>(`${this.apiUrl}/cakes`, cake);
@@ -321,6 +327,19 @@ export class ApiService {
   // delete image
   deleteCakeImage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/cakes/${id}/image`);
+  }
+
+  // bulk price change
+  bulkIncreasePrice(categorySlug: string | null, percentChange: number): Observable<{ updatedCount: number }> {
+    return this.http.post<{ updatedCount: number }>(`${this.apiUrl}/cakes/bulk-price-increase`, { categorySlug: categorySlug || null, percentChange });
+  }
+
+  undoBulkPriceChange(): Observable<{ restoredCount: number }> {
+    return this.http.post<{ restoredCount: number }>(`${this.apiUrl}/cakes/bulk-price-undo`, null);
+  }
+
+  canUndoBulkPriceChange(): Observable<{ canUndo: boolean }> {
+    return this.http.get<{ canUndo: boolean }>(`${this.apiUrl}/cakes/bulk-price-can-undo`);
   }
 
   // ===== TESTIMONIALS CRUD =====

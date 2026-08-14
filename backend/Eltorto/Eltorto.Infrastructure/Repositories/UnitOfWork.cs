@@ -1,6 +1,7 @@
 ﻿using Eltorto.Domain.Repositories;
 using Eltorto.Domain.Abstractions;
 using Eltorto.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Eltorto.Infrastructure.Repositories;
@@ -41,6 +42,25 @@ public class UnitOfWork : IUnitOfWork
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ExecuteInTransactionAsync(Func<Task> operation, CancellationToken cancellationToken = default)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await operation();
+                await CommitTransactionAsync(cancellationToken);
+            }
+            catch
+            {
+                await RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
+        });
     }
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)

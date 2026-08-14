@@ -32,7 +32,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("LoginPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 5,
@@ -43,7 +43,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("RefreshPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 10,
@@ -54,7 +54,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("RegisterPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 3,
@@ -65,7 +65,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("GlobalPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 100,
@@ -76,7 +76,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("StrictPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 10,
@@ -87,7 +87,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("TestimonialPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 5,
@@ -98,7 +98,7 @@ public static class RateLimitingExtensions
 
             rateLimiterOptions.AddPolicy("CatalogPolicy", context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    partitionKey: GetClientIp(context),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 200,
@@ -110,4 +110,7 @@ public static class RateLimitingExtensions
 
         return services;
     }
+
+    private static string GetClientIp(HttpContext context) =>
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 }

@@ -1,0 +1,48 @@
+$primary: #b34766;
+$rose-dark: #f4b3d5;
+$text-dark: #73154b;
+
+.scroll-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $primary;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, visibility 0.3s ease;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+  }
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover {
+    background: $rose-dark;
+    color: $text-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $text-dark;
+    outline-offset: 2px;
+  }
+}

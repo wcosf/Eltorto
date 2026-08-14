@@ -52,14 +52,14 @@
       <div class="row g-4" *ngIf="!isLoading && !error">
         <div class="col-md-6 col-lg-4" *ngFor="let cake of featuredCakes; let i = index">
           <div class="cake-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'">
-            <div class="cake-image">
+            <div class="cake-image" (click)="openImagePreview(getCakeImageUrl(cake), cake.name)">
               <img
                 [src]="getCakeImageUrl(cake)"
                 [alt]="cake.name"
                 loading="lazy"
                 (error)="handleImageError($event)">
               <div class="cake-overlay">
-                <button class="btn-view" routerLink="/order" [queryParams]="{cake: cake.id}">
+                <button class="btn-view" routerLink="/order" [queryParams]="{cake: cake.id}" (click)="$event.stopPropagation()">
                   Заказать
                 </button>
               </div>
@@ -96,7 +96,7 @@
       <div class="row g-4">
         <div class="col-md-6 col-lg-3" *ngFor="let filling of fillings.slice(0, 4); let i = index">
           <div class="filling-preview-card animate-on-scroll" [style.animation-delay]="i * 0.1 + 's'" routerLink="/fillings">
-            <div class="filling-image">
+            <div class="filling-image" (click)="openImagePreview(getFillingImageUrl(filling.imageUrl), filling.name); $event.stopPropagation()">
               <img
                 [src]="getFillingImageUrl(filling.imageUrl)"
                 [alt]="filling.name"

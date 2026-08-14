@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -10,6 +10,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AdminStateService } from '../../shared/services/admin-state.service';
+import { ScrollToTopComponent } from '../../../shared/scroll-to-top/scroll-to-top.component';
 
 @Component({
   selector: 'app-admin-layout',
@@ -21,7 +22,8 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     MatToolbarModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    ScrollToTopComponent
   ],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss']
@@ -40,12 +42,19 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  @ViewChild('scrollContent', { read: ElementRef, static: true })
+  private scrollContent?: ElementRef<HTMLElement>;
+
+  scrollContainer?: HTMLElement;
+
   constructor(
     private router: Router,
     private stateService: AdminStateService
   ) { }
 
   ngOnInit(): void {
+    this.scrollContainer = this.scrollContent?.nativeElement;
+
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
       takeUntil(this.destroy$)
