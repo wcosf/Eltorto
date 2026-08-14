@@ -183,7 +183,7 @@ public partial class CakeService : ICakeService
             foreach (var cake in cakes)
             {
                 var oldPrice = cake.Price!.Value;
-                var newPrice = Math.Round(oldPrice * factor, 2, MidpointRounding.AwayFromZero);
+                var newPrice = Math.Ceiling(oldPrice * factor);
                 if (newPrice <= 0)
                 {
                     newPrice = 0.01m;

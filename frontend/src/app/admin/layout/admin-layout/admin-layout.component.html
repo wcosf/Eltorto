@@ -31,7 +31,8 @@
     </mat-nav-list>
   </mat-sidenav>
 
-  <mat-sidenav-content class="admin-content">
+  <mat-sidenav-content #scrollContent class="admin-content" (scroll)="scrollTop.onContainerScroll($event)">
     <router-outlet></router-outlet>
+    <app-scroll-to-top #scrollTop [scrollTarget]="scrollContainer"></app-scroll-to-top>
   </mat-sidenav-content>
 </mat-sidenav-container>

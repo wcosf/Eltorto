@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, of } from 'rxjs';
+import { BehaviorSubject, Observable, finalize, of, shareReplay, tap } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -20,6 +20,8 @@ export class AuthService {
   private _accessToken: string | null = null;
   private _userName: string | null = null;
   private _roles: string[] = [];
+
+  private refreshInFlight$: Observable<UserSession> | null = null;
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -46,9 +48,14 @@ export class AuthService {
   }
 
   refreshToken(): Observable<UserSession> {
-    return this.http.post<UserSession>(`${this.apiUrl}/refresh`, {}).pipe(
-      tap(response => this.setSession(response))
-    );
+    if (!this.refreshInFlight$) {
+      this.refreshInFlight$ = this.http.post<UserSession>(`${this.apiUrl}/refresh`, {}).pipe(
+        tap(response => this.setSession(response)),
+        finalize(() => this.refreshInFlight$ = null),
+        shareReplay(1)
+      );
+    }
+    return this.refreshInFlight$;
   }
 
   private setSession(session: UserSession): void {
