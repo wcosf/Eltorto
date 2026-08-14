@@ -1,8 +1,10 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService, Cake, Filling, Testimonial } from '../../services/api.service';
 import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
+import { ImagePreviewDialogComponent } from '../../shared/image-preview-dialog/image-preview-dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +22,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   placeholderImage = '/images/placeholder-cake.jpg';
 
-  constructor(public apiService: ApiService) { }
+  constructor(public apiService: ApiService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -87,5 +89,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       event.target.src = this.placeholderImage;
       event.target.onerror = null;
     }
+  }
+
+  openImagePreview(imageUrl: string, alt: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImagePreviewDialogComponent, {
+      data: { imageUrl, alt },
+      panelClass: 'image-preview-dialog'
+    });
   }
 }

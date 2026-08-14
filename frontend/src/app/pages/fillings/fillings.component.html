@@ -35,7 +35,7 @@
       <div class="row g-4" *ngIf="!isLoading && !error">
         <div class="col-md-6 col-lg-4" *ngFor="let filling of fillings; let i = index">
           <div class="filling-card animate-on-scroll" [style.animation-delay]="i * 0.05 + 's'">
-            <div class="filling-card-image">
+            <div class="filling-card-image" (click)="openImagePreview(getFillingImageUrl(filling.imageUrl), filling.name)">
               <img
                 [src]="getFillingImageUrl(filling.imageUrl)"
                 [alt]="filling.name"

@@ -59,7 +59,7 @@
       <div class="row g-4" *ngIf="!isLoading && !error">
         <div class="col-md-6 col-lg-4" *ngFor="let cake of cakes; trackBy: trackById; let i = index">
           <div class="portfolio-card animate-on-scroll" [style.animation-delay]="i * 0.05 + 's'">
-            <div class="portfolio-card-image">
+            <div class="portfolio-card-image" (click)="openImagePreview(getCakeImageUrl(cake), cake.name)">
               <img
                 [src]="getCakeImageUrl(cake)"
                 [alt]="cake.name"
