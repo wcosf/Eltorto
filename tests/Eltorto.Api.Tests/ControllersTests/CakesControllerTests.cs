@@ -200,7 +200,7 @@ public class CakesControllerTests
     [Fact]
     public async Task BulkPriceIncrease_Success_ReturnsOkWithUpdatedCount()
     {
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
         _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
                        .ReturnsAsync(3);
 
@@ -214,7 +214,7 @@ public class CakesControllerTests
     [Fact]
     public async Task BulkPriceIncrease_CategoryNotFound_Returns404()
     {
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "missing", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "missing", PercentChange = 10 };
         _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
                        .ThrowsAsync(new KeyNotFoundException());
 
@@ -226,7 +226,7 @@ public class CakesControllerTests
     [Fact]
     public async Task BulkPriceIncrease_InvalidPercent_ReturnsBadRequest()
     {
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 0 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 0 };
         _cakeServiceMock.Setup(s => s.BulkIncreasePriceAsync(dto, It.IsAny<CancellationToken>()))
                        .ThrowsAsync(new InvalidOperationException("Error"));
 

@@ -21,6 +21,9 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     protected IntegrationTestBase()
     {
+        Environment.SetEnvironmentVariable("AdminSettings__Password", "Admin123!");
+        Environment.SetEnvironmentVariable("JwtSettings__SecretKey", "test-secret-key-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789tests");
+
         Container = new PostgreSqlBuilder()
             .WithImage("postgres:16")
             .WithDatabase("eltorto_test")
@@ -48,6 +51,8 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
         Client = _factory.CreateClient();
     }
+
+    protected HttpClient CreateCleanClient() => _factory.CreateClient();
 
     public async Task InitializeAsync()
     {

@@ -1,3 +1,5 @@
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 using Eltorto.API.Extensions;
 using Eltorto.API.Middleware;
 using Eltorto.API.Exceptions;
@@ -90,6 +92,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+    options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
+});
+
 // Add rate limited policies
 builder.Services.AddRateLimitingPolicies();
 
@@ -146,6 +156,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseCors("Frontend");

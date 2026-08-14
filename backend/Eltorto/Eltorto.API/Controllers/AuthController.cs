@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Eltorto.Application.DTOs;
+using Eltorto.Application.Exceptions;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,12 @@ public class AuthController : ControllerBase
                 userName = response.UserName,
                 roles = response.Roles
             });
+        }
+        catch (AccountLockedException)
+        {
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            _logger.LogWarning("[AUTH] Locked account login attempt for user {UserName} from IP {IP}", request.UserName, ip);
+            return StatusCode(StatusCodes.Status423Locked, new { error = "Account is temporarily locked. Try again later." });
         }
         catch (UnauthorizedAccessException)
         {

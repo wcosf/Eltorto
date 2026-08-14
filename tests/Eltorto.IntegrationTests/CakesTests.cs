@@ -409,7 +409,7 @@ public class CakesTests : IntegrationTestBase
         var cake1 = await CreateFreshCakeAsync("Для повышения цены 1", price: 1000m);
         var cake2 = await CreateFreshCakeAsync("Для повышения цены 2", price: 2000m);
 
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
         var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, token);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -428,7 +428,7 @@ public class CakesTests : IntegrationTestBase
     public async Task BulkPriceIncrease_NonExistingCategory_ReturnsNotFound()
     {
         var token = await GetAdminTokenAsync();
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "non-existing-category", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "non-existing-category", PercentChange = 10 };
 
         var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, token);
 
@@ -438,7 +438,7 @@ public class CakesTests : IntegrationTestBase
     [Fact]
     public async Task BulkPriceIncrease_WithoutToken_ReturnsUnauthorized()
     {
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
         var response = await Client.PostAsJsonAsync("/api/cakes/bulk-price-increase", dto);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -447,7 +447,7 @@ public class CakesTests : IntegrationTestBase
     public async Task BulkPriceIncrease_WithCustomerToken_ReturnsForbidden()
     {
         var customerToken = await CreateAndLoginCustomerAsync();
-        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentIncrease = 10 };
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
         var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, customerToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
