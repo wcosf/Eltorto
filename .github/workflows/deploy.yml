@@ -48,6 +48,7 @@ jobs:
             --exclude='infra/nginx/ban.conf' \
             --exclude='scripts/spam_patterns.txt' \
             --exclude='infra/postgres/init.sql' \
+            --exclude='storage/' \
             --exclude='infra/uptime-kuma/data/' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.PROJECT_PATH }}
