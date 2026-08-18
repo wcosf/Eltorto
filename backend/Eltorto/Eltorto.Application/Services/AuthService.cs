@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Eltorto.Application.DTOs;
+using Eltorto.Application.Exceptions;
 using Eltorto.Application.Interfaces.Services;
 using Eltorto.Domain.Entities;
 using Eltorto.Domain.Abstractions;
@@ -38,8 +39,21 @@ public class AuthService : IAuthService
     public async Task<(LoginResponse Response, string RefreshToken)> LoginAsync(LoginRequest request)
     {
         var user = await _userManager.FindByNameAsync(request.UserName);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+        if (user == null)
             throw new UnauthorizedAccessException("Incorrect username or password");
+
+        if (await _userManager.IsLockedOutAsync(user))
+            throw new AccountLockedException();
+
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        {
+            await _userManager.AccessFailedAsync(user);
+            _logger.LogWarning("[AUTH] Failed login attempt for user {UserName}", request.UserName);
+            throw new UnauthorizedAccessException("Incorrect username or password");
+        }
+
+        if (await _userManager.GetAccessFailedCountAsync(user) > 0)
+            await _userManager.ResetAccessFailedCountAsync(user);
 
         var roles = await _userManager.GetRolesAsync(user);
         var accessToken = GenerateJwtToken(user, roles);

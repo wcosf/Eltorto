@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService, Cake, Category, PaginatedResponse } from '../../services/api.service';
+import { ImagePreviewDialogComponent } from '../../shared/image-preview-dialog/image-preview-dialog.component';
 
 @Component({
   selector: 'app-portfolio',
@@ -25,7 +27,7 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
 
   placeholderImage = '/images/placeholder-cake.jpg';
 
-  constructor(public apiService: ApiService) { }
+  constructor(public apiService: ApiService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -182,6 +184,14 @@ export class PortfolioComponent implements OnInit, AfterViewInit {
       event.target.src = this.placeholderImage;
       event.target.onerror = null;
     }
+  }
+
+  openImagePreview(imageUrl: string, alt: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImagePreviewDialogComponent, {
+      data: { imageUrl, alt },
+      panelClass: 'image-preview-dialog'
+    });
   }
 
   trackById(index: number, cake: Cake): number {

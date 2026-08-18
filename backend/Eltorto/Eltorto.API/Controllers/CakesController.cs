@@ -1,4 +1,4 @@
-﻿using Eltorto.Application.DTOs;
+using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -84,6 +84,18 @@ public class CakesController : BaseApiController
     }
 
     /// <summary>
+    /// Get next cake name suggestion (for admins)
+    /// </summary>
+    [HttpGet("next-name")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNextName(CancellationToken cancellationToken)
+    {
+        var name = await _cakeService.GetNextCakeNameAsync(cancellationToken);
+        return Ok(new { name });
+    }
+
+    /// <summary>
     /// Get cake by id
     /// </summary>
     [HttpGet("{id:int}")]
@@ -164,6 +176,55 @@ public class CakesController : BaseApiController
         {
             return NotFound();
         }
+    }
+
+    /// <summary>
+    /// Bulk increase prices for cakes in a category
+    /// </summary>
+    [HttpPost("bulk-price-increase")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BulkPriceIncrease([FromBody] BulkPriceIncreaseDto dto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var updatedCount = await _cakeService.BulkIncreasePriceAsync(dto, cancellationToken);
+            return Ok(new { updatedCount });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Undo last bulk price change
+    /// </summary>
+    [HttpPost("bulk-price-undo")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> BulkPriceUndo(CancellationToken cancellationToken)
+    {
+        var restoredCount = await _cakeService.UndoLastBulkPriceChangeAsync(cancellationToken);
+        return Ok(new { restoredCount });
+    }
+
+    /// <summary>
+    /// Check if last bulk price change can be undone
+    /// </summary>
+    [HttpGet("bulk-price-can-undo")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> BulkPriceCanUndo(CancellationToken cancellationToken)
+    {
+        var canUndo = await _cakeService.CanUndoBulkPriceChangeAsync(cancellationToken);
+        return Ok(new { canUndo });
     }
 
     /// <summary>

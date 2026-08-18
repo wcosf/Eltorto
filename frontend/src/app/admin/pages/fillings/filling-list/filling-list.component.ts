@@ -11,7 +11,7 @@ import { finalize } from 'rxjs/operators';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FormModalComponent } from '../../../shared/components/form-modal/form-modal.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
-import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
+import { ImagePreviewDialogComponent } from '../../../../shared/image-preview-dialog/image-preview-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
 import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { ApiService, Filling } from '../../../../services/api.service';

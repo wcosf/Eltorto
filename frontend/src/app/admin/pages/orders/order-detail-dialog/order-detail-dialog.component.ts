@@ -4,7 +4,7 @@ import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { StatusBadgeComponent, StatusType } from '../../../shared/components/status-badge/status-badge.component';
-import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
+import { ImagePreviewDialogComponent } from '../../../../shared/image-preview-dialog/image-preview-dialog.component';
 import { ApiService, Cake, OrderDto, OrderStatus } from '../../../../services/api.service';
 
 @Component({

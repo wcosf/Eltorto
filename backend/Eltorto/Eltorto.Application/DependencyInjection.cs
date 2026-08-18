@@ -24,6 +24,8 @@ public static class DependencyInjection
         services.AddScoped<IContactSettingsService, ContactSettingsService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddScoped<CakePriceBackfillService>();
+        services.AddSingleton<BulkPriceHistoryService>();
 
         return services;
     }

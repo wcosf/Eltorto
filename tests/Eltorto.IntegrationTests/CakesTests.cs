@@ -11,7 +11,8 @@ public class CakesTests : IntegrationTestBase
         string name = "Тестовый торт",
         string categorySlug = "classic",
         int? fillingId = null,
-        bool isFeatured = false)
+        bool isFeatured = false,
+        decimal? price = null)
     {
         var token = await GetAdminTokenAsync();
         var createDto = new CreateCakeDto
@@ -22,7 +23,8 @@ public class CakesTests : IntegrationTestBase
             CategorySlug = categorySlug,
             IsFeatured = isFeatured,
             Description = "Описание тестового торта",
-            FillingId = fillingId
+            FillingId = fillingId,
+            Price = price
         };
         var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes", createDto, token);
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -397,4 +399,61 @@ public class CakesTests : IntegrationTestBase
         var response = await AuthorizedRequestAsync(HttpMethod.Delete, "/api/cakes/1", token: customerToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    // ========== BULK PRICE INCREASE ==========
+
+    [Fact]
+    public async Task BulkPriceIncrease_AsAdmin_UpdatesPricedCakes()
+    {
+        var token = await GetAdminTokenAsync();
+        var cake1 = await CreateFreshCakeAsync("Для повышения цены 1", price: 1000m);
+        var cake2 = await CreateFreshCakeAsync("Для повышения цены 2", price: 2000m);
+
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
+        var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, token);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadFromJsonAsync<BulkPriceIncreaseResult>();
+        result.Should().NotBeNull();
+        result!.UpdatedCount.Should().Be(2);
+
+        var updated1 = (await Client.GetFromJsonAsync<CakeDetailDto>($"/api/cakes/{cake1.Id}"))!;
+        updated1.Price.Should().Be(1100m);
+
+        var updated2 = (await Client.GetFromJsonAsync<CakeDetailDto>($"/api/cakes/{cake2.Id}"))!;
+        updated2.Price.Should().Be(2200m);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_NonExistingCategory_ReturnsNotFound()
+    {
+        var token = await GetAdminTokenAsync();
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "non-existing-category", PercentChange = 10 };
+
+        var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, token);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_WithoutToken_ReturnsUnauthorized()
+    {
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
+        var response = await Client.PostAsJsonAsync("/api/cakes/bulk-price-increase", dto);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task BulkPriceIncrease_WithCustomerToken_ReturnsForbidden()
+    {
+        var customerToken = await CreateAndLoginCustomerAsync();
+        var dto = new BulkPriceIncreaseDto { CategorySlug = "classic", PercentChange = 10 };
+        var response = await AuthorizedRequestAsync(HttpMethod.Post, "/api/cakes/bulk-price-increase", dto, customerToken);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+}
+
+public class BulkPriceIncreaseResult
+{
+    public int UpdatedCount { get; set; }
 }

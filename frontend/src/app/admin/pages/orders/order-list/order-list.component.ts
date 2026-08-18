@@ -17,7 +17,7 @@ import { StatusBadgeComponent, StatusType } from '../../../shared/components/sta
 import { FormModalComponent } from '../../../shared/components/form-modal/form-modal.component';
 import { OrderStatusDialogComponent } from '../order-status-dialog/order-status-dialog.component';
 import { OrderDetailDialogComponent } from '../order-detail-dialog/order-detail-dialog.component';
-import { ImagePreviewDialogComponent } from '../../../shared/components/image-preview-dialog/image-preview-dialog.component';
+import { ImagePreviewDialogComponent } from '../../../../shared/image-preview-dialog/image-preview-dialog.component';
 import { AdminNotificationService } from '../../../shared/services/admin-notification.service';
 import { AdminStateService } from '../../../shared/services/admin-state.service';
 import { ApiService, Cake, Filling, OrderDto, OrderRequest, OrderStatus } from '../../../../services/api.service';

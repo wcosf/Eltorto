@@ -10,6 +10,8 @@ public class Cake
     public string? SubCategory { get; set; }
     public bool IsFeatured { get; set; }
     public string? Description { get; set; }
+    public decimal? MinWeightKg { get; set; }
+    public decimal? Price { get; set; }
     public int? FillingId { get; set; }
     public Filling? Filling { get; set; }
 }

@@ -41,18 +41,62 @@ public class AuthTests : IntegrationTestBase
         return string.Empty;
     }
 
+    private static string ExtractCsrfTokenFromResponse(HttpResponseMessage response)
+    {
+        if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
+        {
+            var segments = cookies.SelectMany(c => c.Split(new[] { ';', ',' }));
+            var csrfCookie = segments.FirstOrDefault(c => c.TrimStart().StartsWith("XSRF-TOKEN="));
+            if (csrfCookie != null)
+                return Uri.UnescapeDataString(csrfCookie.Substring(csrfCookie.IndexOf('=') + 1).Trim());
+        }
+        return string.Empty;
+    }
+
+    private async Task<(string AccessToken, string RefreshToken, string CsrfToken)> RegisterAndLoginWithCsrfAsync(
+        string userName, string password = "Test123!")
+    {
+        var registerDto = new RegisterRequest
+        {
+            UserName = userName,
+            Email = $"{userName}@test.ru",
+            Password = password,
+            FullName = "Test User"
+        };
+        var registerResponse = await Client.PostAsJsonAsync("/api/auth/register", registerDto);
+        registerResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var loginDto = new LoginRequest { UserName = userName, Password = password };
+        var loginResponse = await Client.PostAsJsonAsync("/api/auth/login", loginDto);
+        loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tokens = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>();
+        var refreshToken = ExtractRefreshTokenFromResponse(loginResponse);
+        var csrfToken = ExtractCsrfTokenFromResponse(loginResponse);
+        return (tokens!.AccessToken, refreshToken, csrfToken);
+    }
+
     private async Task<HttpResponseMessage> SendWithRefreshTokenAsync(
         HttpMethod method, string url, string refreshToken,
-        string? accessToken = null, object? body = null)
+        string? accessToken = null, object? body = null, string? csrfToken = null, HttpClient? client = null)
     {
+        var httpClient = client ?? Client;
         var request = new HttpRequestMessage(method, url);
         if (!string.IsNullOrEmpty(accessToken))
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var cookies = new List<string>();
         if (!string.IsNullOrEmpty(refreshToken))
-            request.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+            cookies.Add($"refresh_token={refreshToken}");
+        if (!string.IsNullOrEmpty(csrfToken))
+            cookies.Add($"XSRF-TOKEN={csrfToken}");
+        if (cookies.Count > 0)
+            request.Headers.Add("Cookie", string.Join("; ", cookies));
+
+        if (!string.IsNullOrEmpty(csrfToken))
+            request.Headers.Add("X-CSRF-Token", csrfToken);
         if (body != null)
             request.Content = JsonContent.Create(body);
-        return await Client.SendAsync(request);
+        return await httpClient.SendAsync(request);
     }
 
     [Fact]
@@ -199,7 +243,10 @@ public class AuthTests : IntegrationTestBase
         var firstResponse = await SendWithRefreshTokenAsync(HttpMethod.Post, "/api/auth/refresh", refreshToken);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var secondResponse = await SendWithRefreshTokenAsync(HttpMethod.Post, "/api/auth/refresh", refreshToken);
+        var cleanClient = CreateCleanClient();
+        var secondRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/refresh");
+        secondRequest.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+        var secondResponse = await cleanClient.SendAsync(secondRequest);
         secondResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         var error = await secondResponse.Content.ReadFromJsonAsync<ErrorResponse>();
         error.Should().NotBeNull();
@@ -209,10 +256,11 @@ public class AuthTests : IntegrationTestBase
     [Fact]
     public async Task Refresh_WithRevokedToken_ReturnsUnauthorized()
     {
-        var (accessToken, refreshToken) = await RegisterAndLoginAsync($"refresh_revoked_{Guid.NewGuid():N}");
+        var (accessToken, refreshToken, csrfToken) = await RegisterAndLoginWithCsrfAsync($"refresh_revoked_{Guid.NewGuid():N}");
 
         var logoutResponse = await SendWithRefreshTokenAsync(
-            HttpMethod.Post, "/api/auth/logout", refreshToken, accessToken);
+            HttpMethod.Post, "/api/auth/logout", refreshToken, accessToken,
+            csrfToken: csrfToken, client: CreateCleanClient());
         logoutResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var refreshResponse = await SendWithRefreshTokenAsync(
@@ -234,10 +282,11 @@ public class AuthTests : IntegrationTestBase
     [Fact]
     public async Task Logout_ValidToken_ReturnsNoContent()
     {
-        var (accessToken, refreshToken) = await RegisterAndLoginAsync($"logout_{Guid.NewGuid():N}");
+        var (accessToken, refreshToken, csrfToken) = await RegisterAndLoginWithCsrfAsync($"logout_{Guid.NewGuid():N}");
 
         var response = await SendWithRefreshTokenAsync(
-            HttpMethod.Post, "/api/auth/logout", refreshToken, accessToken);
+            HttpMethod.Post, "/api/auth/logout", refreshToken, accessToken,
+            csrfToken: csrfToken, client: CreateCleanClient());
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var refreshResponse = await SendWithRefreshTokenAsync(
@@ -248,10 +297,11 @@ public class AuthTests : IntegrationTestBase
     [Fact]
     public async Task Logout_WithoutRefreshToken_ReturnsNoContent()
     {
-        var (accessToken, _) = await RegisterAndLoginAsync($"logout_empty_{Guid.NewGuid():N}");
+        var (accessToken, _, csrfToken) = await RegisterAndLoginWithCsrfAsync($"logout_empty_{Guid.NewGuid():N}");
 
         var response = await SendWithRefreshTokenAsync(
-            HttpMethod.Post, "/api/auth/logout", string.Empty, accessToken);
+            HttpMethod.Post, "/api/auth/logout", string.Empty, accessToken,
+            csrfToken: csrfToken, client: CreateCleanClient());
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 

@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Изменение цен</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Категория</mat-label>
+    <mat-select [(ngModel)]="selectedCategorySlug">
+      <mat-option [value]="''">Все торты</mat-option>
+      <mat-option *ngFor="let category of categories" [value]="category.slug">
+        {{ category.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Процент изменения</mat-label>
+    <input matInput type="number" min="-99" max="500" step="1" [(ngModel)]="percentChange" placeholder="Например, 10 или -15" />
+    <mat-hint>Положительное значение повышает цену, отрицательное — понижает</mat-hint>
+    <mat-error *ngIf="getPercentError()">{{ getPercentError() }}</mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Отмена</button>
+  <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="!canConfirm()">Применить</button>
+</mat-dialog-actions>

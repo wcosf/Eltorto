@@ -22,6 +22,14 @@
       <mat-icon>add</mat-icon>
       Добавить торт
     </button>
+    <button mat-raised-button color="accent" class="admin-action-button" (click)="openBulkPriceDialog()">
+      <mat-icon>trending_up</mat-icon>
+      Изменить цены
+    </button>
+    <button mat-raised-button class="admin-action-button" [disabled]="!canUndo" (click)="undoBulkPriceChange()">
+      <mat-icon>undo</mat-icon>
+      Отменить
+    </button>
   </div>
 
   <div class="search-wrapper">

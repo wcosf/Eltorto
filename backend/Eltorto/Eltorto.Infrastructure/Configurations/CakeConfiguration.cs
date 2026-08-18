@@ -43,6 +43,14 @@ public class CakeConfiguration : IEntityTypeConfiguration<Cake>
             .HasMaxLength(2000)
             .HasColumnName("Description");
 
+        builder.Property(e => e.MinWeightKg)
+            .HasPrecision(10, 2)
+            .HasColumnName("min_weight_kg");
+
+        builder.Property(e => e.Price)
+            .HasPrecision(10, 2)
+            .HasColumnName("price");
+
         // Внешние ключи
         builder.HasOne(e => e.Filling)
             .WithMany(e => e.Cakes)

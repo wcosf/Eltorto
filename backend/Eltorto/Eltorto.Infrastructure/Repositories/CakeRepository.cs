@@ -74,4 +74,12 @@ public class CakeRepository : Repository<Cake>, ICakeRepository
 
         return await query.CountAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<string>> GetAllNamesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Select(c => c.Name)
+            .ToListAsync(cancellationToken);
+    }
 }
