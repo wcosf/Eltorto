@@ -4,6 +4,24 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, Cake, ContactSettings, Filling, OrderRequest } from '../../services/api.service';
 
+const ORDER_FORM_STATE_KEY = 'orderFormState';
+
+interface OrderFormState {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  customCakeDescription?: string;
+  weight: number;
+  deliveryDate?: string;
+  deliveryAddress?: string;
+  comment?: string;
+  selectedCakeId?: number;
+  selectedFillingId?: number;
+  cakeSearch: string;
+  fillingSearch: string;
+  customOrder: boolean;
+}
+
 @Component({
   selector: 'app-order',
   standalone: true,
@@ -48,6 +66,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   private readonly phonePattern = /^(\+7|8)\s?\(?\d{3}\)?\s?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
   private readonly emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   cakeIdFromUrl?: number;
+  private hasSavedState = false;
   datePickerOpen = false;
   shownYear = new Date().getFullYear();
   shownMonth = new Date().getMonth();
@@ -240,6 +259,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderData.deliveryDate = `${this.shownYear}-${String(this.shownMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     this.touched['date'] = true;
     this.closeDatePicker();
+    this.saveFormState();
   }
 
   private onDateDocumentClick(event: MouseEvent): void {
@@ -281,6 +301,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
     document.addEventListener('click', this.dateDocClickListener);
     document.addEventListener('keydown', this.dateEscKeyListener);
+    this.restoreFormState();
     this.loadData();
     this.loadContacts();
   }
@@ -293,7 +314,9 @@ export class OrderComponent implements OnInit, OnDestroy {
     ]).then(([cakes, fillings]) => {
       this.cakes = cakes || [];
       this.fillings = fillings || [];
-      if (this.cakeIdFromUrl != null && this.cakes.some(c => c.id === this.cakeIdFromUrl)) {
+      if (this.hasSavedState) {
+        this.applySavedSelections();
+      } else if (this.cakeIdFromUrl != null && this.cakes.some(c => c.id === this.cakeIdFromUrl)) {
         const cake = this.cakes.find(c => c.id === this.cakeIdFromUrl)!;
         this.selectedCakeId = this.cakeIdFromUrl;
         this.selectedCake = cake;
@@ -310,6 +333,84 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   onCakeChange(value: number | null | undefined): void {
     this.customOrder = value == null;
+  }
+
+  saveFormState(): void {
+    const state: OrderFormState = {
+      customerName: this.orderData.customerName,
+      customerPhone: this.orderData.customerPhone,
+      customerEmail: this.orderData.customerEmail,
+      customCakeDescription: this.orderData.customCakeDescription,
+      weight: typeof this.orderData.weight === 'number' ? this.orderData.weight : 2,
+      deliveryDate: this.orderData.deliveryDate,
+      deliveryAddress: this.orderData.deliveryAddress,
+      comment: this.orderData.comment,
+      selectedCakeId: this.selectedCakeId,
+      selectedFillingId: this.selectedFillingId,
+      cakeSearch: this.cakeSearch,
+      fillingSearch: this.fillingSearch,
+      customOrder: this.customOrder
+    };
+    localStorage.setItem(ORDER_FORM_STATE_KEY, JSON.stringify(state));
+  }
+
+  private restoreFormState(): void {
+    const raw = localStorage.getItem(ORDER_FORM_STATE_KEY);
+    if (!raw) return;
+    try {
+      const state = JSON.parse(raw) as OrderFormState;
+      if (!state || typeof state !== 'object') return;
+      this.hasSavedState = true;
+      const numericWeight = Number(state.weight);
+      if (!Number.isNaN(numericWeight)) {
+        this.orderData.weight = numericWeight;
+      }
+      if (typeof state.customerName === 'string') this.orderData.customerName = state.customerName;
+      if (typeof state.customerPhone === 'string') this.orderData.customerPhone = state.customerPhone;
+      if (typeof state.customerEmail === 'string') this.orderData.customerEmail = state.customerEmail;
+      if (typeof state.customCakeDescription === 'string') this.orderData.customCakeDescription = state.customCakeDescription;
+      if (typeof state.deliveryDate === 'string') this.orderData.deliveryDate = state.deliveryDate;
+      if (typeof state.deliveryAddress === 'string') this.orderData.deliveryAddress = state.deliveryAddress;
+      if (typeof state.comment === 'string') this.orderData.comment = state.comment;
+      if (typeof state.cakeSearch === 'string') this.cakeSearch = state.cakeSearch;
+      if (typeof state.fillingSearch === 'string') this.fillingSearch = state.fillingSearch;
+      if (typeof state.selectedCakeId === 'number') this.selectedCakeId = state.selectedCakeId;
+      if (typeof state.selectedFillingId === 'number') this.selectedFillingId = state.selectedFillingId;
+      this.customOrder = typeof state.customOrder === 'boolean' ? state.customOrder : true;
+    } catch {
+      this.clearFormState();
+    }
+  }
+
+  private clearFormState(): void {
+    localStorage.removeItem(ORDER_FORM_STATE_KEY);
+    this.hasSavedState = false;
+  }
+
+  private applySavedSelections(): void {
+    if (this.selectedCakeId != null) {
+      const cake = this.cakes.find(c => c.id === this.selectedCakeId);
+      if (cake) {
+        this.selectedCakeId = cake.id;
+        this.selectedCake = cake;
+        this.cakeSearch = cake.name;
+        this.onCakeChange(cake.id);
+      } else {
+        this.selectedCakeId = undefined;
+        this.onCakeChange(null);
+      }
+    }
+    if (this.selectedFillingId != null) {
+      const filling = this.fillings.find(f => f.id === this.selectedFillingId);
+      if (filling) {
+        this.selectedFillingId = filling.id;
+        this.selectedFilling = filling;
+        this.fillingSearch = filling.name;
+      } else {
+        this.selectedFillingId = undefined;
+      }
+    }
+    this.customOrder = this.selectedCakeId == null;
   }
 
   ngOnDestroy(): void {
@@ -342,6 +443,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.cakeActiveIndex = -1;
     this.filterCakes();
     this.cakeDropdownOpen = true;
+    this.saveFormState();
   }
 
   onFillingInput(): void {
@@ -350,6 +452,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.fillingActiveIndex = -1;
     this.filterFillings();
     this.fillingDropdownOpen = true;
+    this.saveFormState();
   }
 
   onCakeFocus(): void {
@@ -378,6 +481,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.onCakeChange(cake.id);
     this.cakeActiveIndex = -1;
     this.cakeDropdownOpen = false;
+    this.saveFormState();
   }
 
   selectFilling(filling: Filling): void {
@@ -386,6 +490,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.selectedFilling = filling;
     this.fillingActiveIndex = -1;
     this.fillingDropdownOpen = false;
+    this.saveFormState();
   }
 
   onCakeKeyDown(event: KeyboardEvent): void {
@@ -486,6 +591,7 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.submitted = true;
         this.successMessage = 'Ваш заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.';
         this.isLoading = false;
+        this.clearFormState();
         this.resetForm();
       },
       error: (error) => {
@@ -498,6 +604,7 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   resetForm(): void {
     setTimeout(() => {
+      this.clearFormState();
       this.submitted = false;
       this.successMessage = '';
       this.orderData = {

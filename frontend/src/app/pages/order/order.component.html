@@ -58,6 +58,7 @@
                   name="customerName"
                   placeholder="Введите ваше имя"
                   [(ngModel)]="orderData.customerName"
+                  (ngModelChange)="saveFormState()"
                   (blur)="markTouched('name')">
                 <span class="field-error-text" *ngIf="showNameError">Введите ваше имя (минимум 2 символа)</span>
               </div>
@@ -69,6 +70,7 @@
                   name="customerPhone"
                   placeholder="Введите номер телефона"
                   [(ngModel)]="orderData.customerPhone"
+                  (ngModelChange)="saveFormState()"
                   (blur)="markTouched('phone')">
                 <span class="field-error-text" *ngIf="showPhoneError">Введите корректный номер телефона, например +7 913 987 25 54</span>
               </div>
@@ -82,6 +84,7 @@
                   name="customerEmail"
                   placeholder="Введите e-mail"
                   [(ngModel)]="orderData.customerEmail"
+                  (ngModelChange)="saveFormState()"
                   (blur)="markTouched('email')">
                 <span class="field-error-text" *ngIf="showEmailError">Укажите корректный e-mail</span>
               </div>
@@ -100,8 +103,9 @@
                       id="cakeCombobox"
                       name="cakeCombobox"
                       autocomplete="off"
-                      placeholder="Свой дизайн (или выберите торт)"
+                      placeholder="Свой дизайн (или выбрать торт)"
                       [(ngModel)]="cakeSearch"
+                      (ngModelChange)="saveFormState()"
                       (input)="onCakeInput()"
                       (focus)="onCakeFocus()"
                       (blur)="onCakeBlur()"
@@ -174,6 +178,7 @@
                       autocomplete="off"
                       placeholder="Выберите начинку"
                       [(ngModel)]="fillingSearch"
+                      (ngModelChange)="saveFormState()"
                       (input)="onFillingInput()"
                       (focus)="onFillingFocus()"
                       (blur)="onFillingBlur()"
@@ -202,6 +207,7 @@
                   name="weight"
                   placeholder="Например: 2"
                   [(ngModel)]="orderData.weight"
+                  (ngModelChange)="saveFormState()"
                   (blur)="markTouched('weight')">
                 <span class="field-error-text" *ngIf="showWeightError">Вес должен быть от 0 до 100 кг</span>
               </div>
@@ -213,8 +219,9 @@
                   type="text"
                   id="deliveryAddress"
                   name="deliveryAddress"
-                  placeholder="Укажите адрес доставки (необязательно)"
-                  [(ngModel)]="orderData.deliveryAddress">
+                  placeholder="Укажите адрес доставки"
+                  [(ngModel)]="orderData.deliveryAddress"
+                  (ngModelChange)="saveFormState()">
               </div>
             </div>
           </div>
@@ -228,6 +235,7 @@
                 rows="4"
                 placeholder="Опишите ваши пожелания по дизайну, цвету, декору, надписям и т.д."
                 [(ngModel)]="orderData.customCakeDescription"
+                (ngModelChange)="saveFormState()"
                 (blur)="markTouched('description')"></textarea>
               <span class="field-error-text" *ngIf="showDescriptionError">Текст не должен превышать 2000 символов</span>
             </div>
@@ -242,6 +250,7 @@
                 rows="3"
                 placeholder="Любая дополнительная информация"
                 [(ngModel)]="orderData.comment"
+                (ngModelChange)="saveFormState()"
                 (blur)="markTouched('comment')"></textarea>
               <span class="field-error-text" *ngIf="showCommentError">Текст не должен превышать 1000 символов</span>
             </div>
