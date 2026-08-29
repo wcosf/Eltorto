@@ -22,7 +22,6 @@ public class OrdersController : BaseApiController
     /// </summary>
     [HttpPost]
     [EnableRateLimiting("StrictPolicy")]
-    [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateOrderDto createDto, CancellationToken cancellationToken)

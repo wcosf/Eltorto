@@ -71,7 +71,7 @@ export interface OrderRequest {
   customCakeDescription?: string;
   fillingId?: number;
   weight?: number;
-  deliveryDate?: Date;
+  deliveryDate?: string;
   deliveryAddress?: string;
   comment?: string;
 }
@@ -120,6 +120,11 @@ export class ApiService {
     }
 
     return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/paged`, { params });
+  }
+
+  // All cakes (public catalog)
+  getAvailableCakes(): Observable<Cake[]> {
+    return this.http.get<Cake[]>(`${this.apiUrl}/cakes`);
   }
 
   // Featured cakes

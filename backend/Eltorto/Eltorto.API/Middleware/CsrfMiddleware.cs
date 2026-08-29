@@ -51,5 +51,6 @@ public class CsrfMiddleware
     private static bool IsExcludedPath(string path) =>
         string.Equals(path, "/api/auth/login", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(path, "/api/auth/register", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(path, "/api/auth/refresh", StringComparison.OrdinalIgnoreCase);
+        string.Equals(path, "/api/auth/refresh", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(path, "/api/orders", StringComparison.OrdinalIgnoreCase);
 }

@@ -1,5 +1,4 @@
 <div class="order-page">
-  <!-- HERO -->
   <section class="order-hero">
     <div class="order-hero-bg"></div>
 
@@ -15,7 +14,6 @@
       </div>
     </div>
 
-    <!-- ВОЛНА -->
     <div class="order-wave">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
         <path
@@ -25,51 +23,304 @@
     </div>
   </section>
 
-  <!-- КОНТЕНТ -->
-  <div class="content-container">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 mx-auto animate-on-scroll">
+  <div class="container">
+    <div class="order-layout">
 
-          <div class="contact-message text-center p-5 rounded shadow-sm">
-            <i class="bi bi-cake2" style="font-size: 3rem;"></i>
+      <div class="order-form-card animate-on-scroll">
+        <div class="form-header">
+          <div class="form-header-icon">
+            <i class="bi bi-cake2"></i>
+          </div>
+          <div>
+            <h1 class="form-title">Форма заказа</h1>
+            <p class="form-subtitle">Заполните форму, и мы свяжемся с вами для подтверждения деталей</p>
+          </div>
+        </div>
 
-            <h3 class="mt-3 mb-3">Свяжитесь с нами</h3>
+        <div *ngIf="successMessage" class="form-message form-success">
+          <i class="bi bi-check-circle"></i>
+          <span>{{ successMessage }}</span>
+        </div>
+        <div *ngIf="errorMessage" class="form-message form-error">
+          <i class="bi bi-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
 
-            <p class="mb-4">
-              Выберите удобный способ связи, и мы с радостью поможем вам создать торт, <br>
-              который запомнится надолго
-            </p>
-
-            <div class="contact-info">
-              <div class="row justify-content-center">
-
-                <div class="col-md-6 mb-3 animate-on-scroll">
-                  <div class="contact-item p-3 rounded">
-                    <i class="bi bi-telephone-fill"></i>
-                    <p class="mt-2 mb-0">
-                      <strong>Телефон</strong><br>
-                      <a href="tel:+79139872554">+7 913 987 2554</a>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="col-md-6 mb-3 animate-on-scroll">
-                  <div class="contact-item p-3 rounded">
-                    <i class="bi bi-envelope-fill"></i>
-                    <p class="mt-2 mb-0">
-                      <strong>Email</strong><br>
-                      <a href="mailto:79139872554&#64;yandex.ru">79139872554&#64;yandex.ru</a>
-                    </p>
-                  </div>
-                </div>
-
+        <form (ngSubmit)="onSubmit()" novalidate>
+          <div class="form-section">
+            <h3 class="section-title">Ваши контактные данные</h3>
+            <div class="form-row">
+              <div class="form-field" [class.invalid]="showNameError">
+                <label for="customerName">Ваше имя <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="customerName"
+                  name="customerName"
+                  placeholder="Введите ваше имя"
+                  [(ngModel)]="orderData.customerName"
+                  (blur)="markTouched('name')">
+                <span class="field-error-text" *ngIf="showNameError">Введите ваше имя (минимум 2 символа)</span>
+              </div>
+              <div class="form-field" [class.invalid]="showPhoneError">
+                <label for="customerPhone">Телефон <span class="required">*</span></label>
+                <input
+                  type="tel"
+                  id="customerPhone"
+                  name="customerPhone"
+                  placeholder="Введите номер телефона"
+                  [(ngModel)]="orderData.customerPhone"
+                  (blur)="markTouched('phone')">
+                <span class="field-error-text" *ngIf="showPhoneError">Введите корректный номер телефона, например +7 913 987 25 54</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field" [class.invalid]="showEmailError">
+                <label for="customerEmail">E-mail</label>
+                <input
+                  type="email"
+                  id="customerEmail"
+                  name="customerEmail"
+                  placeholder="Введите e-mail"
+                  [(ngModel)]="orderData.customerEmail"
+                  (blur)="markTouched('email')">
+                <span class="field-error-text" *ngIf="showEmailError">Укажите корректный e-mail</span>
               </div>
             </div>
           </div>
 
+          <div class="form-section">
+            <h3 class="section-title">Информация о торте</h3>
+            <div class="form-row">
+              <div class="form-field" [class.invalid]="showCakeError">
+                <label for="cakeCombobox">Торт</label>
+                <div class="form-field-value">
+                  <div class="combobox">
+                    <input
+                      type="text"
+                      id="cakeCombobox"
+                      name="cakeCombobox"
+                      autocomplete="off"
+                      placeholder="Свой дизайн (или выберите торт)"
+                      [(ngModel)]="cakeSearch"
+                      (input)="onCakeInput()"
+                      (focus)="onCakeFocus()"
+                      (blur)="onCakeBlur()"
+                      (keydown)="onCakeKeyDown($event)">
+                    <i class="bi bi-chevron-down combobox-arrow"></i>
+                    <ul class="combobox-list" *ngIf="cakeDropdownOpen && cakeFiltered.length">
+                      <li
+                        *ngFor="let cake of cakeFiltered; let i = index"
+                        [class.active]="i === cakeActiveIndex"
+                        (mousedown)="selectCake(cake)">{{ cake.name }}</li>
+                    </ul>
+                  </div>
+                  <img
+                    *ngIf="selectedCakePreviewUrl"
+                    [src]="selectedCakePreviewUrl"
+                    [alt]="selectedCake?.name ?? ''"
+                    class="preview-thumb"
+                    (error)="onPreviewError($event)">
+                </div>
+                <span class="field-error-text" *ngIf="showCakeError">Выберите торт или укажите свой дизайн</span>
+              </div>
+              <div class="form-field" [class.invalid]="showDateError">
+                <label for="deliveryDate">Желаемая дата <span class="required">*</span></label>
+                <div class="date-picker">
+                  <input
+                    type="text"
+                    id="deliveryDate"
+                    name="deliveryDate"
+                    readonly
+                    [value]="selectedDateText"
+                    [class.placeholder]="!orderData.deliveryDate"
+                    placeholder="ДД.ММ.ГГГГ"
+                    (click)="toggleDatePicker()"
+                    (blur)="markTouched('date')">
+                  <i class="bi bi-calendar3 date-picker-icon" (click)="toggleDatePicker()"></i>
+                  <div class="date-picker-panel" *ngIf="datePickerOpen" (wheel)="onDateWheel($event)">
+                    <div class="date-picker-header">
+                      <button type="button" class="date-picker-nav" (click)="previousMonth()" aria-label="Предыдущий месяц">&#8249;</button>
+                      <span class="date-picker-title">{{ datePickerLabel }}</span>
+                      <button type="button" class="date-picker-nav" (click)="nextMonth()" aria-label="Следующий месяц">&#8250;</button>
+                    </div>
+                    <div class="date-picker-weekdays">
+                      <span *ngFor="let wd of weekdays" class="date-picker-weekday">{{ wd }}</span>
+                    </div>
+                    <div class="date-picker-grid">
+                      <button
+                        type="button"
+                        class="date-picker-day"
+                        *ngFor="let day of dateGridDays"
+                        [class.empty]="day === null"
+                        [class.disabled]="day !== null && isDateDisabled(day)"
+                        [class.selected]="day !== null && isSelectedDate(day)"
+                        [disabled]="day === null"
+                        (click)="day !== null && selectDate(day)">{{ day ?? '' }}</button>
+                    </div>
+                  </div>
+                </div>
+                <span class="field-error-text" *ngIf="showDateError">Выберите дату (не раньше сегодняшнего дня)</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="fillingCombobox">Начинка</label>
+                <div class="form-field-value">
+                  <div class="combobox">
+                    <input
+                      type="text"
+                      id="fillingCombobox"
+                      name="fillingCombobox"
+                      autocomplete="off"
+                      placeholder="Выберите начинку"
+                      [(ngModel)]="fillingSearch"
+                      (input)="onFillingInput()"
+                      (focus)="onFillingFocus()"
+                      (blur)="onFillingBlur()"
+                      (keydown)="onFillingKeyDown($event)">
+                    <i class="bi bi-chevron-down combobox-arrow"></i>
+                    <ul class="combobox-list" *ngIf="fillingDropdownOpen && fillingFiltered.length">
+                      <li
+                        *ngFor="let filling of fillingFiltered; let i = index"
+                        [class.active]="i === fillingActiveIndex"
+                        (mousedown)="selectFilling(filling)">{{ filling.name }}</li>
+                    </ul>
+                  </div>
+                  <img
+                    *ngIf="selectedFillingPreviewUrl"
+                    [src]="selectedFillingPreviewUrl"
+                    [alt]="selectedFilling?.name ?? ''"
+                    class="preview-thumb"
+                    (error)="onPreviewError($event)">
+                </div>
+              </div>
+              <div class="form-field" [class.invalid]="showWeightError">
+                <label for="weight">Вес торта (кг)</label>
+                <input
+                  type="number"
+                  id="weight"
+                  name="weight"
+                  placeholder="Например: 2"
+                  [(ngModel)]="orderData.weight"
+                  (blur)="markTouched('weight')">
+                <span class="field-error-text" *ngIf="showWeightError">Вес должен быть от 0 до 100 кг</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="deliveryAddress">Адрес доставки</label>
+                <input
+                  type="text"
+                  id="deliveryAddress"
+                  name="deliveryAddress"
+                  placeholder="Укажите адрес доставки (необязательно)"
+                  [(ngModel)]="orderData.deliveryAddress">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Дизайн и оформление</h3>
+            <div class="form-field" [class.invalid]="showDescriptionError">
+              <textarea
+                id="customCakeDescription"
+                name="customCakeDescription"
+                rows="4"
+                placeholder="Опишите ваши пожелания по дизайну, цвету, декору, надписям и т.д."
+                [(ngModel)]="orderData.customCakeDescription"
+                (blur)="markTouched('description')"></textarea>
+              <span class="field-error-text" *ngIf="showDescriptionError">Текст не должен превышать 2000 символов</span>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Комментарий</h3>
+            <div class="form-field" [class.invalid]="showCommentError">
+              <textarea
+                id="comment"
+                name="comment"
+                rows="3"
+                placeholder="Любая дополнительная информация"
+                [(ngModel)]="orderData.comment"
+                (blur)="markTouched('comment')"></textarea>
+              <span class="field-error-text" *ngIf="showCommentError">Текст не должен превышать 1000 символов</span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isLoading">
+            <i class="bi bi-send"></i>
+            <span>Отправить заказ</span>
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <i class="bi bi-shield-check"></i>
+          <span>Мы не публикуем ваши личные данные</span>
         </div>
       </div>
+
+      <aside class="order-info animate-on-scroll">
+        <div class="info-section">
+          <h2 class="info-title">Как мы работаем</h2>
+          <ul class="steps-list">
+            <li class="step-item">
+              <span class="step-icon"><i class="bi bi-clipboard-check"></i></span>
+              <div class="step-text">
+                <h3>Вы оставляете заявку</h3>
+                <p>Заполните форму заказа или свяжитесь с нами любым удобным способом.</p>
+              </div>
+            </li>
+            <li class="step-item">
+              <span class="step-icon"><i class="bi bi-chat-dots"></i></span>
+              <div class="step-text">
+                <h3>Обсуждаем детали</h3>
+                <p>Мы учтем все пожелания и предложим лучшие варианты.</p>
+              </div>
+            </li>
+            <li class="step-item">
+              <span class="step-icon"><i class="bi bi-cake2"></i></span>
+              <div class="step-text">
+                <h3>Создаем ваш торт</h3>
+                <p>Готовим из лучших ингредиентов с любовью и вниманием к деталям.</p>
+              </div>
+            </li>
+            <li class="step-item">
+              <span class="step-icon"><i class="bi bi-truck"></i></span>
+              <div class="step-text">
+                <h3>Доставка и радость</h3>
+                <p>Аккуратно доставим торт к вашему празднику в нужное время.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h2 class="info-title">
+            <i class="bi bi-question-circle"></i>
+            Есть вопросы?
+          </h2>
+          <p class="info-text">Мы с радостью поможем вам с выбором и ответим на все вопросы!</p>
+          <ul class="contact-list">
+            <li>
+              <i class="bi bi-telephone"></i>
+              <a [href]="getPhoneLink(phone)">{{ phone }}</a>
+            </li>
+            <li>
+              <i class="bi bi-envelope"></i>
+              <a [href]="'mailto:' + email">{{ email }}</a>
+            </li>
+            <li>
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ address }}</span>
+            </li>
+            <li>
+              <i class="bi bi-clock"></i>
+              <span>Пн-Вс: {{ workingHours }}</span>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
     </div>
   </div>
 </div>

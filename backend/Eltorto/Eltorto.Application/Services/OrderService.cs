@@ -61,6 +61,11 @@ public class OrderService : IOrderService
     {
         var order = _mapper.Map<Order>(createDto);
 
+        if (order.DeliveryDate.HasValue)
+        {
+            order.DeliveryDate = DateTime.SpecifyKind(order.DeliveryDate.Value, DateTimeKind.Utc);
+        }
+
         if (createDto.CakeId.HasValue)
         {
             var cakeExists = await _unitOfWork.Cakes.ExistsAsync(c => c.Id == createDto.CakeId.Value, cancellationToken);
@@ -140,7 +145,9 @@ public class OrderService : IOrderService
         order.CustomCakeDescription = updateDto.CustomCakeDescription;
         order.FillingId = updateDto.FillingId;
         order.Weight = updateDto.Weight;
-        order.DeliveryDate = updateDto.DeliveryDate;
+        order.DeliveryDate = updateDto.DeliveryDate.HasValue
+            ? DateTime.SpecifyKind(updateDto.DeliveryDate.Value, DateTimeKind.Utc)
+            : updateDto.DeliveryDate;
         order.DeliveryAddress = updateDto.DeliveryAddress;
         order.Comment = updateDto.Comment;
 
