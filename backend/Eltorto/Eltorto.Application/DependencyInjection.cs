@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IPageService, PageService>();
         services.AddScoped<ISliderService, SliderService>();
         services.AddScoped<IContactSettingsService, ContactSettingsService>();
+        services.AddScoped<ISiteUrlProvider, SiteUrlProvider>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<CakePriceBackfillService>();
