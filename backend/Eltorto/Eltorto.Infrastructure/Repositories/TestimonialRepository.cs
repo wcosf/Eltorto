@@ -1,4 +1,4 @@
-﻿using Eltorto.Domain.Repositories;
+using Eltorto.Domain.Repositories;
 using Eltorto.Domain.Entities;
 using Eltorto.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -50,5 +50,14 @@ public class TestimonialRepository : Repository<Testimonial>, ITestimonialReposi
     public async Task<int> GetApprovedCountAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet.CountAsync(t => t.IsApproved, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Testimonial>> GetForHomePageAsync(int count, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(t => t.IsApproved && t.IsOnHomePage)
+            .OrderByDescending(t => t.Date)
+            .Take(count)
+            .ToListAsync(cancellationToken);
     }
 }

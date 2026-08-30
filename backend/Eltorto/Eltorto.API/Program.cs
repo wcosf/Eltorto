@@ -49,6 +49,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IOrderNotifier, MailKitOrderNotifier>();
+builder.Services.AddSingleton<IReviewNotifier, MailKitReviewNotifier>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Eltorto.Application.Validators.RegisterRequestValidator>();

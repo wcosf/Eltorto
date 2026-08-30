@@ -18,8 +18,12 @@ public class CreateTestimonialDtoValidator : AbstractValidator<CreateTestimonial
 
         RuleFor(x => x.Text)
             .NotEmpty().WithMessage("Текст отзыва обязателен")
-            .MinimumLength(10).WithMessage("Отзыв должен содержать не менее 10 символов")
+            .MinimumLength(3).WithMessage("Отзыв должен содержать не менее 3 символов")
             .MaximumLength(2000).WithMessage("Отзыв не должен превышать 2000 символов");
+
+        RuleFor(x => x.Rating)
+            .InclusiveBetween(1, 5).WithMessage("Оценка должна быть от 1 до 5")
+            .When(x => x.Rating.HasValue);
     }
 }
 

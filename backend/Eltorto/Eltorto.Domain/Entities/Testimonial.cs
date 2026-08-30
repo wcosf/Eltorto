@@ -1,4 +1,4 @@
-﻿namespace Eltorto.Domain.Entities;
+namespace Eltorto.Domain.Entities;
 
 public class Testimonial
 {
@@ -9,4 +9,6 @@ public class Testimonial
     public string Text { get; set; } = string.Empty;
     public string? Response { get; set; }
     public bool IsApproved { get; set; }
+    public int? Rating { get; set; }
+    public bool IsOnHomePage { get; set; }
 }

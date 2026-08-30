@@ -1,4 +1,4 @@
-﻿using Eltorto.Domain.Entities;
+using Eltorto.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,6 +36,12 @@ public class TestimonialConfiguration : IEntityTypeConfiguration<Testimonial>
 
         builder.Property(e => e.IsApproved)
             .HasColumnName("IsApproved");
+
+        builder.Property(e => e.Rating)
+            .HasColumnName("Rating");
+
+        builder.Property(e => e.IsOnHomePage)
+            .HasColumnName("IsOnHomePage");
 
         // Индексы
         builder.HasIndex(e => e.IsApproved)

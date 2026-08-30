@@ -1,4 +1,4 @@
-﻿using Eltorto.Application.DTOs;
+using Eltorto.Application.DTOs;
 using Eltorto.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -73,10 +73,19 @@ public class TestimonialsController : BaseApiController
         return Ok(testimonial);
     }
 
+    /// <summary>Gets testimonials shown on the home page.</summary>
+    [HttpGet("home")]
+    [ProducesResponseType(typeof(IEnumerable<TestimonialListDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHomePage([FromQuery] int count = 5, CancellationToken cancellationToken = default)
+    {
+        var testimonials = await _testimonialService.GetForHomePageAsync(count, cancellationToken);
+        return Ok(testimonials);
+    }
+
     /// <summary>Creates a new testimonial.</summary>
     [HttpPost]
     [EnableRateLimiting("TestimonialPolicy")]
-    [Authorize(Roles = "Admin, Customer")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateTestimonialDto createDto, CancellationToken cancellationToken)

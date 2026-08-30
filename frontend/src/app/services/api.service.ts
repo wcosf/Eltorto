@@ -40,6 +40,8 @@ export interface Testimonial {
   text: string;
   response?: string;
   isApproved: boolean;
+  rating?: number;
+  isOnHomePage: boolean;
 }
 
 export type OrderStatus = 'New' | 'Processing' | 'Completed' | 'Cancelled';
@@ -161,6 +163,10 @@ export class ApiService {
 
   getLatestTestimonials(count: number = 3): Observable<Testimonial[]> {
     return this.http.get<Testimonial[]>(`${this.apiUrl}/testimonials/latest?count=${count}`);
+  }
+
+  getHomePageTestimonials(count: number = 6): Observable<Testimonial[]> {
+    return this.http.get<Testimonial[]>(`${this.apiUrl}/testimonials/home?count=${count}`);
   }
 
   createTestimonial(testimonial: Partial<Testimonial>): Observable<Testimonial> {
@@ -365,6 +371,8 @@ export class ApiService {
             isApproved: item.isApproved ?? item.IsApproved,
             date: item.date ?? item.Date,
             email: item.email ?? item.Email,
+            rating: item.rating ?? item.Rating,
+            isOnHomePage: item.isOnHomePage ?? item.IsOnHomePage,
           }))
         }))
       );

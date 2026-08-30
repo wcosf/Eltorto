@@ -1,4 +1,4 @@
-﻿using Eltorto.Application.DTOs;
+using Eltorto.Application.DTOs;
 
 namespace Eltorto.Application.Interfaces.Services;
 
@@ -7,6 +7,7 @@ public interface ITestimonialService
     Task<TestimonialDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TestimonialListDto>> GetApprovedAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TestimonialListDto>> GetLatestAsync(int count, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TestimonialListDto>> GetForHomePageAsync(int count, CancellationToken cancellationToken = default);
     Task<PagedResultDto<TestimonialListDto>> GetPagedApprovedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     Task<PagedResultDto<TestimonialListDto>> GetPagedAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     Task<TestimonialDto> CreateAsync(CreateTestimonialDto createDto, CancellationToken cancellationToken = default);
