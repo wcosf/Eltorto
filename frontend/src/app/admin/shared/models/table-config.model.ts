@@ -12,13 +12,13 @@ export interface TableColumn<T = any> {
 }
 
 export interface TableAction<T = any> {
-  label: string;
-  icon?: string;
-  color?: 'primary' | 'accent' | 'warn';
+  label: string | ((row: T) => string);
+  icon?: string | ((row: T) => string);
+  color?: 'primary' | 'accent' | 'warn' | ((row: T) => 'primary' | 'accent' | 'warn');
   action: (row: T) => void;
   condition?: (row: T) => boolean;
   group?: string;
-  cssClass?: string;
+  cssClass?: string | ((row: T) => string);
 }
 
 export interface TableConfig<T = any> {

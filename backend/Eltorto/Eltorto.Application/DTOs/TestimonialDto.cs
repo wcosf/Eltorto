@@ -38,10 +38,16 @@ public class UpdateTestimonialDto
     public string Text { get; set; } = string.Empty;
     public string? Response { get; set; }
     public bool IsApproved { get; set; }
+    public int? Rating { get; set; }
     public bool IsOnHomePage { get; set; }
 }
 
 public class ApproveTestimonialDto
 {
     public bool IsApproved { get; set; }
+}
+
+public class SetHomePageDto
+{
+    public bool IsOnHomePage { get; set; }
 }

@@ -133,6 +133,23 @@ public class TestimonialsController : BaseApiController
         }
     }
 
+    [HttpPatch("{id:int}/home-page")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(TestimonialDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetHomePage(int id, [FromBody] SetHomePageDto dto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var testimonial = await _testimonialService.SetHomePageAsync(id, dto, cancellationToken);
+            return Ok(testimonial);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     /// <summary>Adds a response to a testimonial.</summary>
     [HttpPatch("{id:int}/response")]
     [Authorize(Roles = "Admin")]

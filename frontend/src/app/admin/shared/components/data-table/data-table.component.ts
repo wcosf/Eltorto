@@ -227,6 +227,23 @@ export class DataTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
     this.actionClick.emit({ action, row });
   }
 
+  resolveLabel(action: any, row: any): string {
+    return typeof action.label === 'function' ? action.label(row) : (action.label || '');
+  }
+
+  resolveIcon(action: any, row: any): string {
+    return typeof action.icon === 'function' ? action.icon(row) : (action.icon || 'more_vert');
+  }
+
+  resolveColor(action: any, row: any): 'primary' | 'accent' | 'warn' {
+    const c = typeof action.color === 'function' ? action.color(row) : action.color;
+    return c || 'primary';
+  }
+
+  resolveCss(action: any, row: any): string {
+    return typeof action.cssClass === 'function' ? action.cssClass(row) : (action.cssClass || '');
+  }
+
   getColumnValue(row: T, column: TableColumn<T>): string {
     const value = row[column.key as keyof T];
     if (column.format) {

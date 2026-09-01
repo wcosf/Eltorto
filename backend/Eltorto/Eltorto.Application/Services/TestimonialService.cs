@@ -169,6 +169,21 @@ public class TestimonialService : ITestimonialService
         return _mapper.Map<TestimonialDto>(testimonial);
     }
 
+    public async Task<TestimonialDto> SetHomePageAsync(int id, SetHomePageDto dto, CancellationToken cancellationToken = default)
+    {
+        var testimonial = await _unitOfWork.Testimonials.GetByIdAsync(id, cancellationToken);
+        if (testimonial == null)
+        {
+            throw new KeyNotFoundException($"Testimonial with id {id} not found");
+        }
+
+        testimonial.IsOnHomePage = dto.IsOnHomePage;
+        await _unitOfWork.Testimonials.UpdateAsync(testimonial, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return _mapper.Map<TestimonialDto>(testimonial);
+    }
+
     public async Task<TestimonialDto> AddResponseAsync(int id, string response, CancellationToken cancellationToken = default)
     {
         var testimonial = await _unitOfWork.Testimonials.GetByIdAsync(id, cancellationToken);

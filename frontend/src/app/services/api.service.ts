@@ -386,6 +386,10 @@ export class ApiService {
     return this.http.patch<Testimonial>(`${this.apiUrl}/testimonials/${id}/approve`, { isApproved });
   }
 
+  setTestimonialHomePage(id: number, isOnHomePage: boolean): Observable<Testimonial> {
+    return this.http.patch<Testimonial>(`${this.apiUrl}/testimonials/${id}/home-page`, { isOnHomePage });
+  }
+
   deleteTestimonial(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/testimonials/${id}`);
   }

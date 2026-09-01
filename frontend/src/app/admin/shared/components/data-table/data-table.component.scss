@@ -172,6 +172,14 @@
     vertical-align: middle;
     flex-shrink: 0;
   }
+
+  .home-on {
+    color: #2e7d32;
+  }
+
+  .home-off {
+    color: #d32f2f;
+  }
 }
 
 @keyframes highlightFade {

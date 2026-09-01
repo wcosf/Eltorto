@@ -120,8 +120,8 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (text.length < 10) {
-      this.toastr.error('Отзыв должен содержать не менее 10 символов');
+    if (text.length < 3) {
+      this.toastr.error('Отзыв должен содержать не менее 3 символов');
       return;
     }
 
