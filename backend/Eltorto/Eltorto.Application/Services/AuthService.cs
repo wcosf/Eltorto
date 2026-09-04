@@ -229,7 +229,8 @@ public class AuthService : IAuthService
         {
             UserName = "admin",
             Email = "admin@eltorto.ru",
-            Password = _configuration["AdminSettings:Password"] ?? "Admin123!",
+            Password = _configuration["AdminSettings:Password"]
+                ?? throw new InvalidOperationException("AdminSettings:Password is not configured. Cannot seed admin account."),
             FullName = "Administrator"
         };
 
