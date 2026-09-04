@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, Cake, ContactSettings, Filling, OrderRequest } from '../../services/api.service';
+import { RecaptchaService } from '../../services/recaptcha.service';
 
 const ORDER_FORM_STATE_KEY = 'orderFormState';
 const ORDER_FORM_TTL_MS = 20 * 60 * 1000;
@@ -291,7 +292,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       && !this.showCommentError;
   }
 
-  constructor(private apiService: ApiService, private route: ActivatedRoute) { }
+  constructor(private apiService: ApiService, private route: ActivatedRoute, private recaptchaService: RecaptchaService) { }
 
   ngOnInit(): void {
     const cakeParam = this.route.snapshot.queryParamMap.get('cake');
@@ -576,7 +577,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     elements.forEach(el => observer.observe(el));
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.attempted = true;
 
     if (!this.isValid()) {
@@ -587,26 +588,34 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const order: OrderRequest = {
-      ...this.orderData,
-      cakeId: !this.customOrder ? this.selectedCakeId : undefined,
-      fillingId: this.selectedFillingId
-    };
+    try {
+      const recaptchaToken = await this.recaptchaService.getToken('order');
 
-    this.apiService.createOrder(order).subscribe({
-      next: () => {
-        this.submitted = true;
-        this.successMessage = 'Ваш заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.';
-        this.isLoading = false;
-        this.clearFormState();
-        this.resetForm();
-      },
-      error: (error) => {
-        this.errorMessage = 'Произошла ошибка при отправке заказа. Пожалуйста, попробуйте позже.';
-        this.isLoading = false;
-        console.error('Order error:', error);
-      }
-    });
+      const order: OrderRequest = {
+        ...this.orderData,
+        cakeId: !this.customOrder ? this.selectedCakeId : undefined,
+        fillingId: this.selectedFillingId,
+        recaptchaToken
+      };
+
+      this.apiService.createOrder(order).subscribe({
+        next: () => {
+          this.submitted = true;
+          this.successMessage = 'Ваш заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.';
+          this.isLoading = false;
+          this.clearFormState();
+          this.resetForm();
+        },
+        error: (error) => {
+          this.errorMessage = 'Произошла ошибка при отправке заказа. Пожалуйста, попробуйте позже.';
+          this.isLoading = false;
+          console.error('Order error:', error);
+        }
+      });
+    } catch {
+      this.errorMessage = 'Не удалось проверить капчу. Попробуйте ещё раз.';
+      this.isLoading = false;
+    }
   }
 
   resetForm(): void {

@@ -24,6 +24,9 @@ public class CreateTestimonialDtoValidator : AbstractValidator<CreateTestimonial
         RuleFor(x => x.Rating)
             .InclusiveBetween(1, 5).WithMessage("Оценка должна быть от 1 до 5")
             .When(x => x.Rating.HasValue);
+
+        RuleFor(x => x.RecaptchaToken)
+            .NotEmpty().WithMessage("Капча обязательна");
     }
 }
 

@@ -9,11 +9,13 @@ namespace Eltorto.API.Controllers;
 public class OrdersController : BaseApiController
 {
     private readonly IOrderService _orderService;
+    private readonly IRecaptchaService _recaptchaService;
     private readonly ILogger<OrdersController> _logger;
 
-    public OrdersController(IOrderService orderService, ILogger<OrdersController> logger)
+    public OrdersController(IOrderService orderService, IRecaptchaService recaptchaService, ILogger<OrdersController> logger)
     {
         _orderService = orderService;
+        _recaptchaService = recaptchaService;
         _logger = logger;
     }
 
@@ -28,6 +30,12 @@ public class OrdersController : BaseApiController
     {
         try
         {
+            var isHuman = await _recaptchaService.VerifyTokenAsync(createDto.RecaptchaToken, cancellationToken);
+            if (!isHuman)
+            {
+                return BadRequest(new { error = "Проверка капчи не пройдена" });
+            }
+
             var order = await _orderService.CreateAsync(createDto, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
         }

@@ -48,6 +48,8 @@ services:
       - Smtp__From=${Smtp__From}
       - Smtp__UseSsl=${Smtp__UseSsl}
       - Smtp__BaseUrl=${Smtp__BaseUrl}
+      - Recaptcha__SecretKey=${RECAPTCHA_SECRET_KEY}
+      - Recaptcha__SiteKey=${RECAPTCHA_SITE_KEY}
     volumes:
       - ../storage:/app/storage
       - ../logs/api:/app/logs

@@ -44,6 +44,9 @@ public class CreateOrderDtoValidator : AbstractValidator<CreateOrderDto>
         RuleFor(x => x.Comment)
             .MaximumLength(1000).WithMessage("Комментарий не должен превышать 1000 символов")
             .When(x => !string.IsNullOrEmpty(x.Comment));
+
+        RuleFor(x => x.RecaptchaToken)
+            .NotEmpty().WithMessage("Капча обязательна");
     }
 }
 

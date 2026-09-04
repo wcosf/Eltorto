@@ -9,6 +9,12 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { RussianPaginatorIntl } from './app/core/russian-paginator-intl';
+import { ConfigService } from './app/services/config.service';
+import { APP_INITIALIZER } from '@angular/core';
+
+export function initializeConfig(configService: ConfigService) {
+  return () => configService.load();
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -23,6 +29,8 @@ bootstrapApplication(AppComponent, {
     }),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptor, multi: true },
-    { provide: MatPaginatorIntl, useClass: RussianPaginatorIntl }
+    { provide: MatPaginatorIntl, useClass: RussianPaginatorIntl },
+    ConfigService,
+    { provide: APP_INITIALIZER, useFactory: initializeConfig, deps: [ConfigService], multi: true }
   ]
 }).catch(err => console.error(err));

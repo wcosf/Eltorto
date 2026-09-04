@@ -33,6 +33,7 @@ public class CreateOrderDto
     public DateTime? DeliveryDate { get; set; }
     public string? DeliveryAddress { get; set; }
     public string? Comment { get; set; }
+    public string RecaptchaToken { get; set; } = string.Empty;
 }
 
 public class UpdateOrderStatusDto

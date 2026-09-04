@@ -9,11 +9,13 @@ namespace Eltorto.API.Controllers;
 public class TestimonialsController : BaseApiController
 {
     private readonly ITestimonialService _testimonialService;
+    private readonly IRecaptchaService _recaptchaService;
     private readonly ILogger<TestimonialsController> _logger;
 
-    public TestimonialsController(ITestimonialService testimonialService, ILogger<TestimonialsController> logger)
+    public TestimonialsController(ITestimonialService testimonialService, IRecaptchaService recaptchaService, ILogger<TestimonialsController> logger)
     {
         _testimonialService = testimonialService;
+        _recaptchaService = recaptchaService;
         _logger = logger;
     }
 
@@ -90,6 +92,12 @@ public class TestimonialsController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateTestimonialDto createDto, CancellationToken cancellationToken)
     {
+        var isHuman = await _recaptchaService.VerifyTokenAsync(createDto.RecaptchaToken, cancellationToken);
+        if (!isHuman)
+        {
+            return BadRequest(new { error = "Проверка капчи не пройдена" });
+        }
+
         var testimonial = await _testimonialService.CreateAsync(createDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = testimonial.Id }, testimonial);
     }

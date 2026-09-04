@@ -76,6 +76,7 @@ export interface OrderRequest {
   deliveryDate?: string;
   deliveryAddress?: string;
   comment?: string;
+  recaptchaToken?: string;
 }
 
 export interface PaginatedResponse<T> {

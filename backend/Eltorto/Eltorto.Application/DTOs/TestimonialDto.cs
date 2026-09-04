@@ -29,6 +29,7 @@ public class CreateTestimonialDto
     public string? Email { get; set; }
     public string Text { get; set; } = string.Empty;
     public int? Rating { get; set; }
+    public string RecaptchaToken { get; set; } = string.Empty;
 }
 
 public class UpdateTestimonialDto

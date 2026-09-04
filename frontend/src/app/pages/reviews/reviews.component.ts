@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService, Testimonial } from '../../services/api.service';
+import { RecaptchaService } from '../../services/recaptcha.service';
 import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
 
 @Component({
@@ -29,7 +30,7 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
 
   private observer!: IntersectionObserver;
 
-  constructor(private apiService: ApiService, private toastr: ToastrService) {}
+  constructor(private apiService: ApiService, private toastr: ToastrService, private recaptchaService: RecaptchaService) {}
 
   ngOnInit(): void {
     this.initObserver();
@@ -111,7 +112,7 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
     return this.hoverRating ?? this.formModel.rating ?? 0;
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     const name = this.formModel.author.trim();
     const text = this.formModel.text.trim();
 
@@ -125,28 +126,36 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const payload: Partial<Testimonial> = {
-      author: name,
-      text,
-      rating: this.formModel.rating ?? undefined
-    };
-
     this.isSubmitting = true;
 
-    this.apiService.createTestimonial(payload).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.submitted = true;
-        this.formModel = { author: '', text: '', rating: null };
-        this.hoverRating = null;
-        setTimeout(() => {
-          this.submitted = false;
-        }, 5000);
-      },
-      error: () => {
-        this.isSubmitting = false;
-        this.toastr.error('Не удалось отправить отзыв. Попробуйте ещё раз');
-      }
-    });
+    try {
+      const recaptchaToken = await this.recaptchaService.getToken('review');
+
+      const payload: Partial<Testimonial> & { recaptchaToken?: string } = {
+        author: name,
+        text,
+        rating: this.formModel.rating ?? undefined,
+        recaptchaToken
+      };
+
+      this.apiService.createTestimonial(payload).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.submitted = true;
+          this.formModel = { author: '', text: '', rating: null };
+          this.hoverRating = null;
+          setTimeout(() => {
+            this.submitted = false;
+          }, 5000);
+        },
+        error: () => {
+          this.isSubmitting = false;
+          this.toastr.error('Не удалось отправить отзыв. Попробуйте ещё раз');
+        }
+      });
+    } catch {
+      this.isSubmitting = false;
+      this.toastr.error('Не удалось проверить капчу. Попробуйте ещё раз');
+    }
   }
 }
