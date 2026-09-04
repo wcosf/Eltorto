@@ -1,4 +1,4 @@
-﻿using Eltorto.Domain.Entities;
+using Eltorto.Domain.Entities;
 
 namespace Eltorto.Domain.Repositories;
 
@@ -9,4 +9,5 @@ public interface ITestimonialRepository : IRepository<Testimonial>
     Task<IReadOnlyList<Testimonial>> GetPagedApprovedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Testimonial>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     Task<int> GetApprovedCountAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Testimonial>> GetForHomePageAsync(int count, CancellationToken cancellationToken = default);
 }

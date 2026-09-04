@@ -147,7 +147,7 @@ public class TestimonialsTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task CreateTestimonial_WithoutToken_ReturnsUnauthorized()
+    public async Task CreateTestimonial_WithoutToken_ReturnsCreated()
     {
         var createDto = new CreateTestimonialDto
         {
@@ -155,7 +155,7 @@ public class TestimonialsTests : IntegrationTestBase
             Text = "Отзыв без токена"
         };
         var response = await Client.PostAsJsonAsync("/api/testimonials", createDto);
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Fact]

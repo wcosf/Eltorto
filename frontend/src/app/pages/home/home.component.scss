@@ -411,6 +411,21 @@
     flex: 1;
   }
 
+  .testimonial-stars {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 1rem;
+
+    i {
+      color: #e0e0e0;
+      font-size: 0.95rem;
+
+      &.filled {
+        color: #DE5D83;
+      }
+    }
+  }
+
   .testimonial-author {
     border-top: 1px solid rgba($rose-dark, 0.5);
     padding-top: 1rem;

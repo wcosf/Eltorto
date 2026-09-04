@@ -1,5 +1,12 @@
 @use '../../../styles.scss' as *;
 
+$wine: #742C40;
+$accent: #DE5D83;
+$accent-alt: #E56B93;
+$main-text: #333333;
+$placeholder: #B3B3B3;
+$form-bg: #FDF1F4;
+
 .reviews-page {
   overflow-x: hidden;
   width: 100%;
@@ -11,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, $rose-soft 0%, $rose-medium 100%) !important;
+  background: linear-gradient(135deg, $rose-soft 0%, $rose-medium 100%);
   width: 100%;
   margin-top: -8px;
   padding: 3rem 0;
@@ -76,41 +83,281 @@
   z-index: 1;
 }
 
+.reviews-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 40px;
+  align-items: start;
+}
+
+.reviews-heading {
+  margin-bottom: 2rem;
+
+  .reviews-title {
+    font-family: $font-serif;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    color: $wine;
+    margin-bottom: 0.5rem;
+
+    &::after {
+      content: none;
+    }
+  }
+
+  .reviews-subtitle {
+    color: #8a8a8a;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
 .reviews-grid {
-  column-count: 3;
-  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.review-card-wrap {
+  height: 100%;
+  min-width: 0;
 }
 
 .review-card {
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba($rose-soft, 0.3);
-  background: linear-gradient(135deg, $rose-light 0%, $rose-soft 100%);
-  box-shadow: 0 8px 20px rgba($text-dark, 0.08);
+  background: white;
+  border: 1px solid $rose-medium;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba($text-dark, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
   }
 
   .quote-icon {
+    position: absolute;
+    top: 14px;
+    right: 16px;
     font-size: 1.5rem;
-    margin-bottom: 0.25rem;
-    color: $rose-medium;
+    color: $accent;
+    opacity: 0.35;
+    line-height: 1;
   }
 
   .review-text {
-    color: $text-dark;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
+    color: $main-text;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex: 1;
   }
 
-  .mt-3 {
-    margin-top: 0.5rem !important;
+  .review-meta {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.75rem;
+
+    .review-author {
+      color: $wine;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .review-date {
+      color: #999;
+      font-size: 0.8rem;
+      margin-top: 0.15rem;
+    }
+  }
+
+  .review-stars {
+    display: flex;
+    gap: 2px;
+
+    i {
+      color: #e0e0e0;
+      font-size: 0.95rem;
+
+      &.filled {
+        color: $accent;
+      }
+    }
+  }
+}
+
+.review-form-block {
+  background: $form-bg;
+  border-radius: 12px;
+  padding: 34px 36px;
+
+  .form-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    h3 {
+      font-family: $font-serif;
+      font-size: 1.6rem;
+      color: $wine;
+      margin: 0;
+    }
+
+    .form-heart-icon {
+      color: $accent;
+      font-size: 1.2rem;
+      transform: rotate(15deg);
+    }
+  }
+
+  .form-subtitle {
+    color: #777;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  .form-success {
+    background: #eafaf0;
+    border: 1px solid #b7e4c7;
+    color: #1a7f42;
+  }
+
+  .form-error {
+    background: #fdeef0;
+    border: 1px solid #f3c6cb;
+    color: #b3261e;
+  }
+
+  .form-field {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      color: $main-text;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      background: white;
+      border: 1px solid #ececec;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 0.95rem;
+      color: $main-text;
+      font-family: $font-primary;
+      transition: border-color 0.2s ease;
+
+      &::placeholder {
+        color: $placeholder;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $accent;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.5;
+    }
+  }
+
+  .rating-select {
+    display: flex;
+    gap: 6px;
+
+    .rating-star {
+      font-size: 1.5rem;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &.filled {
+        color: $accent;
+      }
+
+      &:hover {
+        transform: scale(1.15);
+      }
+    }
+  }
+
+  .submit-btn {
+    width: 100%;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background: $accent;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover:not(:disabled) {
+      background: $accent-alt;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  .form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+
+    i {
+      color: #999;
+      font-size: 0.95rem;
+    }
+
+    span {
+      color: #999;
+      font-size: 0.8rem;
+    }
   }
 }
 
@@ -126,9 +373,9 @@
 }
 
 @media (max-width: 992px) {
-  .reviews-grid {
-    column-count: 2;
-    column-gap: 0.75rem;
+  .reviews-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
   }
 
   .reviews-hero {
@@ -147,7 +394,10 @@
 
 @media (max-width: 576px) {
   .reviews-grid {
-    column-count: 1;
-    column-gap: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .review-form-block {
+    padding: 26px 20px;
   }
 }

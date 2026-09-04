@@ -142,6 +142,10 @@
           </svg>
         </div>
         <div class="testimonial-text" [innerHTML]="testimonial.text | sanitizeHtml"></div>
+        <div class="testimonial-stars" *ngIf="testimonial.rating">
+          <i *ngFor="let star of [1,2,3,4,5]" class="bi bi-star-fill"
+              [class.filled]="star <= (testimonial.rating || 0)"></i>
+        </div>
         <div class="testimonial-author">
           <strong>{{ testimonial.author }}</strong>
           <span>{{ testimonial.date | date:'dd.MM.yyyy' }}</span>

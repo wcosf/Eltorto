@@ -40,6 +40,8 @@ export interface Testimonial {
   text: string;
   response?: string;
   isApproved: boolean;
+  rating?: number;
+  isOnHomePage: boolean;
 }
 
 export type OrderStatus = 'New' | 'Processing' | 'Completed' | 'Cancelled';
@@ -71,9 +73,10 @@ export interface OrderRequest {
   customCakeDescription?: string;
   fillingId?: number;
   weight?: number;
-  deliveryDate?: Date;
+  deliveryDate?: string;
   deliveryAddress?: string;
   comment?: string;
+  recaptchaToken?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -122,6 +125,11 @@ export class ApiService {
     return this.http.get<PaginatedResponse<Cake>>(`${this.apiUrl}/cakes/paged`, { params });
   }
 
+  // All cakes (public catalog)
+  getAvailableCakes(): Observable<Cake[]> {
+    return this.http.get<Cake[]>(`${this.apiUrl}/cakes`);
+  }
+
   // Featured cakes
   getFeaturedCakes(): Observable<Cake[]> {
     return this.http.get<Cake[]>(`${this.apiUrl}/cakes/featured`);
@@ -156,6 +164,10 @@ export class ApiService {
 
   getLatestTestimonials(count: number = 3): Observable<Testimonial[]> {
     return this.http.get<Testimonial[]>(`${this.apiUrl}/testimonials/latest?count=${count}`);
+  }
+
+  getHomePageTestimonials(count: number = 6): Observable<Testimonial[]> {
+    return this.http.get<Testimonial[]>(`${this.apiUrl}/testimonials/home?count=${count}`);
   }
 
   createTestimonial(testimonial: Partial<Testimonial>): Observable<Testimonial> {
@@ -360,6 +372,8 @@ export class ApiService {
             isApproved: item.isApproved ?? item.IsApproved,
             date: item.date ?? item.Date,
             email: item.email ?? item.Email,
+            rating: item.rating ?? item.Rating,
+            isOnHomePage: item.isOnHomePage ?? item.IsOnHomePage,
           }))
         }))
       );
@@ -371,6 +385,10 @@ export class ApiService {
 
   approveTestimonial(id: number, isApproved: boolean): Observable<Testimonial> {
     return this.http.patch<Testimonial>(`${this.apiUrl}/testimonials/${id}/approve`, { isApproved });
+  }
+
+  setTestimonialHomePage(id: number, isOnHomePage: boolean): Observable<Testimonial> {
+    return this.http.patch<Testimonial>(`${this.apiUrl}/testimonials/${id}/home-page`, { isOnHomePage });
   }
 
   deleteTestimonial(id: number): Observable<void> {

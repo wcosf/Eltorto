@@ -1,4 +1,4 @@
-﻿namespace Eltorto.Application.DTOs;
+namespace Eltorto.Application.DTOs;
 
 public class TestimonialDto
 {
@@ -8,6 +8,8 @@ public class TestimonialDto
     public string Text { get; set; } = string.Empty;
     public string? Response { get; set; }
     public bool IsApproved { get; set; }
+    public int? Rating { get; set; }
+    public bool IsOnHomePage { get; set; }
 }
 
 public class TestimonialListDto
@@ -17,6 +19,8 @@ public class TestimonialListDto
     public string Author { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
     public bool IsApproved { get; set; }
+    public int? Rating { get; set; }
+    public bool IsOnHomePage { get; set; }
 }
 
 public class CreateTestimonialDto
@@ -24,6 +28,8 @@ public class CreateTestimonialDto
     public string Author { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string Text { get; set; } = string.Empty;
+    public int? Rating { get; set; }
+    public string RecaptchaToken { get; set; } = string.Empty;
 }
 
 public class UpdateTestimonialDto
@@ -33,9 +39,16 @@ public class UpdateTestimonialDto
     public string Text { get; set; } = string.Empty;
     public string? Response { get; set; }
     public bool IsApproved { get; set; }
+    public int? Rating { get; set; }
+    public bool IsOnHomePage { get; set; }
 }
 
 public class ApproveTestimonialDto
 {
     public bool IsApproved { get; set; }
+}
+
+public class SetHomePageDto
+{
+    public bool IsOnHomePage { get; set; }
 }

@@ -7,6 +7,7 @@ using Eltorto.Application;
 using Eltorto.Application.Interfaces.Services;
 using Eltorto.Application.Services;
 using Eltorto.Infrastructure;
+using Eltorto.Infrastructure.Services;
 using Serilog;
 using Serilog.Events;
 using Eltorto.Infrastructure.Data;
@@ -45,6 +46,10 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IOrderNotifier, MailKitOrderNotifier>();
+builder.Services.AddSingleton<IReviewNotifier, MailKitReviewNotifier>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Eltorto.Application.Validators.RegisterRequestValidator>();

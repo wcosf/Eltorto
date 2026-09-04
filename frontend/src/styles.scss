@@ -393,3 +393,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     color: #b34766 !important;
   }
 }
+
+.grecaptcha-badge {
+  width: 70px !important;
+  height: 60px !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  bottom: -100px !important;
+  right: 0 !important;
+}

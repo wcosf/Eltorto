@@ -1,7 +1,10 @@
-﻿using Eltorto.Domain.Abstractions;
+﻿using Eltorto.Application.Interfaces.Services;
+using Eltorto.Domain.Abstractions;
 using Eltorto.Domain.Repositories;
 using Eltorto.Infrastructure.Data;
+using Eltorto.Infrastructure.Models;
 using Eltorto.Infrastructure.Repositories;
+using Eltorto.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +36,10 @@ public static class DependencyInjection
         services.AddScoped<ISliderRepository, SliderRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.Configure<RecaptchaSettings>(configuration.GetSection("Recaptcha"));
+        services.AddHttpClient();
+        services.AddScoped<IRecaptchaService, RecaptchaService>();
 
         return services;
     }

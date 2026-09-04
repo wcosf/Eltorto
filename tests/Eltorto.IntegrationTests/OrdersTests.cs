@@ -60,15 +60,32 @@ public class OrdersTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task CreateOrder_WithoutToken_ReturnsUnauthorized()
+    public async Task CreateOrder_WithoutToken_ReturnsCreated()
     {
+        var cakesResponse = await Client.GetAsync("/api/cakes");
+        var cakes = await cakesResponse.Content.ReadFromJsonAsync<List<CakeListDto>>();
+        var cake = cakes!.FirstOrDefault(c => c.Name == "Наполеон");
+
         var createDto = new CreateOrderDto
         {
             CustomerName = "Тест",
-            CustomerPhone = "+7 (999) 000-00-00"
+            CustomerPhone = "+7 (999) 000-00-00",
+            CustomerEmail = "anonymous@example.com",
+            CakeId = cake?.Id,
+            FillingId = cake?.FillingId,
+            Weight = 1.5m,
+            DeliveryDate = DateTime.UtcNow.AddDays(5),
+            Comment = "Анонимный заказ"
         };
+
         var response = await Client.PostAsJsonAsync("/api/orders", createDto);
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var order = await response.Content.ReadFromJsonAsync<OrderDto>();
+        order.Should().NotBeNull();
+        order!.Id.Should().BeGreaterThan(0);
+        order.Status.Should().Be("New");
+        order.CustomerName.Should().Be("Тест");
+        order.CakeName.Should().Be("Наполеон");
     }
 
     [Fact]

@@ -111,6 +111,13 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
         cssClass: 'btn-reject'
       },
       {
+        label: (row) => (row.isApproved && row.isOnHomePage) ? 'Убрать с главной' : 'На главную',
+        icon: 'home',
+        cssClass: (row) => (row.isApproved && row.isOnHomePage) ? 'home-on' : 'home-off',
+        action: (row) => this.toggleHomePage(row),
+        group: 'approval'
+      },
+      {
         label: 'Редактировать',
         icon: 'edit',
         color: 'primary',
@@ -131,6 +138,18 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
       columns: [
         { key: 'id', label: 'ID', sortable: true, sticky: true },
         { key: 'author', label: 'Автор', sortable: true },
+        {
+          key: 'rating',
+          label: 'Рейтинг',
+          sortable: true,
+          format: (value) => value ? value + '/5' : '—'
+        },
+        {
+          key: 'isOnHomePage',
+          label: 'На главной',
+          sortable: false,
+          format: (value) => value ? 'Да' : 'Нет'
+        },
         {
           key: 'text',
           label: 'Текст',
@@ -231,6 +250,20 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
   }
 
 
+  toggleHomePage(testimonial: Testimonial): void {
+    const newStatus = !testimonial.isOnHomePage;
+
+    this.apiService.setTestimonialHomePage(testimonial.id, newStatus).subscribe({
+      next: (updated) => {
+        this.allTestimonials = this.allTestimonials.map(t => t.id === testimonial.id ? updated : t);
+        this.filteredTestimonials = this.filteredTestimonials.map(t => t.id === testimonial.id ? updated : t);
+        this.notification.success(`Отзыв ${newStatus ? 'выведен на главную' : 'убран с главной'}`);
+        this.recentActions.addAction({ type: 'update', entityType: 'отзыв', entityId: testimonial.id, entityName: testimonial.author, link: '/admin/testimonials' });
+      },
+      error: (err) => this.notification.error(this.extractErrorMessage(err))
+    });
+  }
+
   openCreateDialog(): void {
     const formConfig = this.getFormConfig();
     this.dialog.open(FormModalComponent, {
@@ -279,12 +312,31 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
         required: true,
         rows: 5,
         placeholder: 'Введите текст отзыва',
-        validators: [Validators.required, Validators.minLength(10), Validators.maxLength(2000)],
+        validators: [Validators.required, Validators.minLength(3), Validators.maxLength(2000)],
         validationMessages: {
           required: 'Текст отзыва обязателен',
-          minlength: 'Минимальная длина текста: 10 симв.',
+          minlength: 'Минимальная длина текста: 3 симв.',
           maxlength: 'Максимальная длина текста: 2000 симв.'
         }
+      },
+      {
+        key: 'rating',
+        label: 'Рейтинг',
+        type: 'select',
+        placeholder: 'Выберите оценку',
+        options: [
+          { value: 1, label: '1 звезда' },
+          { value: 2, label: '2 звезды' },
+          { value: 3, label: '3 звезды' },
+          { value: 4, label: '4 звезды' },
+          { value: 5, label: '5 звёзд' }
+        ]
+      },
+      {
+        key: 'isOnHomePage',
+        label: 'Показывать на главной',
+        type: 'checkbox',
+        defaultValue: false
       },
       {
         key: 'isApproved',
@@ -307,7 +359,8 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
     const payload = {
       Author: data.author,
       Text: data.text,
-      IsApproved: data.isApproved ?? false
+      IsApproved: data.isApproved ?? false,
+      Rating: data.rating === '' || data.rating === null || data.rating === undefined ? null : Number(data.rating)
     };
 
     this.apiService.createTestimonial(payload as any).subscribe({
@@ -326,7 +379,9 @@ export class TestimonialListComponent implements OnInit, OnDestroy {
       Id: id,
       Author: data.author,
       Text: data.text,
-      IsApproved: data.isApproved ?? false
+      IsApproved: data.isApproved ?? false,
+      Rating: data.rating === '' || data.rating === null || data.rating === undefined ? null : Number(data.rating),
+      IsOnHomePage: data.isOnHomePage ?? false
     };
 
     this.apiService.updateTestimonial(id, payload as any).subscribe({

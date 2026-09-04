@@ -54,18 +54,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.error = null;
 
-    const testimonialIds = [20, 11, 7];
-
     Promise.all([
       this.apiService.getFeaturedCakes().toPromise(),
       this.apiService.getAvailableFillings().toPromise(),
-      ...testimonialIds.map(id => this.apiService.getTestimonialById(id).toPromise())
+      this.apiService.getHomePageTestimonials().toPromise()
     ]).then(results => {
-      const [cakes, fillings, ...testimonials] = results;
+      const [cakes, fillings, testimonials] = results;
 
       this.featuredCakes = cakes || [];
       this.fillings = fillings || [];
-      this.testimonials = testimonials.filter(Boolean) as Testimonial[];
+      this.testimonials = testimonials || [];
 
       this.isLoading = false;
       setTimeout(() => this.checkVisibility(), 100);

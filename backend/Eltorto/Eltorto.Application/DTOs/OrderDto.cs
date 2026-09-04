@@ -10,6 +10,7 @@ public class OrderDto
     public int? CakeId { get; set; }
     public string? CakeName { get; set; }
     public string? CakeImageUrl { get; set; }
+    public string? FillingImageUrl { get; set; }
     public string? CustomCakeDescription { get; set; }
     public int? FillingId { get; set; }
     public string? FillingName { get; set; }
@@ -32,6 +33,7 @@ public class CreateOrderDto
     public DateTime? DeliveryDate { get; set; }
     public string? DeliveryAddress { get; set; }
     public string? Comment { get; set; }
+    public string RecaptchaToken { get; set; } = string.Empty;
 }
 
 public class UpdateOrderStatusDto

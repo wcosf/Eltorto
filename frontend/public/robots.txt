@@ -3,18 +3,12 @@
 User-agent: *
 Allow: /
 
-# Запрещаем индексацию админ-панели (если есть)
+# Запрещаем индексацию админ-панели
 Disallow: /admin/
 Disallow: /api/
+Disallow: /login
 
 # Запрещаем индексацию дублирующихся страниц
 Disallow: /?*
 
-# Основные правила
 Sitemap: https://eltorto.ru/sitemap.xml
-
-# Задержка для crawlers
-Crawl-delay: 5
-
-# Хост
-Host: https://eltorto.ru

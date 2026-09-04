@@ -37,6 +37,15 @@ services:
       - JwtSettings__Issuer=EltortoAPI
       - JwtSettings__Audience=EltortoClient
       - AdminSettings__Password=${ADMIN_PASSWORD}
+      - Smtp__Host=${Smtp__Host}
+      - Smtp__Port=${Smtp__Port}
+      - Smtp__UserName=${Smtp__UserName}
+      - Smtp__Password=${Smtp__Password}
+      - Smtp__From=${Smtp__From}
+      - Smtp__UseSsl=${Smtp__UseSsl}
+      - Smtp__BaseUrl=${Smtp__BaseUrl}
+      - Recaptcha__SecretKey=${RECAPTCHA_SECRET_KEY}
+      - Recaptcha__SiteKey=${RECAPTCHA_SITE_KEY}
     volumes:
       - ../storage:/app/storage
       - ../logs/api:/app/logs
