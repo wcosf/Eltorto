@@ -82,6 +82,11 @@
               <span>Спасибо! Ваш отзыв отправлен на модерацию</span>
             </div>
 
+            <div *ngIf="errorMessage" class="form-message form-error">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ errorMessage }}</span>
+            </div>
+
             <form (ngSubmit)="submit()" #reviewForm="ngForm">
               <div class="form-field">
                 <label for="review-name">Ваше имя</label>

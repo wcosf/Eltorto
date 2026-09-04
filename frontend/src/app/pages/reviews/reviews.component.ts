@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
 import { ApiService, Testimonial } from '../../services/api.service';
 import { RecaptchaService } from '../../services/recaptcha.service';
 import { SanitizeHtmlPipe } from '../../pipes/sanitize-html.pipe';
@@ -19,6 +18,7 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
   error: string | null = null;
   isSubmitting = false;
   submitted = false;
+  errorMessage = '';
   totalCount = 0;
   page = 1;
   pageSize = 9;
@@ -30,7 +30,7 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
 
   private observer!: IntersectionObserver;
 
-  constructor(private apiService: ApiService, private toastr: ToastrService, private recaptchaService: RecaptchaService) {}
+  constructor(private apiService: ApiService, private recaptchaService: RecaptchaService) {}
 
   ngOnInit(): void {
     this.initObserver();
@@ -116,13 +116,15 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
     const name = this.formModel.author.trim();
     const text = this.formModel.text.trim();
 
+    this.errorMessage = '';
+
     if (!name) {
-      this.toastr.error('Пожалуйста, укажите ваше имя');
+      this.errorMessage = 'Пожалуйста, укажите ваше имя';
       return;
     }
 
     if (text.length < 3) {
-      this.toastr.error('Отзыв должен содержать не менее 3 символов');
+      this.errorMessage = 'Отзыв должен содержать не менее 3 символов';
       return;
     }
 
@@ -142,6 +144,7 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
         next: () => {
           this.isSubmitting = false;
           this.submitted = true;
+          this.errorMessage = '';
           this.formModel = { author: '', text: '', rating: null };
           this.hoverRating = null;
           setTimeout(() => {
@@ -150,12 +153,12 @@ export class ReviewsComponent implements OnInit, AfterViewInit {
         },
         error: () => {
           this.isSubmitting = false;
-          this.toastr.error('Не удалось отправить отзыв. Попробуйте ещё раз');
+          this.errorMessage = 'Не удалось отправить отзыв. Попробуйте ещё раз';
         }
       });
     } catch {
       this.isSubmitting = false;
-      this.toastr.error('Не удалось проверить капчу. Попробуйте ещё раз');
+      this.errorMessage = 'Не удалось проверить капчу. Попробуйте ещё раз';
     }
   }
 }

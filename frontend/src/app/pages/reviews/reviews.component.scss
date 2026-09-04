@@ -244,6 +244,12 @@ $form-bg: #FDF1F4;
     color: #1a7f42;
   }
 
+  .form-error {
+    background: #fdeef0;
+    border: 1px solid #f3c6cb;
+    color: #b3261e;
+  }
+
   .form-field {
     margin-bottom: 1rem;
 
