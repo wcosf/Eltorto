@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService, Cake, ContactSettings, Filling, OrderRequest } from '../../services/api.service';
 
 const ORDER_FORM_STATE_KEY = 'orderFormState';
+const ORDER_FORM_TTL_MS = 20 * 60 * 1000;
 
 interface OrderFormState {
   customerName: string;
@@ -20,6 +21,7 @@ interface OrderFormState {
   cakeSearch: string;
   fillingSearch: string;
   customOrder: boolean;
+  timestamp: number;
 }
 
 @Component({
@@ -349,7 +351,8 @@ export class OrderComponent implements OnInit, OnDestroy {
       selectedFillingId: this.selectedFillingId,
       cakeSearch: this.cakeSearch,
       fillingSearch: this.fillingSearch,
-      customOrder: this.customOrder
+      customOrder: this.customOrder,
+      timestamp: Date.now()
     };
     localStorage.setItem(ORDER_FORM_STATE_KEY, JSON.stringify(state));
   }
@@ -360,6 +363,10 @@ export class OrderComponent implements OnInit, OnDestroy {
     try {
       const state = JSON.parse(raw) as OrderFormState;
       if (!state || typeof state !== 'object') return;
+      if (typeof state.timestamp !== 'number' || Date.now() - state.timestamp > ORDER_FORM_TTL_MS) {
+        this.clearFormState();
+        return;
+      }
       this.hasSavedState = true;
       const numericWeight = Number(state.weight);
       if (!Number.isNaN(numericWeight)) {
